@@ -212,6 +212,7 @@
   #viewEdit.locked .edit-only { display: none !important; }
   .actions { display: grid; gap: 10px; }
   .quick textarea { min-height: 96px; }
+  .quick textarea, #eText { overflow: hidden; }
   .quick .setTxt { margin-bottom: 10px; }
   .quick .sec2btn { margin-top: 10px; }
   .qInfo { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: var(--okBg); color: var(--okTx); font-size: 14px; line-height: 1.4; }
@@ -545,7 +546,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.6";
+  var APP_VERSION = "1.0.7";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -1777,6 +1778,9 @@
   }
   bindMic($("micText"), $("eText"), { mode: "text", big: true });
 
+  function autoGrow(e) { e.style.height = "auto"; e.style.height = (e.scrollHeight + 2) + "px"; }
+  function growAll() { autoGrow($("qText")); autoGrow($("eText")); }
+  ["qText", "eText"].forEach(function (id) { $(id).addEventListener("input", function () { autoGrow($(id)); }); });
   function openEditor(r) {
     stopRec();
     cur = r;
@@ -1798,6 +1802,7 @@
     renderSealInfo();
     $("eScroll").scrollTop = 0;
     show("viewEdit");
+    growAll();
   }
   function syncAll() {
     if (locked()) return;
@@ -1900,6 +1905,7 @@
     neu.forEach(function (id) { var e = $(id); e.classList.remove("neu"); void e.offsetWidth; e.classList.add("neu"); });
     [].slice.call($("matList").children, m0).concat([].slice.call($("arbList").children, a0)).forEach(function (e) { e.classList.add("neu"); });
     $("qText").value = "";
+    growAll();
     var info = $("qInfo");
     info.className = "qInfo on" + (teile.length ? "" : " leer");
     info.textContent = teile.length ? "Eingetragen: " + teile.join(" · ") + ". Bitte kurz drüberschauen." : "Nichts erkannt.";
@@ -1915,6 +1921,7 @@
     $("eTitel").value = cur.titel; $("eOrt").value = cur.ort; $("eDatum").value = cur.datum; $("eText").value = cur.text;
     renderMat(); renderArb(); updateSums(); touch();
     $("qText").value = o.roh;
+    growAll();
     quickUndo = null;
     $("qInfo").className = "qInfo";
   }
