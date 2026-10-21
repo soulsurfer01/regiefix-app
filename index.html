@@ -545,7 +545,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.2";
+  var APP_VERSION = "1.0.3";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -1067,6 +1067,17 @@
       .replace(/(\d)\s+(m²|m³)/g, "$1 $2");
   }
   function joinTxt(a, b) { b = String(b || "").trim(); if (!b) return a; return a ? a + " " + b : b; }
+  /* Bildschirm anlassen, solange die Spracheingabe laeuft */
+  var wl = null;
+  function wachAn() {
+    try {
+      if (navigator.wakeLock && !wl) navigator.wakeLock.request("screen").then(function (l) {
+        wl = l; l.addEventListener("release", function () { if (wl === l) wl = null; });
+      }, function () {});
+    } catch (e) {}
+  }
+  function wachAus() { try { if (wl) { var l = wl; wl = null; l.release(); } } catch (e) {} }
+  document.addEventListener("visibilitychange", function () { if (dict && document.visibilityState === "visible") wachAn(); });
   function stopRec() { if (dict) { try { dict.rec.stop(); } catch (e) {} } }
   function setMicState(btn, on, big) {
     btn.classList.toggle("rec", on);
@@ -1112,7 +1123,7 @@
     rec.lang = "de-DE";
     rec.continuous = opts.mode === "text";
     rec.interimResults = true;
-    rec.onstart = function () { setMicState(btn, true, opts.big); };
+    rec.onstart = function () { setMicState(btn, true, opts.big); wachAn(); };
     rec.onresult = function (ev) {
       var interim = "";
       for (var i = ev.resultIndex; i < ev.results.length; i++) {
@@ -1129,6 +1140,7 @@
       }
     };
     rec.onend = function () {
+      wachAus();
       setMicState(btn, false, opts.big);
       renderDict(d, "", true);
       if (dict === d) dict = null;
