@@ -545,7 +545,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.4";
+  var APP_VERSION = "1.0.5";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -1268,8 +1268,43 @@
     s = s.replace(/^(?:ausgeführte\s+)?arbeiten\b:?\s*/i, "");
     if (ortSeg) out.ort = gross(ortSeg);
     if (bauSeg) out.titel = gross(bauSeg);
+    /* Mehrere Eintraege ohne "und": nach "Menge + Einheit" beginnt ein neuer Eintrag */
+    function nachMenge(chunks) {
+      var res = [];
+      chunks.forEach(function (c) {
+        var W = c.split(/\s+/).filter(Boolean).map(function (x) { return { w: x, l: x.toLowerCase(), p: false }; });
+        if (!W.length) return;
+        var z0 = zahlBei(W, 0);
+        if (z0) {
+          var st = 0;
+          for (var k = z0.n; k < W.length; k++) {
+            var zk = zahlBei(W, k);
+            if (zk && einheitBei(W, k + zk.n) && k > st) { res.push(W.slice(st, k).map(function (x) { return x.w; }).join(" ")); st = k; k += zk.n; }
+          }
+          res.push(W.slice(st).map(function (x) { return x.w; }).join(" "));
+          return;
+        }
+        var start = 0, i = 1;
+        while (i < W.length) {
+          var z = zahlBei(W, i);
+          if (z) {
+            var eh = einheitBei(W, i + z.n), len = eh ? eh.n : (W[i + z.n] && STUNDE.test(W[i + z.n].l) ? 1 : 0);
+            if (len) {
+              var ende = i + z.n + len;
+              if (ende < W.length) {
+                res.push(W.slice(start, ende).map(function (x) { return x.w; }).join(" "));
+                start = ende; i = ende + 1; continue;
+              }
+            }
+          }
+          i++;
+        }
+        res.push(W.slice(start).map(function (x) { return x.w; }).join(" "));
+      });
+      return res;
+    }
     if (matSeg) {
-      matSeg.split(/\s*(?:,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i).forEach(function (it) {
+      nachMenge(matSeg.split(/\s*(?:,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i)).forEach(function (it) {
         it = it.replace(/^(?:noch|dazu|außerdem|mit|ca\.?|circa|etwa)\s+/i, "").trim();
         if (!it) return;
         var sh = /^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:stunden|stunde|std)\.?$/i.exec(it);
