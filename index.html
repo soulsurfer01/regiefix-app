@@ -545,7 +545,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.1";
+  var APP_VERSION = "1.0.2";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -910,7 +910,7 @@
   }
   function zeigeLogoWarnung() {
     var w = $("logoWarn");
-    if (profil && !profil.firma.logo) {
+    if (profil && !profil.firma.logo && (profil.firma.logoFile || profil.firma.logoHash || profil.firma.logoFehler)) {
       $("logoWarnTxt").textContent = "Firmenlogo fehlt. " + (profil.firma.logoFehler || "Bitte mit dem aktuellen QR-Code neu einrichten.");
       w.classList.add("on");
     } else w.classList.remove("on");
