@@ -545,7 +545,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.3";
+  var APP_VERSION = "1.0.4";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -1239,6 +1239,59 @@
       .replace(/\s+/g, " ").trim();
     var out = { titel: "", ort: "", text: "", material: [], arbeiter: [], tage: 0 };
     if (!s) return out;
+    /* Geraete (Fraese, Bagger ...) mit Stundenangabe gehoeren ins Materialfeld */
+    var GERAET = /^[a-zäöüß]*(?:fräse|absaugung|bagger|kran|gerüst|hebebühne|bühne|kompressor|rüttler|stampfer|mischer|bohrhammer|lader|maschine|gerät|schleifer|säge|flex|stromerzeuger|aggregat|pumpe|trockner|entfeuchter|leiter)$/;
+    function gross(x) { x = String(x || ""); return x.charAt(0).toUpperCase() + x.slice(1); }
+    /* Abschnitte mit Stichwort: "Ort ...", "Baustelle ...", "Material ..." */
+    function abschnitt(re) {
+      var mm = re.exec(s);
+      if (!mm) return "";
+      var von = mm.index + mm[1].length, inhalt = s.slice(mm.index + mm[0].length);
+      var ende = inhalt.length;
+      var m2 = /[.!?;]|\s(?:material|materialien|baustelle|ort|arbeitskräfte|arbeitskraft|personal|mitarbeiter|arbeiten|ausgeführte arbeiten)(?=[\s,.:;!?]|$)/i.exec(inhalt);
+      if (m2) ende = m2.index;
+      var ws = inhalt.slice(0, ende).split(" "), cut = ws.length;
+      for (var q = 0; q < ws.length; q++) {
+        if (ROLLE.test(ws[q].toLowerCase().replace(/,/g, ""))) {
+          cut = q;
+          if (q > 0 && /^(?:\d+(?:[.,]\d+)?|eine?n?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn)$/i.test(ws[q - 1])) cut = q - 1;
+          break;
+        }
+      }
+      var segTxt = ws.slice(0, cut).join(" ");
+      s = (s.slice(0, von) + " " + ws.slice(cut).join(" ") + inhalt.slice(ende)).replace(/\s+/g, " ").trim();
+      return segTxt.replace(/^[,:\s]+|[,\s]+$/g, "");
+    }
+    var ortSeg = abschnitt(/(^|[.!?;]\s*|,\s*)ort\b:?\s*/i);
+    var bauSeg = abschnitt(/(^|[.!?;]\s*|,\s*)baustelle\b:?\s*/i);
+    var matSeg = abschnitt(/(^|[\s,.;!?])(?:materialien|material|materialverbrauch)\b:?\s*/i);
+    s = s.replace(/^(?:ausgeführte\s+)?arbeiten\b:?\s*/i, "");
+    if (ortSeg) out.ort = gross(ortSeg);
+    if (bauSeg) out.titel = gross(bauSeg);
+    if (matSeg) {
+      matSeg.split(/\s*(?:,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i).forEach(function (it) {
+        it = it.replace(/^(?:noch|dazu|außerdem|mit|ca\.?|circa|etwa)\s+/i, "").trim();
+        if (!it) return;
+        var sh = /^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:stunden|stunde|std)\.?$/i.exec(it);
+        if (sh && sh[1]) { out.material.push({ n: gross(sh[1]), m: fmtNum(num(sh[2])) + " Std" }); return; }
+        var W = it.split(/\s+/).map(function (x) { return { w: x, l: x.toLowerCase(), p: false }; });
+        var z = zahlBei(W, 0), menge = "", nameW = W;
+        if (!z) {
+          for (var pk = 1; pk < W.length; pk++) {
+            var zh = zahlBei(W, pk);
+            if (zh) { var eh2 = einheitBei(W, pk + zh.n); if (eh2 && pk + zh.n + eh2.n === W.length) { menge = fmtNum(zh.v) + " " + (zh.v === 1 ? eh2.e[0] : eh2.e[1]); nameW = W.slice(0, pk); break; } }
+          }
+        }
+        if (z) {
+          var eh = einheitBei(W, z.n);
+          if (eh) { menge = fmtNum(z.v) + " " + (z.v === 1 ? eh.e[0] : eh.e[1]); nameW = W.slice(z.n + eh.n); }
+          else { menge = fmtNum(z.v) + " Stk."; nameW = W.slice(z.n); }
+        }
+        var nm = nameW.map(function (x) { return x.w; }).join(" ").replace(/^(?:der|die|das|den|dem)\s+/i, "");
+        if (nm) out.material.push({ n: gross(nm), m: menge });
+      });
+    }
+    if (!s) return out;
     var used = [];
     function mark(a, b) { used.push([a, b]); }
     var m, re;
@@ -1324,8 +1377,26 @@
         if (ROLLE.test(T[q].l)) { found = q; break; }
       }
       var std = fmtNum(h.v);
-      if (found === null) { out.arbeiter.push({ n: "Arbeitskraft", a: "1", h: std }); return; }
+      if (found === null) {
+        var gs = h.a - 1, gw = [];
+        while (gs >= 0 && frei(gs) && !T[gs].p && gw.length < 6) { gw.unshift(T[gs].w); gs--; }
+        var gi = -1;
+        for (var gk = 0; gk < gw.length; gk++) { if (GERAET.test(gw[gk].toLowerCase())) { gi = gk; break; } }
+        if (gi >= 0) {
+          nimm(gs + 1 + gi, h.a);
+          out.material.push({ n: gross(gw.slice(gi).join(" ")), m: std + " Std" });
+          return;
+        }
+        out.arbeiter.push({ n: "Arbeitskraft", a: "1", h: std });
+        return;
+      }
       var rz = rolleMitZahl(found);
+      if (frei(rz.a - 1) && T[rz.a - 1] && T[rz.a - 1].l === "oder" && T[rz.a - 2] && ROLLE.test(T[rz.a - 2].l)) {
+        var rz0 = rolleMitZahl(rz.a - 2);
+        if (rz.cnt === null) rz.cnt = rz0.cnt;
+        nimm(rz0.a, rz.a);
+        rz.a = rz0.a;
+      }
       var gruppe = [rz];
       nimm(rz.a, h.a);
       var k2 = rz.a - 1;
