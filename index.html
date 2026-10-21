@@ -545,7 +545,7 @@
 <script>
 (function () {
   "use strict";
-  var APP_VERSION = "1.0.5";
+  var APP_VERSION = "1.0.6";
   var TEST_MAX = 3;
   var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
   var DEFAULT_COLOR = "#185FA5";
@@ -1269,6 +1269,17 @@
     if (ortSeg) out.ort = gross(ortSeg);
     if (bauSeg) out.titel = gross(bauSeg);
     /* Mehrere Eintraege ohne "und": nach "Menge + Einheit" beginnt ein neuer Eintrag */
+    /* "Fraese plus Absaugung 1 Stunde": Geraet + Geraet mit gemeinsamer Stundenangabe bleiben ein Eintrag */
+    function zusammen(parts) {
+      var out = [parts[0]];
+      for (var i = 1; i < parts.length; i += 2) {
+        var sep = parts[i], nxt = parts[i + 1] || "", last = out[out.length - 1];
+        var gerLast = last.toLowerCase().split(/\s+/).some(function (w) { return GERAET.test(w); });
+        if (/^(?:und|plus|sowie)$/i.test(sep) && gerLast && !/\d/.test(last) && /^\D*\d+(?:[.,]\d+)?\s*(?:stunden|stunde|std)\b/i.test(nxt)) out[out.length - 1] = last + " " + sep.toLowerCase() + " " + nxt;
+        else out.push(nxt);
+      }
+      return out;
+    }
     function nachMenge(chunks) {
       var res = [];
       chunks.forEach(function (c) {
@@ -1304,7 +1315,7 @@
       return res;
     }
     if (matSeg) {
-      nachMenge(matSeg.split(/\s*(?:,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i)).forEach(function (it) {
+      nachMenge(zusammen(matSeg.replace(/^(?:(?:materialien|material)\b[:,]?\s*)+/i, "").split(/\s*(,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i))).forEach(function (it) {
         it = it.replace(/^(?:noch|dazu|außerdem|mit|ca\.?|circa|etwa)\s+/i, "").trim();
         if (!it) return;
         var sh = /^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:stunden|stunde|std)\.?$/i.exec(it);
@@ -1876,12 +1887,12 @@
     if (r.titel && !cur.titel.trim()) { cur.titel = r.titel; teile.push("Baustelle"); neu.push("eTitel"); }
     if (r.ort && !cur.ort.trim()) { cur.ort = r.ort; teile.push("Ort"); neu.push("eOrt"); }
     if (r.tage && cur.datum === todayISO()) { cur.datum = datumPlus(cur.datum, r.tage); teile.push(r.tage === -1 ? "Datum gestern" : "Datum vorgestern"); neu.push("eDatum"); }
-    if (r.text) { cur.text = cur.text.trim() ? cur.text.replace(/\s+$/, "") + "\n" + r.text : r.text; teile.push("Arbeiten"); neu.push("eText"); }
+    if (r.text && cur.text.indexOf(r.text) < 0) { cur.text = cur.text.trim() ? cur.text.replace(/\s+$/, "") + "\n" + r.text : r.text; teile.push("Arbeiten"); neu.push("eText"); }
     cur.material = cur.material.filter(function (m) { return (m.n || "").trim() || (m.m || "").trim(); });
     cur.arbeiter = cur.arbeiter.filter(function (w) { return (w.n || "").trim() || (w.a || "").trim() || (w.h || "").trim(); });
     var m0 = cur.material.length, a0 = cur.arbeiter.length;
-    r.material.forEach(function (m) { cur.material.push(m); });
-    r.arbeiter.forEach(function (w) { cur.arbeiter.push(w); });
+    r.material.forEach(function (m) { if (!cur.material.some(function (x) { return x.n === m.n && x.m === m.m; })) cur.material.push(m); });
+    r.arbeiter.forEach(function (w) { if (!cur.arbeiter.some(function (x) { return x.n === w.n && x.a === w.a && x.h === w.h; })) cur.arbeiter.push(w); });
     if (r.material.length) teile.push(r.material.length + (r.material.length === 1 ? " Material" : " Materialien"));
     if (r.arbeiter.length) teile.push(r.arbeiter.length + (r.arbeiter.length === 1 ? " Arbeitskraft" : " Arbeitskräfte"));
     $("eTitel").value = cur.titel; $("eOrt").value = cur.ort; $("eDatum").value = cur.datum; $("eText").value = cur.text;
