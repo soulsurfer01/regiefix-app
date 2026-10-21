@@ -1,0 +1,36 @@
+{
+  "name": "Regiefix",
+  "short_name": "Regiefix",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#185FA5",
+  "theme_color": "#185FA5",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "regiefix-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "regiefix-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "regiefix-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "regiefix-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "description": "Rapporte per Sprache, mit Unterschrift und Siegel – ohne Zettelwirtschaft."
+}
