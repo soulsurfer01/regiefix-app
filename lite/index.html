@@ -344,6 +344,19 @@
     line-height: 1.5;
   }
   .intropunkt { display: flex; gap: 12px; }
+  .kauf {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--blau);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .kauftext { flex: 1; min-width: 0; }
+  .kauftitel { font-size: 15px; font-weight: 600; }
+  .kaufsub { font-size: 12px; color: var(--text2); }
+  .kaufpreis { text-align: right; flex-shrink: 0; }
+  .kaufbetrag { font-size: 17px; font-weight: 600; }
   .intropunkt::before {
     content: "";
     flex-shrink: 0;
@@ -369,8 +382,19 @@
   <div class="introtext">
     <div class="intropunkt">Deine Regieberichte liegen nur auf diesem Handy. Löschst du die App, sind sie weg.</div>
     <div class="intropunkt">Wichtige Berichte schickst du dir als PDF oder druckst sie zuhause aus.</div>
-    <div class="intropunkt">Lite speichert bis zu 10 Berichte. Alte kannst du löschen, dann ist wieder Platz.</div>
-    <div class="intropunkt">Mehr Berichte, Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
+    <div class="intropunkt">Lite speichert bis zu 3 Berichte gratis. Alte kannst du löschen, dann ist wieder Platz.</div>
+    <div class="kauf">
+      <div class="kauftext">
+        <div class="kauftitel">Lite unbegrenzt</div>
+        <div class="kaufsub">Unbegrenzt Berichte speichern, einmalig</div>
+      </div>
+      <div class="kaufpreis">
+        <div class="kaufbetrag">4,99 €</div>
+        <div class="kaufsub">kommt mit der App</div>
+      </div>
+    </div>
+    <div class="intropunkt">Tippe oben rechts auf das Zahnrad und trage deinen Firmennamen ein. Er steht dann im PDF.</div>
+    <div class="intropunkt">Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
     <button class="haupt" id="introok" type="button">Verstanden</button>
   </div>
 </div>
@@ -416,9 +440,9 @@
     </div>
   </div>
 
-  <div class="zaehler"><span>Gespeicherte Berichte</span><b id="zaehlerzahl">0 von 10</b></div>
+  <div class="zaehler"><span>Gespeicherte Berichte</span><b id="zaehlerzahl">0 von 3</b></div>
   <button class="haupt neu" id="neu" type="button">+ Neuer Regiebericht</button>
-  <div class="limit" id="limitHinweis" hidden>Lite speichert bis zu 10 Berichte. Lösche einen alten Bericht, dann ist wieder Platz. Mehr Berichte gibt es mit Regiefix Pro.</div>
+  <div class="limit" id="limitHinweis" hidden>Lite speichert bis zu 3 Berichte. Lösche einen alten Bericht, dann ist wieder Platz. Unbegrenzt gibt es einmalig für 4,99 € mit der App.</div>
   <div id="liste"></div>
   <div class="leer" id="leer" hidden>Noch keine Regieberichte. Leg oben den ersten an.</div>
 
@@ -514,7 +538,7 @@
 (function () {
   var LOGO_PNG = 'data:image/png;base64,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';
   var SPEICHER = 'rflite-berichte';
-  var LIMIT = 10;
+  var LIMIT = 3;
   var wurzel = document.documentElement;
 
   function id(n) { return document.getElementById(n); }
