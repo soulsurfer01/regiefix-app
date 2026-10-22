@@ -4,8 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Regiefix Lite">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="regiefix-lite-180.png">
+<link rel="icon" type="image/png" href="regiefix-lite-192.png">
 <title>Regiefix Lite</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="../jspdf.umd.min.js"></script>
 <style>
   :root {
     --blau: #185FA5;
@@ -17,16 +24,30 @@
     --text2: #5A6B7D;
     --rand: #D5DEE8;
     --fehler: #B3261E;
+    --link: #185FA5;
+    --loesch: #A32D2D;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme]) {
       --bg: #0E1721;
       --karte: #13202E;
       --text: #EAF0F6;
       --text2: #9FB0C2;
       --rand: #27384A;
       --fehler: #FF8A80;
+      --link: #6FB1F0;
+      --loesch: #FF8A80;
     }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1721;
+    --karte: #13202E;
+    --text: #EAF0F6;
+    --text2: #9FB0C2;
+    --rand: #27384A;
+    --fehler: #FF8A80;
+    --link: #6FB1F0;
+    --loesch: #FF8A80;
   }
   * { box-sizing: border-box; }
   body {
@@ -36,28 +57,26 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 16px;
     line-height: 1.4;
+    -webkit-text-size-adjust: 100%;
   }
   .kopf {
     background: var(--blau);
-    padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
   }
   .logo {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.35);
   }
-  .logo svg { width: 24px; height: 24px; }
   .titel { color: #fff; font-size: 18px; font-weight: 600; line-height: 1.2; }
   .unter { color: #B5D4F4; font-size: 13px; }
+  .rechts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .lite {
-    margin-left: auto;
     background: var(--gelb);
     color: var(--dunkel);
     font-size: 12px;
@@ -75,7 +94,47 @@
     flex-direction: column;
     gap: 12px;
   }
+  .zahn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+  }
+  .zahn svg { width: 20px; height: 20px; display: block; margin: 0 auto; }
+  .einst {
+    max-width: 560px;
+    margin: 12px auto 0;
+    padding: 0 16px;
+  }
+  .einstlabel { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+  .modi { display: flex; gap: 6px; }
+  .modi button {
+    flex: 1;
+    height: 34px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+  }
+  .modi button.aktiv {
+    background: var(--blau);
+    border-color: var(--blau);
+    color: #fff;
+  }
   .zeile { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kraft {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) 40px;
+    gap: 8px;
+  }
+  .kraftkopf { margin-bottom: 4px; }
+  .kraftkopf label { margin: 0; }
+  #kraefte { display: flex; flex-direction: column; gap: 8px; }
   label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 4px; }
   input, textarea {
     width: 100%;
@@ -96,29 +155,128 @@
     font: inherit;
     font-size: 16px;
     font-weight: 600;
+    cursor: pointer;
+  }
+  button:active { transform: scale(0.98); }
+  .haupt {
     color: #fff;
     background: var(--blau);
     border: none;
     border-radius: 12px;
     height: 48px;
-    cursor: pointer;
   }
-  button:active { transform: scale(0.98); }
+  .plus {
+    width: 100%;
+    height: 42px;
+    margin-top: 8px;
+    font-size: 15px;
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 10px;
+  }
+  .weg {
+    width: 40px;
+    height: 100%;
+    min-height: 42px;
+    padding: 0;
+    color: var(--loesch);
+    background: transparent;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+  }
+  .weg svg { width: 18px; height: 18px; display: block; margin: 0 auto; }
+  .hinweis { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  [hidden] { display: none !important; }
+  .sbox {
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .skopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .stitel { font-size: 14px; font-weight: 500; }
+  .sknopf {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 10px;
+  }
+  .svor {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin-top: 8px;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 6px;
+  }
+  .sfeld { margin-top: 8px; }
+  .sleiste { display: flex; gap: 8px; margin-top: 8px; }
+  .sweg, .sfertig { height: 40px; font-size: 14px; border-radius: 10px; }
+  .sweg { flex: 1; color: var(--text); background: transparent; border: 1px solid var(--rand); }
+  .sfertig { flex: 2; color: #fff; background: var(--blau); border: none; }
+  .sig {
+    width: 100%;
+    aspect-ratio: 640 / 220;
+    display: block;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    touch-action: none;
+  }
   .fehler { color: var(--fehler); font-size: 13px; min-height: 18px; }
-  .fuss { text-align: center; font-size: 12px; color: var(--text2); margin-top: 12px; }
+  .hilfe { text-align: center; margin-top: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .hilfeknopf {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--link);
+    background: none;
+    border: none;
+    padding: 8px 12px;
+  }
+  .hilfebox {
+    text-align: left;
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .hilfebox[hidden] { display: none; }
+  .hilfebox ol { margin: 0; padding-left: 20px; }
 </style>
 </head>
 <body>
 
 <div class="kopf">
-  <div class="logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#F5A524" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"/></svg>
-  </div>
+  <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
+    <rect width="200" height="200" fill="#185FA5"/>
+    <path d="M44 52 H156 A14 14 0 0 1 170 66 V122 A14 14 0 0 1 156 136 H92 L62 160 V136 H44 A14 14 0 0 1 30 122 V66 A14 14 0 0 1 44 52 Z" fill="#FFFFFF"/>
+    <path d="M72 95 L92 115 L130 76" fill="none" stroke="#F5A524" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
   <div>
     <div class="titel">Regiefix</div>
     <div class="unter">Rapport als PDF</div>
   </div>
-  <div class="lite">Lite</div>
+  <div class="rechts">
+    <div class="lite">Lite</div>
+    <button class="zahn" id="zahn" type="button" aria-label="Einstellungen" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+    </button>
+  </div>
+</div>
+<div class="einst" id="einst" hidden>
+  <div class="einstlabel">Darstellung</div>
+    <div class="modi" id="modi">
+      <button type="button" data-m="hell">Hell</button>
+      <button type="button" data-m="dunkel">Dunkel</button>
+      <button type="button" data-m="auto">Automatisch</button>
+    </div>
 </div>
 
 <main>
@@ -141,37 +299,253 @@
       <label for="arbeiten">Ausgeführte Arbeiten</label>
       <textarea id="arbeiten" placeholder="Was wurde heute gemacht?"></textarea>
     </div>
-    <div class="zeile">
-      <div>
-        <label for="mitarbeiter">Mitarbeiter</label>
-        <input id="mitarbeiter" type="text" placeholder="Name" autocomplete="off">
+
+    <div>
+      <div class="kraft kraftkopf">
+        <label>Arbeitskraft</label>
+        <label>Stunden</label>
+        <span></span>
       </div>
-      <div>
-        <label for="stunden">Stunden</label>
-        <input id="stunden" type="text" inputmode="decimal" placeholder="8" autocomplete="off">
+      <div id="kraefte"></div>
+      <datalist id="arten">
+        <option value="Facharbeiter"></option>
+        <option value="Meister"></option>
+        <option value="Azubi"></option>
+      </datalist>
+      <button class="plus" id="plus" type="button">+ Arbeitskraft hinzufügen</button>
+      <div class="hinweis">Antippen und Facharbeiter, Meister oder Azubi wählen. Oder selbst eintippen.</div>
+    </div>
+
+    <div class="sbox" data-n="Auftraggeber">
+      <div class="skopf">
+        <span class="stitel">Unterschrift Auftraggeber</span>
+        <button class="sknopf" type="button">Unterschreiben</button>
+      </div>
+      <img class="svor" alt="Unterschrift Auftraggeber" hidden>
+      <div class="sfeld" hidden>
+        <canvas class="sig" width="640" height="220"></canvas>
+        <div class="sleiste">
+          <button class="sweg" type="button">Löschen</button>
+          <button class="sfertig" type="button">Fertig</button>
+        </div>
       </div>
     </div>
+    <div class="sbox" data-n="Auftragnehmer">
+      <div class="skopf">
+        <span class="stitel">Unterschrift Auftragnehmer</span>
+        <button class="sknopf" type="button">Unterschreiben</button>
+      </div>
+      <img class="svor" alt="Unterschrift Auftragnehmer" hidden>
+      <div class="sfeld" hidden>
+        <canvas class="sig" width="640" height="220"></canvas>
+        <div class="sleiste">
+          <button class="sweg" type="button">Löschen</button>
+          <button class="sfertig" type="button">Fertig</button>
+        </div>
+      </div>
+    </div>
+
     <div class="fehler" id="fehler"></div>
-    <button id="knopf" type="button">PDF erstellen</button>
+    <button class="haupt" id="knopf" type="button">PDF erstellen</button>
   </div>
-  <div class="fuss">Lite-Version · erstellt mit Regiefix</div>
+  <div class="hilfe">
+    <button class="hilfeknopf" id="hilfeknopf" type="button" aria-expanded="false">So geht's</button>
+    <div class="hilfebox" id="hilfebox" hidden>
+      <ol>
+        <li>Baustelle und Arbeiten eintragen.</li>
+        <li>Arbeitskräfte mit Stunden hinzufügen.</li>
+        <li>Beide unterschreiben, dann PDF erstellen.</li>
+        <li id="hilfehome">Auf den Home-Bildschirm: Teilen-Symbol, dann Zum Home-Bildschirm.</li>
+      </ol>
+    </div>
+  </div>
 </main>
 
 <script>
-  var datumFeld = document.getElementById('datum');
-  var heute = new Date();
-  datumFeld.value =
-    ('0' + heute.getDate()).slice(-2) + '.' +
-    ('0' + (heute.getMonth() + 1)).slice(-2) + '.' +
-    heute.getFullYear();
+(function () {
+  var wurzel = document.documentElement;
+
+  function speichern(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function laden(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  function modus(m) {
+    if (m === 'hell') wurzel.setAttribute('data-theme', 'light');
+    else if (m === 'dunkel') wurzel.setAttribute('data-theme', 'dark');
+    else wurzel.removeAttribute('data-theme');
+    var bs = document.querySelectorAll('#modi button');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].classList.toggle('aktiv', bs[i].getAttribute('data-m') === m);
+    }
+    speichern('rflite-modus', m);
+  }
+  var gespeichert = laden('rflite-modus');
+  modus(gespeichert === 'hell' || gespeichert === 'dunkel' ? gespeichert : 'auto');
+  var zahn = document.getElementById('zahn');
+  var einst = document.getElementById('einst');
+  zahn.addEventListener('click', function () {
+    var auf = einst.hasAttribute('hidden');
+    if (auf) einst.removeAttribute('hidden');
+    else einst.setAttribute('hidden', '');
+    zahn.setAttribute('aria-expanded', auf ? 'true' : 'false');
+  });
+  var mb = document.querySelectorAll('#modi button');
+  for (var k = 0; k < mb.length; k++) {
+    mb[k].addEventListener('click', function () { modus(this.getAttribute('data-m')); });
+  }
+
+  var hilfeKnopf = document.getElementById('hilfeknopf');
+  var hilfeBox = document.getElementById('hilfebox');
+  hilfeKnopf.addEventListener('click', function () {
+    var auf = hilfeBox.hasAttribute('hidden');
+    if (auf) hilfeBox.removeAttribute('hidden');
+    else hilfeBox.setAttribute('hidden', '');
+    hilfeKnopf.setAttribute('aria-expanded', auf ? 'true' : 'false');
+    hilfeKnopf.textContent = auf ? 'Schließen' : "So geht's";
+  });
+  var alsApp = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  if (alsApp) {
+    var homeZeile = document.getElementById('hilfehome');
+    if (homeZeile) homeZeile.parentNode.removeChild(homeZeile);
+  }
+
+  var h = new Date();
+  document.getElementById('datum').value =
+    ('0' + h.getDate()).slice(-2) + '.' + ('0' + (h.getMonth() + 1)).slice(-2) + '.' + h.getFullYear();
 
   var fehlerFeld = document.getElementById('fehler');
-  document.getElementById('baustelle').addEventListener('input', function () {
-    fehlerFeld.textContent = '';
+  document.getElementById('baustelle').addEventListener('input', function () { fehlerFeld.textContent = ''; });
+
+  var kraefte = document.getElementById('kraefte');
+  var muelleimer =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
+
+  function neueZeile() {
+    var z = document.createElement('div');
+    z.className = 'kraft';
+
+    var art = document.createElement('input');
+    art.type = 'text';
+    art.className = 'art';
+    art.setAttribute('list', 'arten');
+    art.placeholder = 'Facharbeiter, Meister, Azubi';
+    art.autocomplete = 'off';
+
+    var std = document.createElement('input');
+    std.type = 'text';
+    std.className = 'std';
+    std.inputMode = 'decimal';
+    std.placeholder = '8';
+    std.autocomplete = 'off';
+
+    var weg = document.createElement('button');
+    weg.type = 'button';
+    weg.className = 'weg';
+    weg.setAttribute('aria-label', 'Arbeitskraft löschen');
+    weg.innerHTML = muelleimer;
+    weg.addEventListener('click', function () {
+      if (kraefte.children.length > 1) {
+        kraefte.removeChild(z);
+      } else {
+        art.value = '';
+        std.value = '';
+      }
+    });
+
+    z.appendChild(art);
+    z.appendChild(std);
+    z.appendChild(weg);
+    kraefte.appendChild(z);
+    return art;
+  }
+  neueZeile();
+  document.getElementById('plus').addEventListener('click', function () {
+    neueZeile().focus();
   });
 
-  function wert(id) {
-    return document.getElementById(id).value.trim();
+  function unterschrift(box) {
+    var name = box.getAttribute('data-n');
+    var kopf = box.querySelector('.skopf');
+    var titel = box.querySelector('.stitel');
+    var knopf = box.querySelector('.sknopf');
+    var vor = box.querySelector('.svor');
+    var feld = box.querySelector('.sfeld');
+    var c = box.querySelector('canvas');
+    var x = c.getContext('2d');
+    x.lineWidth = 4;
+    x.lineCap = 'round';
+    x.lineJoin = 'round';
+    x.strokeStyle = '#13202E';
+    var malt = false;
+    var hat = false;
+
+    function pos(e) {
+      var r = c.getBoundingClientRect();
+      return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height];
+    }
+    c.addEventListener('pointerdown', function (e) {
+      malt = true;
+      var p = pos(e);
+      x.beginPath();
+      x.moveTo(p[0], p[1]);
+      x.lineTo(p[0] + 0.1, p[1] + 0.1);
+      x.stroke();
+      hat = true;
+      c.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    c.addEventListener('pointermove', function (e) {
+      if (!malt) return;
+      var p = pos(e);
+      x.lineTo(p[0], p[1]);
+      x.stroke();
+      e.preventDefault();
+    });
+    function ende() { malt = false; }
+    c.addEventListener('pointerup', ende);
+    c.addEventListener('pointercancel', ende);
+
+    knopf.addEventListener('click', function () {
+      kopf.setAttribute('hidden', '');
+      vor.setAttribute('hidden', '');
+      feld.removeAttribute('hidden');
+    });
+    box.querySelector('.sweg').addEventListener('click', function () {
+      x.clearRect(0, 0, c.width, c.height);
+      hat = false;
+    });
+    box.querySelector('.sfertig').addEventListener('click', function () {
+      feld.setAttribute('hidden', '');
+      kopf.removeAttribute('hidden');
+      if (hat) {
+        vor.src = c.toDataURL('image/png');
+        vor.removeAttribute('hidden');
+        knopf.textContent = 'Ändern';
+        titel.textContent = '\u2713 Unterschrift ' + name;
+      } else {
+        vor.setAttribute('hidden', '');
+        knopf.textContent = 'Unterschreiben';
+        titel.textContent = 'Unterschrift ' + name;
+      }
+    });
+    return {
+      gezeichnet: function () { return hat; },
+      bild: function () { return c.toDataURL('image/png'); }
+    };
+  }
+  var boxen = document.querySelectorAll('.sbox');
+  var sigGeber = unterschrift(boxen[0]);
+  var sigNehmer = unterschrift(boxen[1]);
+
+  function wert(id) { return document.getElementById(id).value.trim(); }
+
+  function zahl(s) {
+    var n = parseFloat(String(s).replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  }
+  function zahlText(n) {
+    return (Math.round(n * 100) / 100).toString().replace('.', ',');
   }
 
   function dateiname(baustelle, datum) {
@@ -181,39 +555,68 @@
     return 'Rapport-' + rein + '.pdf';
   }
 
-  document.getElementById('knopf').addEventListener('click', function () {
-    var baustelle = wert('baustelle');
-    if (!baustelle) {
-      fehlerFeld.textContent = 'Trag eine Baustelle ein.';
-      document.getElementById('baustelle').focus();
-      return;
-    }
-    if (!window.jspdf) {
-      fehlerFeld.textContent = 'Die PDF-Bibliothek ist nicht geladen. Prüf deine Verbindung und lad die Seite neu.';
-      return;
-    }
+  function pdfLaden(fertig) {
+    if (window.jspdf) { fertig(true); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = function () { fertig(!!window.jspdf); };
+    s.onerror = function () { fertig(false); };
+    document.head.appendChild(s);
+  }
 
+  function pdfBauen() {
+    var baustelle = wert('baustelle');
     var ort = wert('ort');
     var datum = wert('datum');
     var arbeiten = wert('arbeiten');
-    var mitarbeiter = wert('mitarbeiter');
-    var stunden = wert('stunden');
+
+    var leute = [];
+    var summe = 0;
+    var zeilen = kraefte.querySelectorAll('.kraft');
+    for (var i = 0; i < zeilen.length; i++) {
+      var a = zeilen[i].querySelector('.art').value.trim();
+      var s = zeilen[i].querySelector('.std').value.trim();
+      if (a || s) {
+        leute.push({ art: a || '–', std: s });
+        summe += zahl(s);
+      }
+    }
 
     var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
     var breite = 210;
     var rand = 18;
+    var unten = 275;
+    var y;
 
-    doc.setFillColor(24, 95, 165);
-    doc.rect(0, 0, breite, 28, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text('Rapport', rand, 18);
+    function kopfZeichnen() {
+      doc.setFillColor(24, 95, 165);
+      doc.rect(0, 0, breite, 28, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('Rapport', rand, 18);
+    }
+    function fussZeichnen() {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(120, 134, 150);
+      doc.text('Regiefix', rand, 288);
+    }
+    function platz(mm) {
+      if (y + mm > unten) {
+        fussZeichnen();
+        doc.addPage();
+        kopfZeichnen();
+        y = 42;
+      }
+    }
 
-    doc.setTextColor(19, 32, 46);
-    var y = 42;
+    kopfZeichnen();
+    y = 42;
 
     function feld(titel, text) {
+      var zl = doc.splitTextToSize(text || '–', breite - 2 * rand);
+      platz(12);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
       doc.setTextColor(90, 107, 125);
@@ -222,22 +625,77 @@
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
       doc.setTextColor(19, 32, 46);
-      var zeilen = doc.splitTextToSize(text || '–', breite - 2 * rand);
-      doc.text(zeilen, rand, y);
-      y += zeilen.length * 5.8 + 7;
+      for (var j = 0; j < zl.length; j++) {
+        platz(6);
+        doc.text(zl[j], rand, y);
+        y += 5.8;
+      }
+      y += 6;
     }
 
     feld('BAUSTELLE', baustelle);
     feld('ORT', ort);
     feld('DATUM', datum);
     feld('AUSGEFÜHRTE ARBEITEN', arbeiten);
-    feld('MITARBEITER', mitarbeiter);
-    feld('STUNDEN', stunden);
 
+    platz(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(90, 107, 125);
+    doc.text('ARBEITSKRAFT', rand, y);
+    doc.text('STUNDEN', breite - rand, y, { align: 'right' });
+    y += 3;
+    doc.setDrawColor(213, 222, 232);
+    doc.line(rand, y, breite - rand, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(19, 32, 46);
+    if (leute.length === 0) {
+      doc.text('–', rand, y);
+      y += 7;
+    }
+    for (var n = 0; n < leute.length; n++) {
+      platz(8);
+      doc.text(leute[n].art, rand, y);
+      doc.text(leute[n].std || '–', breite - rand, y, { align: 'right' });
+      y += 7;
+    }
+    if (leute.length > 0) {
+      platz(10);
+      doc.line(rand, y - 3, breite - rand, y - 3);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Summe', rand, y + 2);
+      doc.text(zahlText(summe), breite - rand, y + 2, { align: 'right' });
+      y += 12;
+    }
+
+    platz(48);
+    var sigBreite = 78;
+    var rechts = breite - rand - sigBreite;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(90, 107, 125);
+    doc.text('AUFTRAGGEBER', rand, y);
+    doc.text('AUFTRAGNEHMER', rechts, y);
+    y += 3;
+    if (sigGeber.gezeichnet()) {
+      doc.addImage(sigGeber.bild(), 'PNG', rand, y, sigBreite, sigBreite * 220 / 640);
+    }
+    if (sigNehmer.gezeichnet()) {
+      doc.addImage(sigNehmer.bild(), 'PNG', rechts, y, sigBreite, sigBreite * 220 / 640);
+    }
+    y += 28;
+    doc.setDrawColor(150, 160, 172);
+    doc.line(rand, y, rand + sigBreite, y);
+    doc.line(rechts, y, rechts + sigBreite, y);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(120, 134, 150);
-    doc.text('Erstellt mit Regiefix Lite', rand, 288);
+    doc.text('Unterschrift', rand, y + 4.5);
+    doc.text('Unterschrift', rechts, y + 4.5);
+
+    fussZeichnen();
 
     var name = dateiname(baustelle, datum);
     var blob = doc.output('blob');
@@ -248,7 +706,23 @@
     } else {
       doc.save(name);
     }
+  }
+
+  document.getElementById('knopf').addEventListener('click', function () {
+    if (!wert('baustelle')) {
+      fehlerFeld.textContent = 'Trag eine Baustelle ein.';
+      document.getElementById('baustelle').focus();
+      return;
+    }
+    pdfLaden(function (ok) {
+      if (!ok) {
+        fehlerFeld.textContent = 'Die PDF-Funktion ist nicht geladen. Prüf deine Verbindung und lad die Seite neu.';
+        return;
+      }
+      pdfBauen();
+    });
   });
+})();
 </script>
 </body>
 </html>
