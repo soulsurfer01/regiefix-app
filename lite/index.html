@@ -473,7 +473,7 @@
         <div class="kaufsub">kommt mit der App</div>
       </div>
     </div>
-    <div class="intropunkt">Tippe oben rechts auf das Zahnrad und trage deinen Firmennamen ein. Er steht dann im PDF.</div>
+    <div class="intropunkt">Tippe oben rechts auf das Zahnrad und trage deine Firmendaten ein. Sie stehen dann im PDF.</div>
     <div class="intropunkt">Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
     <label class="introhaken">
       <input type="checkbox" id="introhaken">
@@ -516,7 +516,13 @@
   <div class="einst" id="einst" hidden>
     <div class="einstlabel">Firmenname</div>
     <input id="firma" type="text" placeholder="Name deiner Firma" autocomplete="off">
-    <div class="hinweis">Steht oben im PDF. Die App merkt sich den Namen.</div>
+    <div class="einstlabel" style="margin-top: 8px;">Straße und Hausnummer</div>
+    <input id="firmastrasse" type="text" placeholder="Gartenweg 4" autocomplete="off">
+    <div class="einstlabel" style="margin-top: 8px;">PLZ und Ort</div>
+    <input id="firmaort" type="text" placeholder="20095 Hamburg" autocomplete="off">
+    <div class="einstlabel" style="margin-top: 8px;">Telefon (freiwillig)</div>
+    <input id="firmatel" type="text" inputmode="tel" placeholder="040 123456" autocomplete="off">
+    <div class="hinweis">Steht oben im PDF. Die App merkt sich die Angaben.</div>
     <div class="einstlabel" style="margin-top: 12px;">Darstellung</div>
     <div class="modi" id="modi">
       <button type="button" data-m="hell">Hell</button>
@@ -627,10 +633,18 @@
     }
     speichern('rflite-modus', m);
   }
-  var firmaFeld = id('firma');
-  var gespFirma = laden('rflite-firma');
-  if (gespFirma) firmaFeld.value = gespFirma;
-  firmaFeld.addEventListener('input', function () { speichern('rflite-firma', firmaFeld.value.trim()); });
+  var firmaFelder = [
+    ['firma', 'rflite-firma'],
+    ['firmastrasse', 'rflite-firma-strasse'],
+    ['firmaort', 'rflite-firma-ort'],
+    ['firmatel', 'rflite-firma-tel']
+  ];
+  firmaFelder.forEach(function (f) {
+    var el = id(f[0]);
+    var gesp = laden(f[1]);
+    if (gesp) el.value = gesp;
+    el.addEventListener('input', function () { speichern(f[1], el.value.trim()); });
+  });
 
   var gespeichert = laden('rflite-modus');
   modus(gespeichert === 'hell' || gespeichert === 'dunkel' ? gespeichert : 'auto');
@@ -1126,12 +1140,26 @@
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(20);
       doc.text('Regiebericht', rand, 18);
-      var firmaPdf = wert('firma');
-      if (firmaPdf) {
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(12);
-        var firmaZeile = doc.splitTextToSize(firmaPdf, 95)[0];
-        doc.text(firmaZeile, breite - rand, 17.5, { align: 'right' });
+      var zeilen = [];
+      var fName = wert('firma');
+      var fAdr = [wert('firmastrasse'), wert('firmaort')].filter(function (v) { return v; }).join(' \u00b7 ');
+      var fTel = wert('firmatel');
+      if (fName) zeilen.push({ t: fName, gross: true });
+      if (fAdr) zeilen.push({ t: fAdr, gross: false });
+      if (fTel) zeilen.push({ t: 'Tel. ' + fTel, gross: false });
+      var abstand = 5;
+      var yy = 14 + 3.5 - (zeilen.length - 1) * abstand / 2;
+      for (var zi = 0; zi < zeilen.length; zi++) {
+        if (zeilen[zi].gross) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(12);
+          doc.setTextColor(255, 255, 255);
+        } else {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(207, 226, 246);
+        }
+        doc.text(doc.splitTextToSize(zeilen[zi].t, 95)[0], breite - rand, yy + zi * abstand, { align: 'right' });
       }
     }
     function fussZeichnen() {
