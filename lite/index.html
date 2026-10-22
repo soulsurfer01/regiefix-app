@@ -26,6 +26,10 @@
     --fehler: #B3261E;
     --link: #185FA5;
     --loesch: #A32D2D;
+    --offen-bg: #FAEEDA;
+    --offen-tx: #633806;
+    --ok-bg: #EAF3DE;
+    --ok-tx: #27500A;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
@@ -37,6 +41,10 @@
       --fehler: #FF8A80;
       --link: #6FB1F0;
       --loesch: #FF8A80;
+      --offen-bg: #3B2A0E;
+      --offen-tx: #FAC775;
+      --ok-bg: #1F3410;
+      --ok-tx: #C0DD97;
     }
   }
   :root[data-theme="dark"] {
@@ -48,8 +56,13 @@
     --fehler: #FF8A80;
     --link: #6FB1F0;
     --loesch: #FF8A80;
+    --offen-bg: #3B2A0E;
+    --offen-tx: #FAC775;
+    --ok-bg: #1F3410;
+    --ok-tx: #C0DD97;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     margin: 0;
     background: var(--bg);
@@ -74,6 +87,7 @@
     border: 1px solid rgba(255, 255, 255, 0.35);
   }
   .titel { color: #fff; font-size: 18px; font-weight: 600; line-height: 1.2; }
+  .titel.lang { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .unter { color: #B5D4F4; font-size: 13px; }
   .rechts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .lite {
@@ -102,12 +116,15 @@
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 10px;
+    flex-shrink: 0;
   }
   .zahn svg { width: 20px; height: 20px; display: block; margin: 0 auto; }
   .einst {
-    max-width: 560px;
-    margin: 12px auto 0;
-    padding: 0 16px;
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 14px;
   }
   .einstlabel { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
   .modi { display: flex; gap: 6px; }
@@ -172,6 +189,7 @@
     border-radius: 12px;
     height: 48px;
   }
+  .neu { width: 100%; margin-bottom: 14px; }
   .plus {
     width: 100%;
     height: 42px;
@@ -194,7 +212,28 @@
   }
   .weg svg { width: 18px; height: 18px; display: block; margin: 0 auto; }
   .hinweis { font-size: 12px; color: var(--text2); margin-top: 4px; }
-  [hidden] { display: none !important; }
+  #liste { display: flex; flex-direction: column; gap: 8px; }
+  .eintrag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    font-weight: 400;
+    color: var(--text);
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .etext { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .etitel { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .esub { font-size: 12px; color: var(--text2); }
+  .status { font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+  .status.offen { background: var(--offen-bg); color: var(--offen-tx); }
+  .status.fertig { background: var(--ok-bg); color: var(--ok-tx); }
+  .pfeil { color: var(--text2); font-size: 18px; flex-shrink: 0; }
+  .leer { text-align: center; color: var(--text2); font-size: 14px; padding: 16px 8px; }
   .sbox {
     border: 1px solid var(--rand);
     border-radius: 10px;
@@ -254,13 +293,89 @@
     font-size: 14px;
     line-height: 1.6;
   }
-  .hilfebox[hidden] { display: none; }
   .hilfebox ol { margin: 0; padding-left: 20px; }
+  .abstand { height: calc(16px + env(safe-area-inset-bottom)); }
+  .zaehler {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .zaehler b { color: var(--text); font-weight: 600; }
+  .neu.voll { background: var(--rand); color: var(--text2); }
+  .limit {
+    background: var(--offen-bg);
+    color: var(--offen-tx);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .intro {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 50;
+    background: var(--bg);
+    overflow-y: auto;
+  }
+  .introkopf {
+    background: var(--blau);
+    padding: calc(28px + env(safe-area-inset-top)) 16px 24px;
+    text-align: center;
+  }
+  .introkopf svg {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  .introtitel { color: #fff; font-size: 20px; font-weight: 600; margin-top: 10px; }
+  .introtext {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .intropunkt { display: flex; gap: 12px; }
+  .intropunkt::before {
+    content: "";
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gelb);
+    margin-top: 8px;
+  }
 </style>
 </head>
 <body>
 
-<div class="kopf">
+<div class="intro" id="intro" hidden>
+  <div class="introkopf">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <rect width="200" height="200" fill="#185FA5"/>
+      <path d="M44 52 H156 A14 14 0 0 1 170 66 V122 A14 14 0 0 1 156 136 H92 L62 160 V136 H44 A14 14 0 0 1 30 122 V66 A14 14 0 0 1 44 52 Z" fill="#FFFFFF"/>
+      <path d="M72 95 L92 115 L130 76" fill="none" stroke="#F5A524" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="introtitel">Willkommen bei Regiefix Lite</div>
+  </div>
+  <div class="introtext">
+    <div class="intropunkt">Deine Regieberichte liegen nur auf diesem Handy. Löschst du die App, sind sie weg.</div>
+    <div class="intropunkt">Wichtige Berichte schickst du dir als PDF oder druckst sie zuhause aus.</div>
+    <div class="intropunkt">Lite speichert bis zu 10 Berichte. Alte kannst du löschen, dann ist wieder Platz.</div>
+    <div class="intropunkt">Mehr Berichte, Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
+    <button class="haupt" id="introok" type="button">Verstanden</button>
+  </div>
+</div>
+
+<div class="kopf" id="kopfListe">
   <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
     <rect width="200" height="200" fill="#185FA5"/>
     <path d="M44 52 H156 A14 14 0 0 1 170 66 V122 A14 14 0 0 1 156 136 H92 L62 160 V136 H44 A14 14 0 0 1 30 122 V66 A14 14 0 0 1 44 52 Z" fill="#FFFFFF"/>
@@ -277,20 +392,53 @@
     </button>
   </div>
 </div>
-<div class="einst" id="einst" hidden>
-  <div class="einstlabel">Firmenname</div>
-  <input id="firma" type="text" placeholder="Name deiner Firma" autocomplete="off">
-  <div class="hinweis">Steht oben im PDF. Die App merkt sich den Namen.</div>
-  <div class="einstlabel" style="margin-top: 12px;">Darstellung</div>
+
+<div class="kopf" id="kopfBericht" hidden>
+  <button class="zahn" id="zurueck" type="button" aria-label="Zurück zur Liste">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg>
+  </button>
+  <div class="titel lang" id="berichtTitel">Neuer Regiebericht</div>
+  <button class="zahn" id="loeschen" type="button" aria-label="Regiebericht löschen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+  </button>
+</div>
+
+<main id="ansichtListe">
+  <div class="einst" id="einst" hidden>
+    <div class="einstlabel">Firmenname</div>
+    <input id="firma" type="text" placeholder="Name deiner Firma" autocomplete="off">
+    <div class="hinweis">Steht oben im PDF. Die App merkt sich den Namen.</div>
+    <div class="einstlabel" style="margin-top: 12px;">Darstellung</div>
     <div class="modi" id="modi">
       <button type="button" data-m="hell">Hell</button>
       <button type="button" data-m="dunkel">Dunkel</button>
       <button type="button" data-m="auto">Automatisch</button>
     </div>
-</div>
+  </div>
 
-<main>
-  <div class="karte">
+  <div class="zaehler"><span>Gespeicherte Berichte</span><b id="zaehlerzahl">0 von 10</b></div>
+  <button class="haupt neu" id="neu" type="button">+ Neuer Regiebericht</button>
+  <div class="limit" id="limitHinweis" hidden>Lite speichert bis zu 10 Berichte. Lösche einen alten Bericht, dann ist wieder Platz. Mehr Berichte gibt es mit Regiefix Pro.</div>
+  <div id="liste"></div>
+  <div class="leer" id="leer" hidden>Noch keine Regieberichte. Leg oben den ersten an.</div>
+
+  <div class="hilfe">
+    <button class="hilfeknopf" id="hilfeknopf" type="button" aria-expanded="false">So geht's</button>
+    <div class="hilfebox" id="hilfebox" hidden>
+      <ol>
+        <li>Neuer Regiebericht: Baustelle und Arbeiten eintragen.</li>
+        <li>Arbeitskräfte mit Stunden hinzufügen.</li>
+        <li>Unterschreiben, auch später. Der Bericht bleibt in der Liste.</li>
+        <li>Mit Vorschau ansehen prüfen, dann PDF senden.</li>
+        <li id="hilfehome">Auf den Home-Bildschirm: Teilen-Symbol, dann Zum Home-Bildschirm.</li>
+        <li>Die Berichte liegen nur auf diesem Handy. Löschst du die App, sind sie weg. Wichtige Berichte schickst du dir als PDF oder druckst sie aus.</li>
+      </ol>
+    </div>
+  </div>
+</main>
+
+<main id="ansichtBericht" hidden>
+  <div class="karte" id="formular">
     <div>
       <label for="baustelle">Baustelle</label>
       <input id="baustelle" type="text" placeholder="Neubau Musterstraße 5" autocomplete="off">
@@ -359,26 +507,21 @@
     <button class="vorschau" id="knopfansicht" type="button">Vorschau ansehen</button>
     <button class="haupt" id="knopf" type="button">PDF senden</button>
   </div>
-  <div class="hilfe">
-    <button class="hilfeknopf" id="hilfeknopf" type="button" aria-expanded="false">So geht's</button>
-    <div class="hilfebox" id="hilfebox" hidden>
-      <ol>
-        <li>Baustelle und Arbeiten eintragen.</li>
-        <li>Arbeitskräfte mit Stunden hinzufügen.</li>
-        <li>Beide unterschreiben. Mit Vorschau ansehen prüfen, dann PDF senden.</li>
-        <li id="hilfehome">Auf den Home-Bildschirm: Teilen-Symbol, dann Zum Home-Bildschirm.</li>
-      </ol>
-    </div>
-  </div>
+  <div class="abstand"></div>
 </main>
 
 <script>
 (function () {
+  var LOGO_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAABmJLR0QA/wD/AP+gvaeTAAAIOklEQVR4nO2ce3AV1R3HP+fcV+QNQhLaKEEjT2WmyGuQEaXacaj1gVMsMeUtznQcHId2UKllcKaKLTO0FrUihICEdNBSq7VSZagVhtoADSLDc8JDmpBgCAYSSO7u3dM/IhLg5u7NfZ3N3fv5K8n+9ne+8/tmz5495+wKouXHGz3ZXc1JUnEPSo1SQgwWqF5A16hzpCfnga8U7EXxiZDyrzUl045He7KwC8ibs7GPGTLmo9QTIHLjUeoSLFAfWkr++vS6wn/bBUcwQIn+08vmKaFeAnonUKBbUEJRJjHnV62bcaa9oLAG5M9ck9Vi+VcrQWHy9LmGao/gh1Ulj+0Jd/AaA7LnbsiRhnoPGJN0ae7hnJLi4do1hVuvPnCFAfkz12Q1K/+/yBQ/GbQIIR46VVK4ue0f5eUflbio/KvIFD9ZBCylyvoVvVXQ9o/fGtB/etk8AY+lXpd7ENDL45Gbcn667tuhu4TWoeY3o50Myec2pHz20i8SwAwZ88kMNVOGQDydN33tdwEkd/3T2/qQlSGFdDHwLQYQ2TM33CuV+ki3IhfS6L3gy5bSsu7VrcSldAt1MSdLhBilW4lbsbAeksAtuoW4FYEYKYE+uoW4mBskcJ1uFS6mmySKNYEMSUNI+5gMySRjgGYyBmgmY4BmMgZoJmOAZrwJT+gRdM3yJTqtI2hqNjBDKqE5E2JA724BHv/BYH40+kZuzu2BSNMnC0spKk+d573yE7z58SEamoJx5xS5M0rjsnTsoGxWPTmBvj2y4hbTmTjd0MzcFdvYeeSruPLEdQ8YfkNvNiy4y3XFB8jumUXZgrsZmtcrrjwxGyAELJ87li6BhN9GOg1ds7wsmzU2rhwxGzDmlmxuG5CZSB158/WMKugb8/kxGzBhWE7MjaYbE4bFvmc5ZgNyemZmsS/Rv3fstYjrHtBpsQxUcx2oUELSyTiK4a47qAph7FmGcWQDmBcQWX3xjXgKb8FPtElyjwEqRMv2+YROXt6Bo5rrCJY/D54A3oEPa5HljrkgFaJlx4Irit8Wc/+bKRZ0mfQ3QFkEP3uG0IkP2g2xGr9MoaArSXMDFMHyRZjH3o0YJbsPTJGeMG1raznpKII7F2NWvmMb6Ruub2ts2hpgVPwG80iZbZxvxNN4BtyfAkXhSUsDjD3LMA6sso3z3fokvlt/lgJF7ZN2Bhh7l2Psf8M2zjtkNr4RT6VAkY0O3QJCJz/C2LcCq6ES2S0P75DZeAsejSmXse9VjH2v2cZ5h8zCP/JZ27hUoNWA0Jebadk+H2hdE7LOHSVY/kvU+WP4vvdMh3IZ+1di7P2dbZx3UJFjig+au6DWgl27IGccWI1RsTTqPObBNRh7fmsb5y14FP+oX+Gk3Zj6DFAhrHNH2z0crQnmkVKC/7V/v9B70xT8o1/AScUHnQYID+K6fhFDjAOrIxbXrNxIcOcSwl1FbfEMuB//2BcduRVWqyLv4Bm2MebB4rAmmEc3tU6k2RX/xvsIjF8GwhOrzKSi1QDfsMfx3jTFNu5qE0In/kbwP8+BsiKe58n7PoHxyx1bfNA+DBX4x7YW1jy6KWKkebAYsPD0G03Ljp/bLqZ4+k8gcMfvQWofaUdEvzohO2BCCebBtdh2O7njCdz5R/AEEqUyaTjjrvSNCdF0R3bFl/1uJ3Dn652i+OAUA6CDJoRH9rudrLuLwdslgcKSi3MMgFYTxi2NaY1W9hlOYOIbnar44DQDABD4x7zQIRNk76EEJq1F+HsmUVdycKABAAL/6CVRdUey1xACk9Z1yuKDYw0gqu5I9hhIYFIxIhDfBlmdONcA4PKV8Mg1R2TPAgL3lCKyIk9nOB39zwF2CIl/3EvI3PGEjr+PMhvxZI/DO3Q2wtddtzoAVBxvWMRswNcJeDskegTe/Afw5j+Qwjajp76xJeZzY+6CdlfWxdxouhFPLWI2YOveamrOXoi54XSh6kwTn+w7FfP5MRsQNC2eW787rv6vs6MULFq/G8OMPCsbibhGQR/uPsnzpbsIWe5zIWQpFq3fxT8q/hdXnrhHQau3HGbPsXoWPjKCO4bmxLVXvjNgKcW2/bW8/OfPqTja7kfRoybu11Tb0qd7gEHf6YnfG/nCGpLXiyXTRnY4/+7KOpa9+wWWpisuaFocqmrgbByjnqtJ6HNA/fkWPjt02jauxeh4n/nOjmP8oqSc5mBi3mpxCo5/EDNDipc3fc6KD/brlpIUHG3AmfMtzHt1OzsO1uqWkjQca8AXJ+qZ9co2qs406ZaSVBxpQLr29+FwlAHp3t+HwzEGuKG/D4cjDHBLfx8O7Qa4qb8PhzYD3Njfh0OLAV83tTBl6Za4vzaVDmgx4FBVg45mHYnDF+XTH4ndZssMyURJwH1jP+fQJEGd1K3CxdRLoUSFbhVuRcBhqVB/0S3EtQjKpcxq+jvQqFuLG1EWW2T1yicuCPiTbjEupLrmou9TCWB45GIyo6GUIhCv8fbUkASoK55WrVD2H1rIkCjqmgPeFdDmSdgTaHoR2KtNkotQQi08u3JqA1z14YTcmWX5KGsXcL0WZe7g/Zq1hQ+CUHDVXFBNybTjQogiIHE7jzK0pSJoqqJLxYcwk3GnSgo3KykmA+dSKi39qVBW6L760qIr6hp2NrR2TeFWj2CiQlSlRluao9hkepon1r41/ZptgxF30ubN2djHMI1XBBTaxWYIS50SamFtSVFxewFRFTVn5vpxQolFwGQyawjRUC3g9eaA7w+XRjvt0aH/6v5zSgdYJg8KxUQEI4BsoEc8StOARqBewGEQO5VSH9dc9H3K21Oj2mXwf5AVrMPqNlC3AAAAAElFTkSuQmCC';
+  var SPEICHER = 'rflite-berichte';
+  var LIMIT = 10;
   var wurzel = document.documentElement;
 
+  function id(n) { return document.getElementById(n); }
   function speichern(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function laden(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 
+  /* ---------- Darstellung, Firmenname, Hilfe ---------- */
   function modus(m) {
     if (m === 'hell') wurzel.setAttribute('data-theme', 'light');
     else if (m === 'dunkel') wurzel.setAttribute('data-theme', 'dark');
@@ -389,15 +532,15 @@
     }
     speichern('rflite-modus', m);
   }
-  var firmaFeld = document.getElementById('firma');
+  var firmaFeld = id('firma');
   var gespFirma = laden('rflite-firma');
   if (gespFirma) firmaFeld.value = gespFirma;
   firmaFeld.addEventListener('input', function () { speichern('rflite-firma', firmaFeld.value.trim()); });
 
   var gespeichert = laden('rflite-modus');
   modus(gespeichert === 'hell' || gespeichert === 'dunkel' ? gespeichert : 'auto');
-  var zahn = document.getElementById('zahn');
-  var einst = document.getElementById('einst');
+  var zahn = id('zahn');
+  var einst = id('einst');
   zahn.addEventListener('click', function () {
     var auf = einst.hasAttribute('hidden');
     if (auf) einst.removeAttribute('hidden');
@@ -409,8 +552,8 @@
     mb[k].addEventListener('click', function () { modus(this.getAttribute('data-m')); });
   }
 
-  var hilfeKnopf = document.getElementById('hilfeknopf');
-  var hilfeBox = document.getElementById('hilfebox');
+  var hilfeKnopf = id('hilfeknopf');
+  var hilfeBox = id('hilfebox');
   hilfeKnopf.addEventListener('click', function () {
     var auf = hilfeBox.hasAttribute('hidden');
     if (auf) hilfeBox.removeAttribute('hidden');
@@ -421,23 +564,19 @@
   var alsApp = window.navigator.standalone === true ||
     (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
   if (alsApp) {
-    var homeZeile = document.getElementById('hilfehome');
+    var homeZeile = id('hilfehome');
     if (homeZeile) homeZeile.parentNode.removeChild(homeZeile);
   }
 
-  var h = new Date();
-  document.getElementById('datum').value =
-    ('0' + h.getDate()).slice(-2) + '.' + ('0' + (h.getMonth() + 1)).slice(-2) + '.' + h.getFullYear();
-
-  var fehlerFeld = document.getElementById('fehler');
-  document.getElementById('baustelle').addEventListener('input', function () { fehlerFeld.textContent = ''; });
-
-  var kraefte = document.getElementById('kraefte');
+  /* ---------- Formular-Bausteine ---------- */
+  var fehlerFeld = id('fehler');
+  var kraefte = id('kraefte');
+  var planen;
   var muelleimer =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
 
-  function neueZeile() {
+  function neueZeile(artWert, stdWert) {
     var z = document.createElement('div');
     z.className = 'kraft';
 
@@ -447,6 +586,7 @@
     art.setAttribute('list', 'arten');
     art.placeholder = 'Facharbeiter, Meister, Azubi';
     art.autocomplete = 'off';
+    art.value = artWert || '';
 
     var std = document.createElement('input');
     std.type = 'text';
@@ -454,6 +594,7 @@
     std.inputMode = 'decimal';
     std.placeholder = '8';
     std.autocomplete = 'off';
+    std.value = stdWert || '';
 
     var weg = document.createElement('button');
     weg.type = 'button';
@@ -467,6 +608,7 @@
         art.value = '';
         std.value = '';
       }
+      planen();
     });
 
     z.appendChild(art);
@@ -475,12 +617,11 @@
     kraefte.appendChild(z);
     return art;
   }
-  neueZeile();
-  document.getElementById('plus').addEventListener('click', function () {
+  id('plus').addEventListener('click', function () {
     neueZeile().focus();
   });
 
-  function unterschrift(box) {
+  function unterschrift(box, bei) {
     var name = box.getAttribute('data-n');
     var kopf = box.querySelector('.skopf');
     var titel = box.querySelector('.stitel');
@@ -495,6 +636,8 @@
     x.strokeStyle = '#13202E';
     var malt = false;
     var hat = false;
+    var veraendert = false;
+    var basis = null;
 
     function pos(e) {
       var r = c.getBoundingClientRect();
@@ -502,12 +645,13 @@
     }
     c.addEventListener('pointerdown', function (e) {
       malt = true;
+      hat = true;
+      veraendert = true;
       var p = pos(e);
       x.beginPath();
       x.moveTo(p[0], p[1]);
       x.lineTo(p[0] + 0.1, p[1] + 0.1);
       x.stroke();
-      hat = true;
       c.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
@@ -522,6 +666,39 @@
     c.addEventListener('pointerup', ende);
     c.addEventListener('pointercancel', ende);
 
+    function wert() {
+      if (veraendert) return hat ? c.toDataURL('image/png') : null;
+      return basis;
+    }
+    function zeigeZu(url) {
+      feld.setAttribute('hidden', '');
+      kopf.removeAttribute('hidden');
+      if (url) {
+        vor.src = url;
+        vor.removeAttribute('hidden');
+        knopf.textContent = 'Ändern';
+        titel.textContent = '✓ Unterschrift ' + name;
+      } else {
+        vor.removeAttribute('src');
+        vor.setAttribute('hidden', '');
+        knopf.textContent = 'Unterschreiben';
+        titel.textContent = 'Unterschrift ' + name;
+      }
+    }
+    function setzen(url) {
+      x.clearRect(0, 0, c.width, c.height);
+      malt = false;
+      basis = url || null;
+      veraendert = false;
+      hat = !!url;
+      if (url) {
+        var im = new Image();
+        im.onload = function () { if (!veraendert) x.drawImage(im, 0, 0); };
+        im.src = url;
+      }
+      zeigeZu(url);
+    }
+
     knopf.addEventListener('click', function () {
       kopf.setAttribute('hidden', '');
       vor.setAttribute('hidden', '');
@@ -530,32 +707,218 @@
     box.querySelector('.sweg').addEventListener('click', function () {
       x.clearRect(0, 0, c.width, c.height);
       hat = false;
+      veraendert = true;
+      bei();
     });
     box.querySelector('.sfertig').addEventListener('click', function () {
-      feld.setAttribute('hidden', '');
-      kopf.removeAttribute('hidden');
-      if (hat) {
-        vor.src = c.toDataURL('image/png');
-        vor.removeAttribute('hidden');
-        knopf.textContent = 'Ändern';
-        titel.textContent = '\u2713 Unterschrift ' + name;
-      } else {
-        vor.setAttribute('hidden', '');
-        knopf.textContent = 'Unterschreiben';
-        titel.textContent = 'Unterschrift ' + name;
-      }
+      var u = wert();
+      basis = u;
+      veraendert = false;
+      hat = !!u;
+      zeigeZu(u);
+      bei();
     });
-    return {
-      gezeichnet: function () { return hat; },
-      bild: function () { return c.toDataURL('image/png'); }
-    };
+    return { wert: wert, setzen: setzen };
   }
+
   var boxen = document.querySelectorAll('.sbox');
-  var sigGeber = unterschrift(boxen[0]);
-  var sigNehmer = unterschrift(boxen[1]);
+  var sigGeber = unterschrift(boxen[0], function () { planen(); });
+  var sigNehmer = unterschrift(boxen[1], function () { planen(); });
 
-  function wert(id) { return document.getElementById(id).value.trim(); }
+  /* ---------- Berichte speichern ---------- */
+  var aktuell = null;
+  var timer = null;
 
+  function alleLaden() {
+    try {
+      var r = JSON.parse(laden(SPEICHER) || '[]');
+      return Array.isArray(r) ? r : [];
+    } catch (e) { return []; }
+  }
+  function alleSchreiben(arr) {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(arr)); return true; }
+    catch (e) { return false; }
+  }
+  function heute() {
+    var h = new Date();
+    return ('0' + h.getDate()).slice(-2) + '.' + ('0' + (h.getMonth() + 1)).slice(-2) + '.' + h.getFullYear();
+  }
+  function neueId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function wert(i) { return id(i).value.trim(); }
+
+  function sammeln() {
+    var b = {
+      id: aktuell.id,
+      geaendert: Date.now(),
+      baustelle: wert('baustelle'),
+      ort: wert('ort'),
+      datum: wert('datum'),
+      arbeiten: wert('arbeiten'),
+      kraefte: [],
+      sig1: sigGeber.wert(),
+      sig2: sigNehmer.wert()
+    };
+    var zeilen = kraefte.querySelectorAll('.kraft');
+    for (var i = 0; i < zeilen.length; i++) {
+      var a = zeilen[i].querySelector('.art').value.trim();
+      var s = zeilen[i].querySelector('.std').value.trim();
+      if (a || s) b.kraefte.push({ art: a, std: s });
+    }
+    return b;
+  }
+  function istLeer(b) {
+    return !b.baustelle && !b.ort && !b.arbeiten && b.kraefte.length === 0 && !b.sig1 && !b.sig2;
+  }
+  function findIndex(arr, bid) {
+    for (var i = 0; i < arr.length; i++) if (arr[i].id === bid) return i;
+    return -1;
+  }
+  function sichern() {
+    if (!aktuell) return true;
+    var b = sammeln();
+    aktuell = b;
+    var arr = alleLaden();
+    var i = findIndex(arr, b.id);
+    if (istLeer(b) && i < 0) return true;
+    if (i >= 0) {
+      arr[i] = b;
+    } else {
+      if (arr.length >= LIMIT) {
+        fehlerFeld.textContent = 'Lite speichert bis zu ' + LIMIT + ' Berichte. Lösche einen alten Bericht.';
+        return false;
+      }
+      arr.push(b);
+    }
+    var ok = alleSchreiben(arr);
+    if (!ok) fehlerFeld.textContent = 'Speichern nicht möglich. Der Speicher ist voll oder gesperrt.';
+    return ok;
+  }
+  planen = function () {
+    clearTimeout(timer);
+    timer = setTimeout(sichern, 500);
+  };
+  function sofort() {
+    clearTimeout(timer);
+    return sichern();
+  }
+
+  id('formular').addEventListener('input', function () {
+    fehlerFeld.textContent = '';
+    id('berichtTitel').textContent = wert('baustelle') || 'Neuer Regiebericht';
+    planen();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') sofort();
+  });
+  window.addEventListener('pagehide', function () { sofort(); });
+
+  /* ---------- Ansichten ---------- */
+  function fuellen(b) {
+    id('baustelle').value = b.baustelle || '';
+    id('ort').value = b.ort || '';
+    id('datum').value = b.datum || heute();
+    id('arbeiten').value = b.arbeiten || '';
+    kraefte.innerHTML = '';
+    var liste = b.kraefte && b.kraefte.length ? b.kraefte : [{ art: '', std: '' }];
+    for (var i = 0; i < liste.length; i++) neueZeile(liste[i].art, liste[i].std);
+    sigGeber.setzen(b.sig1);
+    sigNehmer.setzen(b.sig2);
+    fehlerFeld.textContent = '';
+    id('berichtTitel').textContent = b.baustelle || 'Neuer Regiebericht';
+  }
+  function zeigeBericht(b) {
+    aktuell = b;
+    fuellen(b);
+    id('kopfListe').setAttribute('hidden', '');
+    id('ansichtListe').setAttribute('hidden', '');
+    id('kopfBericht').removeAttribute('hidden');
+    id('ansichtBericht').removeAttribute('hidden');
+    window.scrollTo(0, 0);
+  }
+  function statusText(b) { return b.sig1 && b.sig2 ? 'Unterschrieben' : 'Offen'; }
+
+  function listeZeichnen() {
+    var arr = alleLaden();
+    arr.sort(function (a, b) { return (b.geaendert || 0) - (a.geaendert || 0); });
+    var box = id('liste');
+    box.innerHTML = '';
+    id('leer').toggleAttribute('hidden', arr.length > 0);
+    var voll = arr.length >= LIMIT;
+    id('zaehlerzahl').textContent = arr.length + ' von ' + LIMIT;
+    id('neu').classList.toggle('voll', voll);
+    id('limitHinweis').toggleAttribute('hidden', !voll);
+    arr.forEach(function (b) {
+      var e = document.createElement('button');
+      e.type = 'button';
+      e.className = 'eintrag';
+
+      var t = document.createElement('span');
+      t.className = 'etext';
+      var t1 = document.createElement('span');
+      t1.className = 'etitel';
+      t1.textContent = b.baustelle || 'Ohne Namen';
+      var t2 = document.createElement('span');
+      t2.className = 'esub';
+      t2.textContent = [b.datum, b.ort].filter(function (v) { return v; }).join(' · ');
+      t.appendChild(t1);
+      t.appendChild(t2);
+
+      var st = document.createElement('span');
+      var fertig = !!(b.sig1 && b.sig2);
+      st.className = 'status ' + (fertig ? 'fertig' : 'offen');
+      st.textContent = statusText(b);
+
+      var pf = document.createElement('span');
+      pf.className = 'pfeil';
+      pf.setAttribute('aria-hidden', 'true');
+      pf.textContent = '›';
+
+      e.appendChild(t);
+      e.appendChild(st);
+      e.appendChild(pf);
+      e.addEventListener('click', function () { zeigeBericht(b); });
+      box.appendChild(e);
+    });
+  }
+  function zeigeListe() {
+    sofort();
+    aktuell = null;
+    id('kopfBericht').setAttribute('hidden', '');
+    id('ansichtBericht').setAttribute('hidden', '');
+    id('kopfListe').removeAttribute('hidden');
+    id('ansichtListe').removeAttribute('hidden');
+    listeZeichnen();
+    window.scrollTo(0, 0);
+  }
+
+  id('neu').addEventListener('click', function () {
+    if (alleLaden().length >= LIMIT) {
+      id('limitHinweis').removeAttribute('hidden');
+      id('limitHinweis').scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    zeigeBericht({
+      id: neueId(), geaendert: Date.now(), baustelle: '', ort: '', datum: heute(),
+      arbeiten: '', kraefte: [], sig1: null, sig2: null
+    });
+  });
+  id('zurueck').addEventListener('click', zeigeListe);
+  id('loeschen').addEventListener('click', function () {
+    if (!window.confirm('Diesen Regiebericht löschen?')) return;
+    clearTimeout(timer);
+    var bid = aktuell ? aktuell.id : null;
+    aktuell = null;
+    if (bid) {
+      var arr = alleLaden();
+      var i = findIndex(arr, bid);
+      if (i >= 0) { arr.splice(i, 1); alleSchreiben(arr); }
+    }
+    zeigeListe();
+  });
+
+  /* ---------- PDF ---------- */
   function zahl(s) {
     var n = parseFloat(String(s).replace(',', '.'));
     return isNaN(n) ? 0 : n;
@@ -563,14 +926,12 @@
   function zahlText(n) {
     return (Math.round(n * 100) / 100).toString().replace('.', ',');
   }
-
   function dateiname(baustelle, datum) {
     var rein = (baustelle + '-' + datum)
       .replace(/[^a-zA-Z0-9äöüÄÖÜß.\-]+/g, '-')
       .replace(/-+/g, '-');
     return 'Regiebericht-' + rein + '.pdf';
   }
-
   function pdfLaden(fertig) {
     if (window.jspdf) { fertig(true); return; }
     var s = document.createElement('script');
@@ -580,25 +941,15 @@
     document.head.appendChild(s);
   }
 
-  function pdfBauen(modus) {
-    var baustelle = wert('baustelle');
-    var ort = wert('ort');
-    var datum = wert('datum');
-    var arbeiten = wert('arbeiten');
-
+  function pdfBauen(modus, b) {
     var leute = [];
     var summe = 0;
-    var zeilen = kraefte.querySelectorAll('.kraft');
-    for (var i = 0; i < zeilen.length; i++) {
-      var a = zeilen[i].querySelector('.art').value.trim();
-      var s = zeilen[i].querySelector('.std').value.trim();
-      if (a || s) {
-        leute.push({ art: a || '–', std: s });
-        summe += zahl(s);
-      }
+    for (var i = 0; i < b.kraefte.length; i++) {
+      leute.push({ art: b.kraefte[i].art || '–', std: b.kraefte[i].std });
+      summe += zahl(b.kraefte[i].std);
     }
 
-    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
     var breite = 210;
     var rand = 18;
     var unten = 275;
@@ -620,10 +971,11 @@
       }
     }
     function fussZeichnen() {
+      try { doc.addImage(LOGO_PNG, 'PNG', rand, 284.3, 3.6, 3.6); } catch (e) {}
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(120, 134, 150);
-      doc.text('Regiefix', rand, 288);
+      doc.setFontSize(7);
+      doc.setTextColor(176, 186, 198);
+      doc.text('Regiefix', rand + 5, 287.1);
     }
     function platz(mm) {
       if (y + mm > unten) {
@@ -656,10 +1008,10 @@
       y += 6;
     }
 
-    feld('BAUSTELLE', baustelle);
-    feld('ORT', ort);
-    feld('DATUM', datum);
-    feld('AUSGEFÜHRTE ARBEITEN', arbeiten);
+    feld('BAUSTELLE', b.baustelle);
+    feld('ORT', b.ort);
+    feld('DATUM', b.datum);
+    feld('AUSGEFÜHRTE ARBEITEN', b.arbeiten);
 
     platz(20);
     doc.setFont('helvetica', 'bold');
@@ -702,12 +1054,8 @@
     doc.text('AUFTRAGGEBER', rand, y);
     doc.text('AUFTRAGNEHMER', rechts, y);
     y += 3;
-    if (sigGeber.gezeichnet()) {
-      doc.addImage(sigGeber.bild(), 'PNG', rand, y, sigBreite, sigBreite * 220 / 640);
-    }
-    if (sigNehmer.gezeichnet()) {
-      doc.addImage(sigNehmer.bild(), 'PNG', rechts, y, sigBreite, sigBreite * 220 / 640);
-    }
+    if (b.sig1) doc.addImage(b.sig1, 'PNG', rand, y, sigBreite, sigBreite * 220 / 640);
+    if (b.sig2) doc.addImage(b.sig2, 'PNG', rechts, y, sigBreite, sigBreite * 220 / 640);
     y += 28;
     doc.setDrawColor(150, 160, 172);
     doc.line(rand, y, rand + sigBreite, y);
@@ -720,7 +1068,7 @@
 
     fussZeichnen();
 
-    var name = dateiname(baustelle, datum);
+    var name = dateiname(b.baustelle, b.datum);
     var blob = doc.output('blob');
 
     if (modus === 'ansehen') {
@@ -749,21 +1097,34 @@
   }
 
   function pdfStarten(modus) {
-    if (!wert('baustelle')) {
+    if (!aktuell) return;
+    var b = sammeln();
+    if (!b.baustelle) {
       fehlerFeld.textContent = 'Trag eine Baustelle ein.';
-      document.getElementById('baustelle').focus();
+      id('baustelle').focus();
       return;
     }
+    sofort();
     pdfLaden(function (ok) {
       if (!ok) {
         fehlerFeld.textContent = 'Die PDF-Funktion ist nicht geladen. Prüf deine Verbindung und lad die Seite neu.';
         return;
       }
-      pdfBauen(modus);
+      pdfBauen(modus, b);
     });
   }
-  document.getElementById('knopf').addEventListener('click', function () { pdfStarten('senden'); });
-  document.getElementById('knopfansicht').addEventListener('click', function () { pdfStarten('ansehen'); });
+  id('knopf').addEventListener('click', function () { pdfStarten('senden'); });
+  id('knopfansicht').addEventListener('click', function () { pdfStarten('ansehen'); });
+
+  var intro = id('intro');
+  if (laden('rflite-intro') !== '1') intro.removeAttribute('hidden');
+  id('introok').addEventListener('click', function () {
+    speichern('rflite-intro', '1');
+    intro.setAttribute('hidden', '');
+    window.scrollTo(0, 0);
+  });
+
+  listeZeichnen();
 })();
 </script>
 </body>
