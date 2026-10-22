@@ -158,6 +158,13 @@
     cursor: pointer;
   }
   button:active { transform: scale(0.98); }
+  .vorschau {
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 12px;
+    height: 48px;
+  }
   .haupt {
     color: #fff;
     background: var(--blau);
@@ -349,7 +356,8 @@
     </div>
 
     <div class="fehler" id="fehler"></div>
-    <button class="haupt" id="knopf" type="button">PDF erstellen</button>
+    <button class="vorschau" id="knopfansicht" type="button">Vorschau ansehen</button>
+    <button class="haupt" id="knopf" type="button">PDF senden</button>
   </div>
   <div class="hilfe">
     <button class="hilfeknopf" id="hilfeknopf" type="button" aria-expanded="false">So geht's</button>
@@ -357,7 +365,7 @@
       <ol>
         <li>Baustelle und Arbeiten eintragen.</li>
         <li>Arbeitskräfte mit Stunden hinzufügen.</li>
-        <li>Beide unterschreiben, dann PDF erstellen.</li>
+        <li>Beide unterschreiben. Mit Vorschau ansehen prüfen, dann PDF senden.</li>
         <li id="hilfehome">Auf den Home-Bildschirm: Teilen-Symbol, dann Zum Home-Bildschirm.</li>
       </ol>
     </div>
@@ -572,7 +580,7 @@
     document.head.appendChild(s);
   }
 
-  function pdfBauen() {
+  function pdfBauen(modus) {
     var baustelle = wert('baustelle');
     var ort = wert('ort');
     var datum = wert('datum');
@@ -714,8 +722,25 @@
 
     var name = dateiname(baustelle, datum);
     var blob = doc.output('blob');
-    var datei = new File([blob], name, { type: 'application/pdf' });
 
+    if (modus === 'ansehen') {
+      var url = URL.createObjectURL(blob);
+      var w = window.open(url, '_blank');
+      if (!w) {
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      setTimeout(function () { URL.revokeObjectURL(url); }, 120000);
+      return;
+    }
+
+    var datei = new File([blob], name, { type: 'application/pdf' });
     if (navigator.canShare && navigator.canShare({ files: [datei] })) {
       navigator.share({ files: [datei], title: name }).catch(function () {});
     } else {
@@ -723,7 +748,7 @@
     }
   }
 
-  document.getElementById('knopf').addEventListener('click', function () {
+  function pdfStarten(modus) {
     if (!wert('baustelle')) {
       fehlerFeld.textContent = 'Trag eine Baustelle ein.';
       document.getElementById('baustelle').focus();
@@ -734,9 +759,11 @@
         fehlerFeld.textContent = 'Die PDF-Funktion ist nicht geladen. Prüf deine Verbindung und lad die Seite neu.';
         return;
       }
-      pdfBauen();
+      pdfBauen(modus);
     });
-  });
+  }
+  document.getElementById('knopf').addEventListener('click', function () { pdfStarten('senden'); });
+  document.getElementById('knopfansicht').addEventListener('click', function () { pdfStarten('ansehen'); });
 })();
 </script>
 </body>
