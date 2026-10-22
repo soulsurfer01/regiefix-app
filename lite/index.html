@@ -390,6 +390,27 @@
     line-height: 1.5;
   }
   .intropunkt { display: flex; gap: 12px; }
+  .introhaken {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--text);
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .introhaken input {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    margin: 1px 0 0;
+    padding: 0;
+    accent-color: #185FA5;
+  }
   .kauf {
     display: flex;
     align-items: center;
@@ -454,7 +475,12 @@
     </div>
     <div class="intropunkt">Tippe oben rechts auf das Zahnrad und trage deinen Firmennamen ein. Er steht dann im PDF.</div>
     <div class="intropunkt">Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
+    <label class="introhaken">
+      <input type="checkbox" id="introhaken">
+      <span>Nicht wieder anzeigen. Ich habe verstanden, dass meine Berichte weg sind, wenn ich die App lösche.</span>
+    </label>
     <button class="haupt" id="introok" type="button">Verstanden</button>
+    <div class="hinweis" id="introinfo" style="text-align: center;">Ohne Häkchen kommt diese Seite beim nächsten Öffnen wieder.</div>
   </div>
 </div>
 
@@ -1272,9 +1298,15 @@
   id('knopfansicht').addEventListener('click', function () { pdfStarten('ansehen'); });
 
   var intro = id('intro');
+  var introHaken = id('introhaken');
   if (laden('rflite-intro') !== '1') intro.removeAttribute('hidden');
+  introHaken.addEventListener('change', function () {
+    id('introinfo').textContent = introHaken.checked
+      ? 'Diese Seite kommt nicht wieder.'
+      : 'Ohne Häkchen kommt diese Seite beim nächsten Öffnen wieder.';
+  });
   id('introok').addEventListener('click', function () {
-    speichern('rflite-intro', '1');
+    if (introHaken.checked) speichern('rflite-intro', '1');
     intro.setAttribute('hidden', '');
     window.scrollTo(0, 0);
   });
