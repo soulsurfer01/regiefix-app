@@ -252,15 +252,15 @@
   }
   .svor {
     display: block;
-    width: 100%;
-    max-width: 200px;
+    width: auto;
+    max-width: 100%;
+    max-height: 90px;
     margin-top: 8px;
+    padding: 6px 10px;
     background: #FFFFFF;
     border: 1px solid var(--rand);
     border-radius: 6px;
   }
-  .sfeld { margin-top: 8px; }
-  .sleiste { display: flex; gap: 8px; margin-top: 8px; }
   .sweg, .sfertig { height: 40px; font-size: 14px; border-radius: 10px; }
   .sweg { flex: 1; color: var(--text); background: transparent; border: 1px solid var(--rand); }
   .sfertig { flex: 2; color: #fff; background: var(--blau); border: none; }
@@ -295,6 +295,52 @@
   }
   .hilfebox ol { margin: 0; padding-left: 20px; }
   .abstand { height: calc(16px + env(safe-area-inset-bottom)); }
+  .signier {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 60;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .signkopf {
+    background: var(--blau);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+  }
+  .signflaeche { flex: 1; position: relative; margin: 12px 12px 0; min-height: 0; }
+  #signcanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    touch-action: none;
+    display: block;
+  }
+  .signlinie {
+    position: absolute;
+    left: 24px; right: 24px; bottom: 18%;
+    border-top: 1px solid #C5CCD6;
+    pointer-events: none;
+  }
+  .signhinweis {
+    position: absolute;
+    left: 24px; bottom: calc(18% - 22px);
+    font-size: 12px;
+    color: #9AA5B4;
+    pointer-events: none;
+  }
+  .signleiste {
+    display: flex;
+    gap: 8px;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  }
+  .signleiste .sweg, .signleiste .sfertig { height: 48px; font-size: 15px; }
   .zaehler {
     display: flex;
     justify-content: space-between;
@@ -369,6 +415,19 @@
 </style>
 </head>
 <body>
+
+<div class="signier" id="signier" hidden>
+  <div class="signkopf" id="signtitel">Unterschrift</div>
+  <div class="signflaeche">
+    <canvas id="signcanvas"></canvas>
+    <div class="signlinie"></div>
+    <div class="signhinweis" id="signhinweis">Hier unterschreiben</div>
+  </div>
+  <div class="signleiste">
+    <button class="sweg" id="signweg" type="button">Löschen</button>
+    <button class="sfertig" id="signfertig" type="button">Fertig</button>
+  </div>
+</div>
 
 <div class="intro" id="intro" hidden>
   <div class="introkopf">
@@ -504,13 +563,6 @@
         <button class="sknopf" type="button">Unterschreiben</button>
       </div>
       <img class="svor" alt="Unterschrift Auftraggeber" hidden>
-      <div class="sfeld" hidden>
-        <canvas class="sig" width="640" height="220"></canvas>
-        <div class="sleiste">
-          <button class="sweg" type="button">Löschen</button>
-          <button class="sfertig" type="button">Fertig</button>
-        </div>
-      </div>
     </div>
     <div class="sbox" data-n="Auftragnehmer">
       <div class="skopf">
@@ -518,13 +570,6 @@
         <button class="sknopf" type="button">Unterschreiben</button>
       </div>
       <img class="svor" alt="Unterschrift Auftragnehmer" hidden>
-      <div class="sfeld" hidden>
-        <canvas class="sig" width="640" height="220"></canvas>
-        <div class="sleiste">
-          <button class="sweg" type="button">Löschen</button>
-          <button class="sfertig" type="button">Fertig</button>
-        </div>
-      </div>
     </div>
 
     <div class="fehler" id="fehler"></div>
@@ -645,32 +690,44 @@
     neueZeile().focus();
   });
 
-  function unterschrift(box, bei) {
-    var name = box.getAttribute('data-n');
-    var kopf = box.querySelector('.skopf');
-    var titel = box.querySelector('.stitel');
-    var knopf = box.querySelector('.sknopf');
-    var vor = box.querySelector('.svor');
-    var feld = box.querySelector('.sfeld');
-    var c = box.querySelector('canvas');
+  /* ---------- Unterschrift: großes Feld über den ganzen Bildschirm ---------- */
+  var pad = (function () {
+    var ov = id('signier');
+    var c = id('signcanvas');
     var x = c.getContext('2d');
-    x.lineWidth = 4;
-    x.lineCap = 'round';
-    x.lineJoin = 'round';
-    x.strokeStyle = '#13202E';
+    var hinweis = id('signhinweis');
+    var dpr = 1;
     var malt = false;
     var hat = false;
     var veraendert = false;
-    var basis = null;
+    var urspruenglich = null;
+    var rueck = null;
 
+    function einrichten() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      c.width = Math.max(1, Math.round(c.clientWidth * dpr));
+      c.height = Math.max(1, Math.round(c.clientHeight * dpr));
+      x.setTransform(dpr, 0, 0, dpr, 0, 0);
+      x.lineWidth = 3.5;
+      x.lineCap = 'round';
+      x.lineJoin = 'round';
+      x.strokeStyle = '#13202E';
+    }
+    function leeren() {
+      x.save();
+      x.setTransform(1, 0, 0, 1, 0, 0);
+      x.clearRect(0, 0, c.width, c.height);
+      x.restore();
+    }
     function pos(e) {
       var r = c.getBoundingClientRect();
-      return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height];
+      return [e.clientX - r.left, e.clientY - r.top];
     }
     c.addEventListener('pointerdown', function (e) {
       malt = true;
       hat = true;
       veraendert = true;
+      hinweis.setAttribute('hidden', '');
       var p = pos(e);
       x.beginPath();
       x.moveTo(p[0], p[1]);
@@ -690,13 +747,89 @@
     c.addEventListener('pointerup', ende);
     c.addEventListener('pointercancel', ende);
 
-    function wert() {
-      if (veraendert) return hat ? c.toDataURL('image/png') : null;
-      return basis;
+    function zuschneiden() {
+      var w = c.width, h = c.height;
+      var d = x.getImageData(0, 0, w, h).data;
+      var minX = w, minY = h, maxX = -1, maxY = -1;
+      for (var yy = 0; yy < h; yy++) {
+        for (var xx = 0; xx < w; xx++) {
+          if (d[(yy * w + xx) * 4 + 3] > 10) {
+            if (xx < minX) minX = xx;
+            if (xx > maxX) maxX = xx;
+            if (yy < minY) minY = yy;
+            if (yy > maxY) maxY = yy;
+          }
+        }
+      }
+      if (maxX < 0) return null;
+      var rd = Math.round(8 * dpr);
+      minX = Math.max(0, minX - rd);
+      minY = Math.max(0, minY - rd);
+      maxX = Math.min(w - 1, maxX + rd);
+      maxY = Math.min(h - 1, maxY + rd);
+      var sw = maxX - minX + 1;
+      var sh = maxY - minY + 1;
+      var f = sw > 900 ? 900 / sw : 1;
+      var t = document.createElement('canvas');
+      t.width = Math.max(1, Math.round(sw * f));
+      t.height = Math.max(1, Math.round(sh * f));
+      t.getContext('2d').drawImage(c, minX, minY, sw, sh, 0, 0, t.width, t.height);
+      return t.toDataURL('image/png');
     }
+    function schliessen() {
+      ov.setAttribute('hidden', '');
+      document.body.style.overflow = '';
+    }
+
+    id('signweg').addEventListener('click', function () {
+      leeren();
+      hat = false;
+      veraendert = true;
+      hinweis.removeAttribute('hidden');
+    });
+    id('signfertig').addEventListener('click', function () {
+      var ergebnis = veraendert ? (hat ? zuschneiden() : null) : urspruenglich;
+      var f = rueck;
+      rueck = null;
+      schliessen();
+      if (f) f(ergebnis);
+    });
+
+    function oeffnen(name, url, fertig) {
+      id('signtitel').textContent = 'Unterschrift ' + name;
+      rueck = fertig;
+      urspruenglich = url || null;
+      veraendert = false;
+      hat = false;
+      ov.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      einrichten();
+      hinweis.removeAttribute('hidden');
+      if (url) {
+        var im = new Image();
+        im.onload = function () {
+          if (veraendert) return;
+          var w = c.clientWidth, h = c.clientHeight;
+          var sk = Math.min((w * 0.8) / im.width, (h * 0.4) / im.height, 1);
+          var dw = im.width * sk, dh = im.height * sk;
+          x.drawImage(im, (w - dw) / 2, h * 0.82 - dh - 6, dw, dh);
+          hat = true;
+          hinweis.setAttribute('hidden', '');
+        };
+        im.src = url;
+      }
+    }
+    return { oeffnen: oeffnen };
+  })();
+
+  function unterschrift(box, bei) {
+    var name = box.getAttribute('data-n');
+    var titel = box.querySelector('.stitel');
+    var knopf = box.querySelector('.sknopf');
+    var vor = box.querySelector('.svor');
+    var basis = null;
+
     function zeigeZu(url) {
-      feld.setAttribute('hidden', '');
-      kopf.removeAttribute('hidden');
       if (url) {
         vor.src = url;
         vor.removeAttribute('hidden');
@@ -710,37 +843,18 @@
       }
     }
     function setzen(url) {
-      x.clearRect(0, 0, c.width, c.height);
-      malt = false;
       basis = url || null;
-      veraendert = false;
-      hat = !!url;
-      if (url) {
-        var im = new Image();
-        im.onload = function () { if (!veraendert) x.drawImage(im, 0, 0); };
-        im.src = url;
-      }
-      zeigeZu(url);
+      zeigeZu(basis);
     }
+    function wert() { return basis; }
 
     knopf.addEventListener('click', function () {
-      kopf.setAttribute('hidden', '');
-      vor.setAttribute('hidden', '');
-      feld.removeAttribute('hidden');
-    });
-    box.querySelector('.sweg').addEventListener('click', function () {
-      x.clearRect(0, 0, c.width, c.height);
-      hat = false;
-      veraendert = true;
-      bei();
-    });
-    box.querySelector('.sfertig').addEventListener('click', function () {
-      var u = wert();
-      basis = u;
-      veraendert = false;
-      hat = !!u;
-      zeigeZu(u);
-      bei();
+      pad.oeffnen(name, basis, function (neu) {
+        basis = neu;
+        zeigeZu(neu);
+        bei();
+        sofort();
+      });
     });
     return { wert: wert, setzen: setzen };
   }
@@ -1069,6 +1183,23 @@
       y += 12;
     }
 
+    function pngMasse(u) {
+      try {
+        var bin = atob(u.split(',')[1].slice(0, 40));
+        var r = function (o) {
+          return (bin.charCodeAt(o) * 16777216) + (bin.charCodeAt(o + 1) << 16) + (bin.charCodeAt(o + 2) << 8) + bin.charCodeAt(o + 3);
+        };
+        return [r(16), r(20)];
+      } catch (e) { return [640, 220]; }
+    }
+    function sigZeichnen(url, x0, top) {
+      if (!url) return;
+      var m = pngMasse(url);
+      var k = Math.min(78 / m[0], 27 / m[1]);
+      var dw = m[0] * k, dh = m[1] * k;
+      doc.addImage(url, 'PNG', x0 + (78 - dw) / 2, top + 27.5 - dh, dw, dh);
+    }
+
     platz(48);
     var sigBreite = 78;
     var rechts = breite - rand - sigBreite;
@@ -1078,8 +1209,8 @@
     doc.text('AUFTRAGGEBER', rand, y);
     doc.text('AUFTRAGNEHMER', rechts, y);
     y += 3;
-    if (b.sig1) doc.addImage(b.sig1, 'PNG', rand, y, sigBreite, sigBreite * 220 / 640);
-    if (b.sig2) doc.addImage(b.sig2, 'PNG', rechts, y, sigBreite, sigBreite * 220 / 640);
+    sigZeichnen(b.sig1, rand, y);
+    sigZeichnen(b.sig2, rechts, y);
     y += 28;
     doc.setDrawColor(150, 160, 172);
     doc.line(rand, y, rand + sigBreite, y);
