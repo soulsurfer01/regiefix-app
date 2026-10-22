@@ -261,7 +261,7 @@
   </svg>
   <div>
     <div class="titel">Regiefix</div>
-    <div class="unter">Rapport als PDF</div>
+    <div class="unter">Regiebericht als PDF</div>
   </div>
   <div class="rechts">
     <div class="lite">Lite</div>
@@ -271,7 +271,10 @@
   </div>
 </div>
 <div class="einst" id="einst" hidden>
-  <div class="einstlabel">Darstellung</div>
+  <div class="einstlabel">Firmenname</div>
+  <input id="firma" type="text" placeholder="Name deiner Firma" autocomplete="off">
+  <div class="hinweis">Steht oben im PDF. Die App merkt sich den Namen.</div>
+  <div class="einstlabel" style="margin-top: 12px;">Darstellung</div>
     <div class="modi" id="modi">
       <button type="button" data-m="hell">Hell</button>
       <button type="button" data-m="dunkel">Dunkel</button>
@@ -378,6 +381,11 @@
     }
     speichern('rflite-modus', m);
   }
+  var firmaFeld = document.getElementById('firma');
+  var gespFirma = laden('rflite-firma');
+  if (gespFirma) firmaFeld.value = gespFirma;
+  firmaFeld.addEventListener('input', function () { speichern('rflite-firma', firmaFeld.value.trim()); });
+
   var gespeichert = laden('rflite-modus');
   modus(gespeichert === 'hell' || gespeichert === 'dunkel' ? gespeichert : 'auto');
   var zahn = document.getElementById('zahn');
@@ -552,7 +560,7 @@
     var rein = (baustelle + '-' + datum)
       .replace(/[^a-zA-Z0-9äöüÄÖÜß.\-]+/g, '-')
       .replace(/-+/g, '-');
-    return 'Rapport-' + rein + '.pdf';
+    return 'Regiebericht-' + rein + '.pdf';
   }
 
   function pdfLaden(fertig) {
@@ -594,7 +602,14 @@
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(20);
-      doc.text('Rapport', rand, 18);
+      doc.text('Regiebericht', rand, 18);
+      var firmaPdf = wert('firma');
+      if (firmaPdf) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        var firmaZeile = doc.splitTextToSize(firmaPdf, 95)[0];
+        doc.text(firmaZeile, breite - rand, 17.5, { align: 'right' });
+      }
     }
     function fussZeichnen() {
       doc.setFont('helvetica', 'normal');
