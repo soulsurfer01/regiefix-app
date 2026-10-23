@@ -1,2500 +1,1249 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Regiefix</title>
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="regiefix-180.png" />
-<link rel="apple-touch-icon" sizes="180x180" href="regiefix-180.png" />
-<link rel="apple-touch-icon" sizes="167x167" href="regiefix-167.png" />
-<link rel="apple-touch-icon" sizes="152x152" href="regiefix-152.png" />
-<link rel="apple-touch-icon" sizes="120x120" href="regiefix-120.png" />
-<link rel="icon" type="image/png" sizes="192x192" href="regiefix-192.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="Regiefix" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="color-scheme" content="light dark" />
-<meta id="metaTheme" name="theme-color" content="#185FA5" />
-<script>
-  /* Darstellung so früh wie möglich setzen (kein Aufblitzen) */
-  (function () {
-    var m = "system";
-    try { m = localStorage.getItem("darstellung") || "system"; } catch (e) {}
-    if (m === "hell") document.documentElement.setAttribute("data-theme", "light");
-    if (m === "dunkel") document.documentElement.setAttribute("data-theme", "dark");
-  })();
-</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Regiefix Lite">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="regiefix-lite-180.png">
+<link rel="icon" type="image/png" href="regiefix-lite-192.png">
+<title>Regiefix Lite</title>
+<script src="../jspdf.umd.min.js"></script>
+<script src="../kern.js"></script>
 <style>
   :root {
-    --acc: #185FA5; --accT: #fff; --accInkL: #185FA5; --accInkD: #8cc0f0;
-    --bg: #f2f2f7; --card: #fff; --field: #f2f3f5; --text: #111; --text2: #333; --muted: #6e6e73; --faint: #a0a0a6;
-    --line: #e5e5ea; --dash: #c7c7cc; --danger: #c0392b;
-    --okBg: #e8f5e9; --okTx: #1b5e20; --badBg: #fdecea; --badTx: #b71c1c; --waitBg: #eee; --waitTx: #555;
-    --plate: transparent; --sigBg: #f2f3f5; --midaText: #3a3a3c;
-    --accInk: var(--accInkL);
-    color-scheme: light;
-  }
-  html[data-theme="dark"] {
-    --bg: #000; --card: #1c1c1e; --field: #2c2c2e; --text: #f2f2f7; --text2: #d1d1d6; --muted: #a1a1a6; --faint: #6e6e73;
-    --line: #38383a; --dash: #545458; --danger: #ff6b5e;
-    --okBg: #11301b; --okTx: #8fe39b; --badBg: #3a1414; --badTx: #ff9a9a; --waitBg: #2c2c2e; --waitTx: #c7c7cc;
-    --plate: #fff; --sigBg: #e9e9ee; --midaText: #f2f2f7;
-    --accInk: var(--accInkD);
-    color-scheme: dark;
+    --blau: #185FA5;
+    --gelb: #F5A524;
+    --dunkel: #13202E;
+    --bg: #F3F6FA;
+    --karte: #FFFFFF;
+    --text: #13202E;
+    --text2: #5A6B7D;
+    --rand: #D5DEE8;
+    --fehler: #B3261E;
+    --link: #185FA5;
+    --loesch: #A32D2D;
+    --offen-bg: #FAEEDA;
+    --offen-tx: #633806;
+    --ok-bg: #EAF3DE;
+    --ok-tx: #27500A;
   }
   @media (prefers-color-scheme: dark) {
-    html:not([data-theme="light"]) {
-      --bg: #000; --card: #1c1c1e; --field: #2c2c2e; --text: #f2f2f7; --text2: #d1d1d6; --muted: #a1a1a6; --faint: #6e6e73;
-      --line: #38383a; --dash: #545458; --danger: #ff6b5e;
-      --okBg: #11301b; --okTx: #8fe39b; --badBg: #3a1414; --badTx: #ff9a9a; --waitBg: #2c2c2e; --waitTx: #c7c7cc;
-      --plate: #fff; --sigBg: #e9e9ee; --midaText: #f2f2f7;
-      --accInk: var(--accInkD);
-      color-scheme: dark;
+    :root:not([data-theme]) {
+      --bg: #0E1721;
+      --karte: #13202E;
+      --text: #EAF0F6;
+      --text2: #9FB0C2;
+      --rand: #27384A;
+      --fehler: #FF8A80;
+      --link: #6FB1F0;
+      --loesch: #FF8A80;
+      --offen-bg: #3B2A0E;
+      --offen-tx: #FAC775;
+      --ok-bg: #1F3410;
+      --ok-tx: #C0DD97;
     }
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; }
+  :root[data-theme="dark"] {
+    --bg: #0E1721;
+    --karte: #13202E;
+    --text: #EAF0F6;
+    --text2: #9FB0C2;
+    --rand: #27384A;
+    --fehler: #FF8A80;
+    --link: #6FB1F0;
+    --loesch: #FF8A80;
+    --offen-bg: #3B2A0E;
+    --offen-tx: #FAC775;
+    --ok-bg: #1F3410;
+    --ok-tx: #C0DD97;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
-    font-family: -apple-system, system-ui, Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--text); font-size: 17px;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-text-size-adjust: 100%;
   }
-  .view { display: none; height: 100%; flex-direction: column; }
-  .view.active { display: flex; }
-  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; gap: 8px; min-height: 56px; }
-  h1 { margin: 0; font-size: 30px; }
-  button { font: inherit; border: 0; background: none; color: var(--accInk); cursor: pointer; min-height: 44px; }
-  .pill { background: var(--acc); color: var(--accT); padding: 10px 18px; border-radius: 24px; font-weight: 600; }
-  .muted { color: var(--muted); font-size: 14px; }
-  .scroll { flex: 1; overflow-y: auto; padding: 0 16px 28px; -webkit-overflow-scrolling: touch; }
-  .card { background: var(--card); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; border-left: 6px solid var(--cc, #185FA5); cursor: pointer; }
-  .card b { font-size: 18px; }
-  .card .meta { color: var(--muted); margin: 2px 0 6px; font-size: 14px; white-space: pre-line; }
-  .card .txt { color: var(--text2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 15px; }
-  .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--okBg); color: var(--okTx); margin-left: 6px; font-weight: 600; white-space: nowrap; }
-  .tag.foto { background: var(--field); color: var(--muted); }
-  .empty { text-align: center; color: var(--muted); margin-top: 60px; }
-  .tools2 { padding: 0 16px 4px; }
-  .listScroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; min-height: 0; }
-  #list { padding: 0 16px 20px; flex: 1 0 auto; }
-  .listScroll .bottom { padding-bottom: 10px; }
-  #q { outline: none; -webkit-appearance: none; appearance: none; }
-  .srch:focus-within { box-shadow: 0 0 0 2px var(--accInk); }
-  .srch { display: flex; align-items: center; gap: 8px; background: var(--field); border-radius: 12px; padding: 0 12px; margin-bottom: 10px; }
-  .srch svg { width: 18px; height: 18px; color: var(--faint); flex: none; }
-  .srch input { background: transparent; margin: 0; padding: 10px 0; min-height: 42px; font-size: 16px; }
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chips button { flex: none; min-height: 32px; padding: 5px 14px; border-radius: 16px; background: var(--field); color: var(--text2); font-size: 14px; }
-  .chips button.on { background: var(--acc); color: var(--accT); font-weight: 600; }
-  .chips button .n { opacity: .75; margin-left: 4px; }
-  .gl { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 16px 4px 6px; font-weight: 600; }
-  .gl span:last-child { text-transform: none; letter-spacing: 0; font-weight: 500; }
-  .grp { background: var(--card); border-radius: 14px; overflow: hidden; }
-  .row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
-  .row:last-child { border-bottom: 0; }
-  .row:active { background: var(--field); }
-  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-  .dot.offen { background: #ff9f0a; } .dot.zu { background: #30d158; }
-  .rt { flex: 1; min-width: 0; }
-  .rt b { display: block; font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rt small { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-  .rt small em { font-style: normal; color: #ff9f0a; }
-  .rr { flex: none; font-size: 13px; color: var(--muted); text-align: right; }
-  .more { justify-content: center; color: var(--accInk); font-size: 14px; font-weight: 600; }
-  .archBtn { display: block; margin: 16px auto 4px; font-size: 14px; color: var(--accInk); }
-
-  .brand { background: var(--card); padding: 16px; border-bottom: 4px solid var(--acc); display: flex; align-items: center; justify-content: center; min-height: 92px;
-    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-  .plate { background: var(--plate); border-radius: 12px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-  html[data-theme="dark"] .plate { padding: 8px 12px; }
-  @media (prefers-color-scheme: dark) { html:not([data-theme="light"]) .plate { padding: 8px 12px; } }
-  .brand img { max-height: 58px; max-width: 70vw; object-fit: contain; display: block; -webkit-user-drag: none; pointer-events: none; }
-  .brand .bname { font-weight: 700; font-size: 18px; color: #111; padding: 4px 8px; text-align: center; }
-  .warnBox { display: none; margin: 12px 16px 0; padding: 10px 12px; border-radius: 12px; background: var(--badBg); color: var(--badTx); font-size: 14px; line-height: 1.4; }
-  .warnBox.on { display: block; }
-  .lizBanner { display: none; margin: 0 16px 4px; padding: 8px 12px; border-radius: 14px; font-size: 13px; font-weight: 600; line-height: 1.4;
-    background: color-mix(in srgb, #ff9f0a 22%, transparent); color: var(--text2); border: 1px solid color-mix(in srgb, #ff9f0a 45%, transparent); }
-  .lizBanner.on { display: block; }
-  .lizBanner.aus { background: var(--badBg); color: var(--badTx); border-color: transparent; font-weight: 500; }
-  .warnBox button { display: block; margin-top: 6px; min-height: 36px; padding: 6px 14px; border-radius: 10px; background: var(--acc); color: var(--accT); font-weight: 600; font-size: 14px; }
-  .listHead { display: flex; justify-content: space-between; align-items: center; padding: 16px 16px 6px; }
-  .listHead h1 { font-size: 26px; }
-  #btnNew.newBtn { margin: 6px 16px 14px; width: calc(100% - 32px); flex: none; }
-  .bottom { flex: none; padding: 6px 16px 4px; text-align: center; }
-  .gear { width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); }
-  .gear svg { width: 24px; height: 24px; }
-  .seg.wide { display: flex; margin: 0; }
-  .seg.wide button { flex: 1; min-height: 38px; font-size: 15px; }
-  .setTxt { color: var(--muted); font-size: 14px; line-height: 1.45; margin: 0 0 12px; }
-  .setRow { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
-  .setRow span { color: var(--muted); flex: none; }
-  .setRow b { font-weight: 600; text-align: right; }
-  .sec2btn { width: 100%; margin-top: 12px; background: var(--field); border-radius: 12px; font-weight: 600; font-size: 15px; }
-  .linkBtn { font-size: 14px; min-height: 36px; }
-  .seg { display: inline-flex; background: var(--field); border-radius: 10px; padding: 3px; gap: 2px; margin: 4px 0 6px; }
-  .seg button { min-height: 30px; padding: 4px 12px; font-size: 13px; color: var(--muted); border-radius: 8px; }
-  .seg button.on { background: var(--card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
-  .credit { text-align: center; padding: 4px 0 6px; font-size: 11px; color: var(--faint); line-height: 1.5; letter-spacing: .02em; }
-  .credit .midaLogo { height: 18px; width: auto; display: inline-block; vertical-align: middle; margin-bottom: 3px; }
-  .midaLogo .mt { fill: var(--midaText); }
-
-  .sec { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 14px; }
-  .sec h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
-  input, textarea, select {
-    font: inherit; font-size: 17px; width: 100%; border: 0; background: var(--field); color: var(--text);
-    border-radius: 12px; padding: 13px 12px; margin-bottom: 10px; min-height: 48px;
+  .kopf {
+    background: var(--blau);
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
-  input::placeholder, textarea::placeholder { color: var(--faint); }
-  input:disabled, textarea:disabled, select:disabled { opacity: 1; -webkit-text-fill-color: var(--text); color: var(--text); }
-  textarea { min-height: 170px; resize: none; line-height: 1.45; }
-  label, .mini { display: block; font-size: 12px; color: var(--muted); margin: 0 0 4px 4px; }
-  .grid2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
-  .grid2 > div { min-width: 0; }
-  .eBrand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .eBrand img { height: 40px; max-width: 160px; object-fit: contain; display: block; }
-
-  .fld { position: relative; min-width: 0; }
-  .fld input { padding-right: 52px; }
-  .mic {
-    position: absolute; right: 4px; top: 4px; width: 40px; height: 40px; min-height: 0; padding: 0;
-    border-radius: 10px; color: var(--accInk); display: flex; align-items: center; justify-content: center;
+  .logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.35);
   }
-  .mic svg, .bigbtn svg { width: 22px; height: 22px; }
-  .mic.rec { background: #e53935; color: #fff; animation: pulse 1.2s infinite; }
-  #viewEdit.locked .mic { display: none; }
-  #viewEdit.locked .fld input { padding-right: 12px; }
-
-  .item { border: 1px solid var(--line); border-radius: 14px; padding: 10px 10px 0; margin-bottom: 10px; }
-  .l2m { display: grid; grid-template-columns: minmax(0,1fr) 40px; gap: 8px; align-items: end; }
-  .l2a { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 40px; gap: 8px; align-items: end; }
-  .x { color: var(--danger); font-size: 20px; padding: 0; height: 48px; margin-bottom: 10px; }
-  .addbtn { width: 100%; border: 1.5px dashed var(--accInk); border-radius: 12px; font-weight: 600; }
-  .bigbtn { width: 100%; background: var(--acc); color: var(--accT); border-radius: 14px; font-weight: 600; font-size: 18px; min-height: 56px;
-    display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .bigbtn.rec { background: #e53935; color: #fff; animation: pulse 1.2s infinite; }
-  .bigbtn:disabled { opacity: .6; }
-  @keyframes pulse { 50% { box-shadow: 0 0 0 10px rgba(229,57,53,.15); } }
-  .hint { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
-  .sum { font-size: 15px; color: var(--text2); margin-top: 8px; font-weight: 600; }
-
-  /* Fotos */
-  .fotos { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 10px; }
-  .foto { position: relative; aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: var(--field); }
-  .foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .foto .fx { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; min-height: 0; padding: 0; border-radius: 50%;
-    background: rgba(0,0,0,.55); color: #fff; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-  #viewEdit.locked .foto .fx { display: none; }
-  #viewEdit.lite #addFoto { display: none; }
-  #viewEdit.lite #btnSeal { opacity: 1; background: var(--field); background-image: none; color: var(--muted); box-shadow: none; font-size: 16px; }
-  #viewEdit.lite #fotoHint { color: var(--muted); font-weight: 600; }
-  #fotoView { position: fixed; inset: 0; background: #000; display: none; z-index: 20; align-items: center; justify-content: center; flex-direction: column; }
-  #fotoView.open { display: flex; }
-  #fotoView img { max-width: 100%; max-height: 86%; object-fit: contain; }
-  #fotoView .cap { color: #bbb; font-size: 13px; margin-top: 10px; }
-  #fotoView button { position: absolute; top: calc(env(safe-area-inset-top) + 8px); right: 12px; color: #fff; font-size: 17px; }
-
-  .sg { margin-bottom: 18px; }
-  .sgT { font-weight: 600; margin-bottom: 8px; }
-  .signBox {
-    height: 110px; background: var(--sigBg); border: 1.5px dashed var(--dash); border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; color: #888; overflow: hidden; margin-bottom: 6px;
+  .titel { color: #fff; font-size: 18px; font-weight: 600; line-height: 1.2; }
+  .titel.lang { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .unter { color: #B5D4F4; font-size: 13px; }
+  .rechts { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .lite {
+    background: var(--gelb);
+    color: var(--dunkel);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
   }
-  .signBox img { max-width: 100%; max-height: 100%; }
-  .sgI { font-size: 13px; color: var(--muted); }
-  .linkRed { color: var(--danger); display: block; font-size: 14px; }
-  .sealInfo { display: none; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 15px; }
-  .sealInfo.ok { display: block; background: var(--okBg); color: var(--okTx); }
-  .sealInfo.bad { display: block; background: var(--badBg); color: var(--badTx); font-weight: 600; }
-  .sealInfo.wait { display: block; background: var(--waitBg); color: var(--waitTx); }
-  #viewEdit.locked .edit-only { display: none !important; }
-  .actions { display: grid; gap: 10px; }
-  .quick textarea { min-height: 96px; }
-  .quick textarea, #eText { overflow: hidden; }
-  .quick .setTxt { margin-bottom: 10px; }
-  .quick .sec2btn { margin-top: 10px; }
-  .qInfo { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: var(--okBg); color: var(--okTx); font-size: 14px; line-height: 1.4; }
-  .qInfo.on { display: block; }
-  .qInfo.leer { background: var(--waitBg); color: var(--waitTx); }
-  .qInfo button { min-height: 32px; padding: 0; margin-left: 6px; font-size: 14px; font-weight: 600; color: inherit; text-decoration: underline; }
-  .neu { animation: neuBlink 1.6s ease; }
-  @keyframes neuBlink { 0%, 40% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 45%, transparent); } 100% { box-shadow: none; } }
-  .actions .sec2 { background: var(--card); border-radius: 14px; font-weight: 600; }
-
-  /* Einrichtung */
-  .setupBox { background: var(--card); border-radius: 18px; padding: 20px; margin: 8px 0 16px; text-align: center; }
-  .setupBox h2 { margin: 6px 0 8px; font-size: 22px; }
-  .setupBox p { color: var(--muted); font-size: 15px; line-height: 1.45; margin: 0 0 16px; }
-  .setupBox .bigbtn { margin-bottom: 10px; }
-  .qrIcon { width: 64px; height: 64px; color: var(--accInk); }
-  .appIcon { width: 72px; height: 72px; border-radius: 16px; display: block; margin: 0 auto; }
-  #scanWrap { display: none; position: relative; border-radius: 16px; overflow: hidden; background: #000; margin-bottom: 12px; }
-  #scanWrap.on { display: block; }
-  #scanVideo { width: 100%; display: block; max-height: 55vh; object-fit: cover; }
-  #scanWrap .frame { position: absolute; inset: 18%; border: 3px solid rgba(255,255,255,.85); border-radius: 18px; pointer-events: none; }
-  #setupMsg { font-size: 15px; margin: 4px 0 10px; min-height: 20px; }
-  #setupMsg.err { color: var(--danger); font-weight: 600; }
-  #setupOk { display: none; }
-  #setupOk.on { display: block; }
-  #setupOk .who { font-size: 20px; font-weight: 700; margin: 10px 0 2px; }
-  #setupOk .firm { color: var(--muted); font-size: 15px; white-space: pre-line; margin-bottom: 16px; }
-  #setupOk img { max-height: 54px; max-width: 80%; object-fit: contain; }
-  #pasteBox { display: none; }
-  #pasteBox.on { display: block; }
-  #pasteBox textarea { min-height: 90px; font-size: 14px; }
-
-  #signModal {
-    position: fixed; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 10;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  main { max-width: 560px; margin: 0 auto; padding: 16px; }
+  .karte {
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
-  #signModal.open { display: flex; }
-  #signWrap { flex: 1; padding: 0 16px; min-height: 0; }
-  #pad { width: 100%; height: 100%; background: #fff; border: 1px solid #ccc; border-radius: 12px; touch-action: none; display: block; }
-  .modalFoot { display: flex; justify-content: space-around; align-items: center; padding: 14px 0; }
-
-  /* ===== Glas-Optik (iOS 26/27-Stil) ===== */
-  :root {
-    --glass: rgba(255,255,255,.58); --glassStrong: rgba(255,255,255,.78); --glassEdge: rgba(255,255,255,.75);
-    --glassHi: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(0,0,0,.03);
-    --glassSh: 0 8px 28px rgba(20,30,60,.08), 0 1px 2px rgba(20,30,60,.06);
-    --field: rgba(118,118,128,.12); --line: rgba(60,60,67,.14);
-    --amb1: color-mix(in srgb, var(--acc) 22%, transparent); --amb2: rgba(80,140,255,.16); --amb3: rgba(120,220,200,.14);
-    --bg: #eef0f6;
+  .zahn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 10px;
+    flex-shrink: 0;
   }
-  html[data-theme="dark"] {
-    --glass: rgba(40,40,46,.52); --glassStrong: rgba(44,44,50,.72); --glassEdge: rgba(255,255,255,.10);
-    --glassHi: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.25);
-    --glassSh: 0 10px 30px rgba(0,0,0,.45);
-    --field: rgba(118,118,128,.24); --line: rgba(84,84,88,.55);
-    --amb1: color-mix(in srgb, var(--acc) 30%, transparent); --amb2: rgba(60,110,255,.20); --amb3: rgba(40,180,160,.14);
-    --bg: #050507;
+  .zahn svg { width: 20px; height: 20px; display: block; margin: 0 auto; }
+  .einst {
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 14px;
   }
-  @media (prefers-color-scheme: dark) {
-    html:not([data-theme="light"]) {
-      --glass: rgba(40,40,46,.52); --glassStrong: rgba(44,44,50,.72); --glassEdge: rgba(255,255,255,.10);
-      --glassHi: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.25);
-      --glassSh: 0 10px 30px rgba(0,0,0,.45);
-      --field: rgba(118,118,128,.24); --line: rgba(84,84,88,.55);
-      --amb1: color-mix(in srgb, var(--acc) 30%, transparent); --amb2: rgba(60,110,255,.20); --amb3: rgba(40,180,160,.14);
-      --bg: #050507;
-    }
+  .einstlabel { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+  .modi { display: flex; gap: 6px; }
+  .modi button {
+    flex: 1;
+    height: 34px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
   }
-  /* weicher Farbhintergrund, damit das Glas etwas zum Brechen hat */
-  body::before {
-    content: ""; position: fixed; inset: -10%; z-index: -1; pointer-events: none;
-    background:
-      radial-gradient(40% 35% at 15% 8%, var(--amb1), transparent 70%),
-      radial-gradient(45% 40% at 95% 30%, var(--amb2), transparent 70%),
-      radial-gradient(50% 40% at 30% 95%, var(--amb3), transparent 70%),
-      var(--bg);
+  .modi button.aktiv {
+    background: var(--blau);
+    border-color: var(--blau);
+    color: #fff;
   }
-  body { background: var(--bg); }
-  .gl-surf, .sec, .grp, .card, .setupBox, .brand, .actions .sec2, .srch, .seg, .chips button, header button, .gear, .warnBox {
-    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+  .zeile { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .kraft {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) 40px;
+    gap: 8px;
   }
-  .sec, .grp, .card, .setupBox, .actions .sec2 {
-    background: var(--glass); border: 1px solid var(--glassEdge); box-shadow: var(--glassHi), var(--glassSh);
+  .kraftkopf { margin-bottom: 4px; }
+  .kraftkopf label { margin: 0; }
+  #kraefte { display: flex; flex-direction: column; gap: 8px; }
+  label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 4px; }
+  input, textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    padding: 10px 12px;
   }
-  .sec, .card { border-radius: 22px; }
-  .grp { border-radius: 20px; }
-  .setupBox { border-radius: 26px; }
-  .card { border-left: 6px solid var(--cc, #185FA5); }
-  .brand { background: var(--glassStrong); border-bottom: 0; margin: 10px 12px 0; border-radius: 24px;
-    border: 1px solid var(--glassEdge); box-shadow: var(--glassHi), var(--glassSh); position: relative; overflow: hidden; }
-  .brand::after { content: ""; position: absolute; left: 22%; right: 22%; bottom: 0; height: 3px; border-radius: 3px; background: var(--acc); opacity: .85; }
-  .brand .plate { background: #fff; padding: 8px 12px; border-radius: 14px; }
-  .srch { background: var(--glass); border: 1px solid var(--glassEdge); box-shadow: var(--glassHi); border-radius: 22px; }
-  .chips button { background: var(--glass); border: 1px solid var(--glassEdge); box-shadow: var(--glassHi); }
-  .chips button.on { border-color: transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 14px color-mix(in srgb, var(--acc) 35%, transparent); }
-  .seg { background: var(--field); border-radius: 22px; padding: 4px; }
-  .seg button { border-radius: 18px; }
-  .seg button.on { background: var(--glassStrong); box-shadow: var(--glassHi), 0 2px 8px rgba(0,0,0,.12); }
-  .gear { background: var(--glass); border: 1px solid var(--glassEdge); border-radius: 50%; box-shadow: var(--glassHi), var(--glassSh); color: var(--text2); }
-  .row:active { background: color-mix(in srgb, var(--text) 6%, transparent); }
-  .bigbtn, .pill { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(0,0,0,.12), 0 6px 18px color-mix(in srgb, var(--acc) 30%, transparent);
-    background-image: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 55%); }
-  .bigbtn { border-radius: 20px; }
-  .bigbtn, .pill, .chips button, .gear, header button, .actions .sec2, .addbtn { transition: transform .15s ease; }
-  .bigbtn:active, .pill:active, .chips button:active, .gear:active, header button:active, .actions .sec2:active, .addbtn:active { transform: scale(.97); }
-  .addbtn { border-radius: 18px; }
-  input, textarea, select { border-radius: 14px; }
-  .item { border-color: var(--line); border-radius: 18px; }
-  .warnBox { border: 1px solid var(--glassEdge); }
-
-  /* schwebende Kopfzeile: Inhalt läuft unter Glas-Buttons durch */
-  .view { position: relative; }
-  .view > header { position: absolute; top: 0; left: 0; right: 0; z-index: 5; pointer-events: none; padding: 8px 12px; }
-  .view > header::before { content: ""; position: absolute; inset: 0 0 -18px 0; z-index: -1; pointer-events: none;
-    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-    -webkit-mask-image: linear-gradient(#000 45%, transparent); mask-image: linear-gradient(#000 45%, transparent);
-    background: linear-gradient(color-mix(in srgb, var(--bg) 55%, transparent), transparent); }
-  .view > header > * { pointer-events: auto; }
-  .view > header button { background: var(--glass); border: 1px solid var(--glassEdge); box-shadow: var(--glassHi), var(--glassSh);
-    border-radius: 22px; padding: 0 16px; min-height: 42px; font-weight: 600; }
-  .view > header .muted { font-weight: 600; color: var(--text2); font-size: 15px; padding: 0 6px; }
-  .view > .scroll { padding-top: 66px; }
-  #signModal header { padding: 8px 12px; }
-  #signModal header button { background: var(--glass); border: 1px solid var(--glassEdge); box-shadow: var(--glassHi); border-radius: 22px; padding: 0 16px; min-height: 42px; font-weight: 600;
-    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); }
-
-  /* Fallback: kein Glas möglich oder "Transparenz reduzieren" aktiv */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .sec, .grp, .card, .setupBox, .actions .sec2, .srch, .chips button, .gear, .view > header button, .brand { background: var(--card); }
+  textarea { resize: vertical; min-height: 96px; }
+  input:focus, textarea:focus {
+    outline: 2px solid var(--blau);
+    outline-offset: 1px;
   }
-  @media (prefers-reduced-transparency: reduce) {
-    .sec, .grp, .card, .setupBox, .actions .sec2, .srch, .chips button, .gear, .view > header button, .brand { background: var(--card); -webkit-backdrop-filter: none; backdrop-filter: none; }
-    body::before { display: none; }
+  button {
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
   }
-
-  /* Regiefix-Schriftzug */
-  .wmH { margin: 0; line-height: 0; }
-  .wm { height: 30px; width: auto; display: block; }
-  .wm .wmR { fill: var(--text); }
-  .wm .wmF { fill: var(--accInk); }
-  .wmSetup { display: flex; justify-content: center; margin-top: 4px; }
-  .wmSetup .wm { height: 34px; }
-  .wmBrand .wmF { fill: #185FA5; }
-  html[data-theme="dark"] .wmBrand .wmF { fill: #5AA2E6; }
-  @media (prefers-color-scheme: dark) { html:not([data-theme="light"]) .wmBrand .wmF { fill: #5AA2E6; } }
-  .setupBox h2 { margin-top: 2px !important; font-size: 18px !important; font-weight: 600; color: var(--muted); }
-  /* Gelber Haken (Erfolg) */
-  #haken { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 999; opacity: 0; transition: opacity .2s; }
-  #haken.on { opacity: 1; }
-  #haken .hk { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 26px 34px; border-radius: 28px;
-    background: color-mix(in srgb, var(--card) 78%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
-    box-shadow: 0 20px 50px rgba(0,0,0,.18); transform: scale(.85); transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
-  #haken.on .hk { transform: scale(1); }
-  #haken svg { width: 76px; height: 76px; }
-  #haken svg path { fill: none; stroke: #F5A524; stroke-width: 15; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
-  #haken.on svg path { animation: hakenZiehen .45s .12s ease-out forwards; }
-  @keyframes hakenZiehen { to { stroke-dashoffset: 0; } }
-  #haken .hkT { font-weight: 700; font-size: 17px; color: var(--text); }
-  @media (prefers-reduced-motion: reduce) { #haken .hk { transition: none; transform: none; } #haken.on svg path { animation: none; stroke-dashoffset: 0; } }
+  button:active { transform: scale(0.98); }
+  .vorschau {
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 12px;
+    height: 48px;
+  }
+  .haupt {
+    color: #fff;
+    background: var(--blau);
+    border: none;
+    border-radius: 12px;
+    height: 48px;
+  }
+  .neu { width: 100%; margin-bottom: 14px; }
+  .plus {
+    width: 100%;
+    height: 42px;
+    margin-top: 8px;
+    font-size: 15px;
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 10px;
+  }
+  .weg {
+    width: 40px;
+    height: 100%;
+    min-height: 42px;
+    padding: 0;
+    color: var(--loesch);
+    background: transparent;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+  }
+  .weg svg { width: 18px; height: 18px; display: block; margin: 0 auto; }
+  .hinweis { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  #liste { display: flex; flex-direction: column; gap: 8px; }
+  .eintrag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    font-weight: 400;
+    color: var(--text);
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .etext { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .etitel { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .esub { font-size: 12px; color: var(--text2); }
+  .status { font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 6px; flex-shrink: 0; }
+  .status.offen { background: var(--offen-bg); color: var(--offen-tx); }
+  .status.fertig { background: var(--ok-bg); color: var(--ok-tx); }
+  .pfeil { color: var(--text2); font-size: 18px; flex-shrink: 0; }
+  .leer { text-align: center; color: var(--text2); font-size: 14px; padding: 16px 8px; }
+  .sbox {
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .skopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .stitel { font-size: 14px; font-weight: 500; }
+  .sknopf {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--link);
+    background: transparent;
+    border: 1px solid var(--link);
+    border-radius: 10px;
+  }
+  .svor {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 90px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 6px;
+  }
+  .sweg, .sfertig { height: 40px; font-size: 14px; border-radius: 10px; }
+  .sweg { flex: 1; color: var(--text); background: transparent; border: 1px solid var(--rand); }
+  .sfertig { flex: 2; color: #fff; background: var(--blau); border: none; }
+  .sig {
+    width: 100%;
+    aspect-ratio: 640 / 220;
+    display: block;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    touch-action: none;
+  }
+  .fehler { color: var(--fehler); font-size: 13px; min-height: 18px; }
+  .hilfe { text-align: center; margin-top: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .hilfeknopf {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--link);
+    background: none;
+    border: none;
+    padding: 8px 12px;
+  }
+  .hilfebox {
+    text-align: left;
+    background: var(--karte);
+    border: 1px solid var(--rand);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .hilfebox ol { margin: 0; padding-left: 20px; }
+  .abstand { height: calc(16px + env(safe-area-inset-bottom)); }
+  .signier {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 60;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+  }
+  .signkopf {
+    background: var(--blau);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+  }
+  .signflaeche { flex: 1; position: relative; margin: 12px 12px 0; min-height: 0; }
+  #signcanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    touch-action: none;
+    display: block;
+  }
+  .signlinie {
+    position: absolute;
+    left: 24px; right: 24px; bottom: 18%;
+    border-top: 1px solid #C5CCD6;
+    pointer-events: none;
+  }
+  .signhinweis {
+    position: absolute;
+    left: 24px; bottom: calc(18% - 22px);
+    font-size: 12px;
+    color: #9AA5B4;
+    pointer-events: none;
+  }
+  .signleiste {
+    display: flex;
+    gap: 8px;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  }
+  .signleiste .sweg, .signleiste .sfertig { height: 48px; font-size: 15px; }
+  .zaehler {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .zaehler b { color: var(--text); font-weight: 600; }
+  .neu.voll { background: var(--rand); color: var(--text2); }
+  .limit {
+    background: var(--offen-bg);
+    color: var(--offen-tx);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .intro {
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 50;
+    background: var(--bg);
+    overflow-y: auto;
+  }
+  .introkopf {
+    background: var(--blau);
+    padding: calc(28px + env(safe-area-inset-top)) 16px 24px;
+    text-align: center;
+  }
+  .introkopf svg {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  .introtitel { color: #fff; font-size: 20px; font-weight: 600; margin-top: 10px; }
+  .introtext {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .intropunkt { display: flex; gap: 12px; }
+  .introhaken {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--text);
+    border: 1px solid var(--rand);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .introhaken input {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    margin: 1px 0 0;
+    padding: 0;
+    accent-color: #185FA5;
+  }
+  .kauf {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--blau);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .kauftext { flex: 1; min-width: 0; }
+  .kauftitel { font-size: 15px; font-weight: 600; }
+  .kaufsub { font-size: 12px; color: var(--text2); }
+  .kaufpreis { text-align: right; flex-shrink: 0; }
+  .kaufbetrag { font-size: 17px; font-weight: 600; }
+  .intropunkt::before {
+    content: "";
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gelb);
+    margin-top: 8px;
+  }
 </style>
 </head>
 <body>
 
-<!-- Einrichtung per QR-Code -->
-<section id="viewSetup" class="view">
-  <header>
-    <button id="setupCancel" style="visibility:hidden">‹ Abbrechen</button>
-    <span class="muted">Einrichtung</span>
-  </header>
-  <div class="scroll">
-    <div class="setupBox" id="setupStart">
-      <img src="regiefix-180.png" alt="" class="appIcon" />
-      <svg class="qrIcon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h3v-3"/></svg>
-      <div class="wmSetup"><svg class="wm wmBrand" viewBox="242 48 390 118" role="img" aria-label="Regiefix"><path class="wmR" d="M285.20 140Q284.24 140 283.88 139.04L283.88 139.04L269.96 103.28Q269.84 102.92 269.48 102.92L269.48 102.92L256.64 102.92Q256.16 102.92 256.16 103.40L256.16 103.40L256.16 138.80Q256.16 140 254.96 140L254.96 140L245.84 140Q244.64 140 244.64 138.80L244.64 138.80L244.64 57.20Q244.64 56 245.84 56L245.84 56L272.72 56Q282.80 56 288.92 62.60Q295.04 69.20 295.04 79.88L295.04 79.88Q295.04 87.92 291.32 93.68Q287.60 99.44 281.12 101.60L281.12 101.60Q280.76 101.72 280.88 102.20L280.88 102.20L295.52 138.56L295.64 139.04Q295.64 140 294.56 140L294.56 140L285.20 140ZM256.64 65.96Q256.16 65.96 256.16 66.44L256.16 66.44L256.16 93.32Q256.16 93.80 256.64 93.80L256.64 93.80L271.16 93.80Q276.68 93.80 280.10 90.02Q283.52 86.24 283.52 80L283.52 80Q283.52 73.64 280.16 69.80Q276.80 65.96 271.16 65.96L271.16 65.96L256.64 65.96ZM329.24 131Q333.32 131 336.14 129.02Q338.96 127.04 340.40 123.56L340.40 123.56Q340.76 122.48 341.84 122.72L341.84 122.72L350 124.52Q351.20 124.88 350.84 125.96L350.84 125.96Q348.56 133.04 342.92 137Q337.28 140.96 329.12 140.96L329.12 140.96Q319.76 140.96 314.00 136.28Q308.24 131.60 306.68 123.44L306.68 123.44Q306.08 120.08 305.90 116.30Q305.72 112.52 305.72 106.28L305.72 106.28Q305.72 100.16 306.32 96.56L306.32 96.56Q307.40 88.16 313.40 83.06Q319.40 77.96 328.52 77.96L328.52 77.96Q338.48 77.96 344.60 83.60Q350.72 89.24 351.44 98.48L351.44 98.48Q351.80 102.56 351.80 113.48L351.80 113.48Q351.80 114.68 350.60 114.68L350.60 114.68L317.72 114.68Q317.24 114.68 317.24 115.16L317.24 115.16Q317.24 118.52 317.60 121.04L317.60 121.04Q318.20 125.48 321.32 128.24Q324.44 131 329.24 131L329.24 131ZM328.64 87.92Q324.08 87.92 321.14 90.68Q318.20 93.44 317.60 97.88L317.60 97.88Q317.24 101.12 317.24 104.96L317.24 104.96Q317.24 105.44 317.72 105.44L317.72 105.44L339.80 105.44Q340.28 105.44 340.28 104.96L340.28 104.96Q340.04 100.16 339.80 98L339.80 98Q339.20 93.56 336.20 90.74Q333.20 87.92 328.64 87.92L328.64 87.92ZM396.92 80.12Q396.92 78.92 398.12 78.92L398.12 78.92L407.24 78.92Q408.44 78.92 408.44 80.12L408.44 80.12L408.44 137.60Q408.44 164.24 379.88 164.24L379.88 164.24Q377.36 164.24 376.04 164.12L376.04 164.12Q374.84 164 374.84 162.80L374.84 162.80L375.08 154.76Q375.08 154.16 375.44 153.86Q375.80 153.56 376.28 153.68L376.28 153.68Q387.56 154.16 392.24 150.20Q396.92 146.24 396.92 136.76L396.92 136.76L396.92 134.48Q396.92 134.24 396.74 134.12Q396.56 134 396.32 134.24L396.32 134.24Q391.64 140 383.24 140L383.24 140Q375.44 140 370.10 135.38Q364.76 130.76 363.56 122.48L363.56 122.48Q362.84 118.64 362.84 109.40L362.84 109.40Q362.84 99.44 363.68 95.48L363.68 95.48Q364.76 87.44 369.86 82.70Q374.96 77.96 382.76 77.96L382.76 77.96Q391.40 77.96 396.32 83.60L396.32 83.60Q396.56 83.84 396.74 83.72Q396.92 83.60 396.92 83.36L396.92 83.36L396.92 80.12ZM396.68 120.44Q396.92 114.20 396.92 109.28L396.92 109.28Q396.92 102.56 396.56 97.88L396.56 97.88Q396.08 93.56 393.20 90.74Q390.32 87.92 385.88 87.92L385.88 87.92Q381.56 87.92 378.62 90.74Q375.68 93.56 375.08 97.88L375.08 97.88Q374.36 102.56 374.36 109.28L374.36 109.28Q374.36 115.52 374.96 120.32L374.96 120.32Q375.56 124.76 378.56 127.52Q381.56 130.28 386 130.28L386 130.28Q390.44 130.28 393.32 127.52Q396.20 124.76 396.68 120.44L396.68 120.44ZM429.32 69.32Q425.96 69.32 423.80 67.16Q421.64 65 421.64 61.64L421.64 61.64Q421.64 58.16 423.80 56.06Q425.96 53.96 429.32 53.96L429.32 53.96Q432.68 53.96 434.84 56.12Q437 58.28 437 61.64L437 61.64Q437 65 434.78 67.16Q432.56 69.32 429.32 69.32L429.32 69.32ZM424.64 140Q423.44 140 423.44 138.80L423.44 138.80L423.44 80.12Q423.44 78.92 424.64 78.92L424.64 78.92L433.76 78.92Q434.96 78.92 434.96 80.12L434.96 80.12L434.96 138.80Q434.96 140 433.76 140L433.76 140L424.64 140ZM472.76 131Q476.84 131 479.66 129.02Q482.48 127.04 483.92 123.56L483.92 123.56Q484.28 122.48 485.36 122.72L485.36 122.72L493.52 124.52Q494.72 124.88 494.36 125.96L494.36 125.96Q492.08 133.04 486.44 137Q480.80 140.96 472.64 140.96L472.64 140.96Q463.28 140.96 457.52 136.28Q451.76 131.60 450.20 123.44L450.20 123.44Q449.60 120.08 449.42 116.30Q449.24 112.52 449.24 106.28L449.24 106.28Q449.24 100.16 449.84 96.56L449.84 96.56Q450.92 88.16 456.92 83.06Q462.92 77.96 472.04 77.96L472.04 77.96Q482.00 77.96 488.12 83.60Q494.24 89.24 494.96 98.48L494.96 98.48Q495.32 102.56 495.32 113.48L495.32 113.48Q495.32 114.68 494.12 114.68L494.12 114.68L461.24 114.68Q460.76 114.68 460.76 115.16L460.76 115.16Q460.76 118.52 461.12 121.04L461.12 121.04Q461.72 125.48 464.84 128.24Q467.96 131 472.76 131L472.76 131ZM472.16 87.92Q467.60 87.92 464.66 90.68Q461.72 93.44 461.12 97.88L461.12 97.88Q460.76 101.12 460.76 104.96L460.76 104.96Q460.76 105.44 461.24 105.44L461.24 105.44L483.32 105.44Q483.80 105.44 483.80 104.96L483.80 104.96Q483.56 100.16 483.32 98L483.32 98Q482.72 93.56 479.72 90.74Q476.72 87.92 472.16 87.92L472.16 87.92Z"/><path class="wmF" d="M536.88 77.96Q537.48 77.96 537.90 78.38Q538.32 78.80 538.32 79.40L538.32 79.40L538.32 91.52Q538.32 92.12 537.90 92.54Q537.48 92.96 536.88 92.96L536.88 92.96L528.36 92.96Q527.76 92.96 527.76 93.56L527.76 93.56L527.76 138.56Q527.76 139.16 527.34 139.58Q526.92 140 526.32 140L526.32 140L509.28 140Q508.68 140 508.26 139.58Q507.84 139.16 507.84 138.56L507.84 138.56L507.84 93.56Q507.84 92.96 507.24 92.96L507.24 92.96L502.32 92.96Q501.72 92.96 501.30 92.54Q500.88 92.12 500.88 91.52L500.88 91.52L500.88 79.40Q500.88 78.80 501.30 78.38Q501.72 77.96 502.32 77.96L502.32 77.96L507.24 77.96Q507.84 77.96 507.84 77.36L507.84 77.36L507.84 73.88Q507.84 66.68 510.54 62.66Q513.24 58.64 518.70 57.08Q524.16 55.52 533.16 55.88L533.16 55.88L535.56 55.88Q536.16 55.88 536.58 56.30Q537 56.72 537 57.32L537 57.32L537 68.36Q537 68.96 536.58 69.38Q536.16 69.80 535.56 69.80L535.56 69.80L533.28 69.80Q530.40 69.92 529.08 71.36Q527.76 72.80 527.76 75.56L527.76 75.56L527.76 77.36Q527.76 77.96 528.36 77.96L528.36 77.96L536.88 77.96ZM555 72.44Q550.44 72.44 547.50 69.50Q544.56 66.56 544.56 62L544.56 62Q544.56 57.32 547.50 54.44Q550.44 51.56 555 51.56L555 51.56Q559.56 51.56 562.50 54.44Q565.44 57.32 565.44 62L565.44 62Q565.44 66.44 562.50 69.44Q559.56 72.44 555 72.44L555 72.44ZM546.48 140Q545.88 140 545.46 139.58Q545.04 139.16 545.04 138.56L545.04 138.56L545.04 79.40Q545.04 78.80 545.46 78.38Q545.88 77.96 546.48 77.96L546.48 77.96L563.52 77.96Q564.12 77.96 564.54 78.38Q564.96 78.80 564.96 79.40L564.96 79.40L564.96 138.56Q564.96 139.16 564.54 139.58Q564.12 140 563.52 140L563.52 140L546.48 140ZM572.40 140Q571.56 140 571.32 139.52Q571.08 139.04 571.44 138.32L571.44 138.32L587.76 109.28Q588 108.92 587.76 108.56L587.76 108.56L571.44 79.64Q571.20 79.16 571.20 78.92L571.20 78.92Q571.20 77.96 572.40 77.96L572.40 77.96L590.76 77.96Q592.08 77.96 592.56 79.04L592.56 79.04L599.28 91.64Q599.64 92.12 600 91.52L600 91.52L606.60 79.04Q607.20 77.96 608.40 77.96L608.40 77.96L627.48 77.96Q628.32 77.96 628.56 78.44Q628.80 78.92 628.44 79.64L628.44 79.64L612.12 108.56Q612 108.92 612.12 109.28L612.12 109.28L628.44 138.32Q628.68 138.80 628.68 139.04L628.68 139.04Q628.68 140 627.48 140L627.48 140L609 140Q607.92 140 607.32 138.92L607.32 138.92L600.60 126.08Q600.24 125.48 599.88 126.08L599.88 126.08L593.04 138.92Q592.56 140 591.36 140L591.36 140L572.40 140Z"/></svg></div><h2>einrichten</h2>
-      <p>Diese App wird von deiner Firma eingerichtet. Scanne den QR-Code, den du bekommen hast.</p>
-      <div id="scanWrap"><video id="scanVideo" playsinline muted></video><div class="frame"></div></div>
-      <div id="setupMsg"></div>
-      <button class="bigbtn" id="btnScan">QR-Code scannen</button>
-      <button id="btnPasteToggle" class="linkBtn">Code oder Link einfügen</button>
-      <div id="pasteBox">
-        <textarea id="pasteInput" placeholder="Einrichtungs-Link oder Code hier einfügen"></textarea>
-        <button class="bigbtn" id="btnPasteGo">Code prüfen</button>
+<div class="signier" id="signier" hidden>
+  <div class="signkopf" id="signtitel">Unterschrift</div>
+  <div class="signflaeche">
+    <canvas id="signcanvas"></canvas>
+    <div class="signlinie"></div>
+    <div class="signhinweis" id="signhinweis">Hier unterschreiben</div>
+  </div>
+  <div class="signleiste">
+    <button class="sweg" id="signweg" type="button">Löschen</button>
+    <button class="sfertig" id="signfertig" type="button">Fertig</button>
+  </div>
+</div>
+
+<div class="intro" id="intro" hidden>
+  <div class="introkopf">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <rect width="200" height="200" fill="#185FA5"/>
+      <path d="M44 52 H156 A14 14 0 0 1 170 66 V122 A14 14 0 0 1 156 136 H92 L62 160 V136 H44 A14 14 0 0 1 30 122 V66 A14 14 0 0 1 44 52 Z" fill="#FFFFFF"/>
+      <path d="M72 95 L92 115 L130 76" fill="none" stroke="#F5A524" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="introtitel">Willkommen bei Regiefix Lite</div>
+  </div>
+  <div class="introtext">
+    <div class="intropunkt">Deine Regieberichte liegen nur auf diesem Handy. Löschst du die App, sind sie weg.</div>
+    <div class="intropunkt">Wichtige Berichte schickst du dir als PDF oder druckst sie zuhause aus.</div>
+    <div class="intropunkt">Lite speichert bis zu 5 Berichte gratis. Alte kannst du löschen, dann ist wieder Platz.</div>
+    <div class="kauf">
+      <div class="kauftext">
+        <div class="kauftitel">Lite unbegrenzt</div>
+        <div class="kaufsub">Unbegrenzt Berichte speichern, einmalig</div>
+      </div>
+      <div class="kaufpreis">
+        <div class="kaufbetrag">4,99 €</div>
+        <div class="kaufsub">kommt mit der App</div>
       </div>
     </div>
-    <div class="setupBox" id="setupOk">
-      <div class="plate" id="setupLogoPlate"><img id="setupLogo" alt="" /></div>
-      <div class="who" id="setupWho"></div>
-      <div class="firm" id="setupFirm"></div>
-      <button class="bigbtn" id="btnSetupDone">Los geht's</button>
+    <div class="intropunkt">Tippe oben rechts auf das Zahnrad und trage deine Firmendaten ein. Sie stehen dann im PDF.</div>
+    <div class="intropunkt">Fotos, Siegel und Sprachdiktat gibt es mit Regiefix Pro.</div>
+    <label class="introhaken">
+      <input type="checkbox" id="introhaken">
+      <span>Nicht wieder anzeigen. Ich habe verstanden, dass meine Berichte weg sind, wenn ich die App lösche.</span>
+    </label>
+    <button class="haupt" id="introok" type="button">Verstanden</button>
+    <div class="hinweis" id="introinfo" style="text-align: center;">Ohne Häkchen kommt diese Seite beim nächsten Öffnen wieder.</div>
+  </div>
+</div>
+
+<div class="kopf" id="kopfListe">
+  <svg class="logo" viewBox="0 0 200 200" aria-hidden="true">
+    <rect width="200" height="200" fill="#185FA5"/>
+    <path d="M44 52 H156 A14 14 0 0 1 170 66 V122 A14 14 0 0 1 156 136 H92 L62 160 V136 H44 A14 14 0 0 1 30 122 V66 A14 14 0 0 1 44 52 Z" fill="#FFFFFF"/>
+    <path d="M72 95 L92 115 L130 76" fill="none" stroke="#F5A524" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div>
+    <div class="titel">Regiefix</div>
+    <div class="unter">Regiebericht als PDF</div>
+  </div>
+  <div class="rechts">
+    <div class="lite">Lite</div>
+    <button class="zahn" id="zahn" type="button" aria-label="Einstellungen" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="kopf" id="kopfBericht" hidden>
+  <button class="zahn" id="zurueck" type="button" aria-label="Zurück zur Liste">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg>
+  </button>
+  <div class="titel lang" id="berichtTitel">Neuer Regiebericht</div>
+  <button class="zahn" id="loeschen" type="button" aria-label="Regiebericht löschen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+  </button>
+</div>
+
+<main id="ansichtListe">
+  <div class="einst" id="einst" hidden>
+    <div class="einstlabel">Firmenname</div>
+    <input id="firma" type="text" placeholder="Name deiner Firma" autocomplete="off">
+    <div class="einstlabel" style="margin-top: 8px;">Straße und Hausnummer</div>
+    <input id="firmastrasse" type="text" placeholder="Gartenweg 4" autocomplete="off">
+    <div class="einstlabel" style="margin-top: 8px;">PLZ und Ort</div>
+    <input id="firmaort" type="text" placeholder="20095 Hamburg" autocomplete="off">
+    <div class="einstlabel" style="margin-top: 8px;">Telefon (freiwillig)</div>
+    <input id="firmatel" type="text" inputmode="tel" placeholder="040 123456" autocomplete="off">
+    <div class="hinweis">Steht oben im PDF. Die App merkt sich die Angaben.</div>
+    <div class="einstlabel" style="margin-top: 12px;">Darstellung</div>
+    <div class="modi" id="modi">
+      <button type="button" data-m="hell">Hell</button>
+      <button type="button" data-m="dunkel">Dunkel</button>
+      <button type="button" data-m="auto">Automatisch</button>
     </div>
   </div>
-</section>
 
-<section id="viewList" class="view">
-  <div class="listScroll" id="listScroll">
-  <div class="brand" id="brand"><div class="plate"><img id="bLogo" alt="" /><span class="bname" id="bName"></span></div></div>
-  <div class="warnBox" id="logoWarn"><span id="logoWarnTxt"></span><button id="btnReSetup">Neu einrichten</button></div>
-  <div class="listHead">
-    <h1 class="wmH"><svg class="wm" viewBox="242 48 390 118" role="img" aria-label="Regiefix"><path class="wmR" d="M285.20 140Q284.24 140 283.88 139.04L283.88 139.04L269.96 103.28Q269.84 102.92 269.48 102.92L269.48 102.92L256.64 102.92Q256.16 102.92 256.16 103.40L256.16 103.40L256.16 138.80Q256.16 140 254.96 140L254.96 140L245.84 140Q244.64 140 244.64 138.80L244.64 138.80L244.64 57.20Q244.64 56 245.84 56L245.84 56L272.72 56Q282.80 56 288.92 62.60Q295.04 69.20 295.04 79.88L295.04 79.88Q295.04 87.92 291.32 93.68Q287.60 99.44 281.12 101.60L281.12 101.60Q280.76 101.72 280.88 102.20L280.88 102.20L295.52 138.56L295.64 139.04Q295.64 140 294.56 140L294.56 140L285.20 140ZM256.64 65.96Q256.16 65.96 256.16 66.44L256.16 66.44L256.16 93.32Q256.16 93.80 256.64 93.80L256.64 93.80L271.16 93.80Q276.68 93.80 280.10 90.02Q283.52 86.24 283.52 80L283.52 80Q283.52 73.64 280.16 69.80Q276.80 65.96 271.16 65.96L271.16 65.96L256.64 65.96ZM329.24 131Q333.32 131 336.14 129.02Q338.96 127.04 340.40 123.56L340.40 123.56Q340.76 122.48 341.84 122.72L341.84 122.72L350 124.52Q351.20 124.88 350.84 125.96L350.84 125.96Q348.56 133.04 342.92 137Q337.28 140.96 329.12 140.96L329.12 140.96Q319.76 140.96 314.00 136.28Q308.24 131.60 306.68 123.44L306.68 123.44Q306.08 120.08 305.90 116.30Q305.72 112.52 305.72 106.28L305.72 106.28Q305.72 100.16 306.32 96.56L306.32 96.56Q307.40 88.16 313.40 83.06Q319.40 77.96 328.52 77.96L328.52 77.96Q338.48 77.96 344.60 83.60Q350.72 89.24 351.44 98.48L351.44 98.48Q351.80 102.56 351.80 113.48L351.80 113.48Q351.80 114.68 350.60 114.68L350.60 114.68L317.72 114.68Q317.24 114.68 317.24 115.16L317.24 115.16Q317.24 118.52 317.60 121.04L317.60 121.04Q318.20 125.48 321.32 128.24Q324.44 131 329.24 131L329.24 131ZM328.64 87.92Q324.08 87.92 321.14 90.68Q318.20 93.44 317.60 97.88L317.60 97.88Q317.24 101.12 317.24 104.96L317.24 104.96Q317.24 105.44 317.72 105.44L317.72 105.44L339.80 105.44Q340.28 105.44 340.28 104.96L340.28 104.96Q340.04 100.16 339.80 98L339.80 98Q339.20 93.56 336.20 90.74Q333.20 87.92 328.64 87.92L328.64 87.92ZM396.92 80.12Q396.92 78.92 398.12 78.92L398.12 78.92L407.24 78.92Q408.44 78.92 408.44 80.12L408.44 80.12L408.44 137.60Q408.44 164.24 379.88 164.24L379.88 164.24Q377.36 164.24 376.04 164.12L376.04 164.12Q374.84 164 374.84 162.80L374.84 162.80L375.08 154.76Q375.08 154.16 375.44 153.86Q375.80 153.56 376.28 153.68L376.28 153.68Q387.56 154.16 392.24 150.20Q396.92 146.24 396.92 136.76L396.92 136.76L396.92 134.48Q396.92 134.24 396.74 134.12Q396.56 134 396.32 134.24L396.32 134.24Q391.64 140 383.24 140L383.24 140Q375.44 140 370.10 135.38Q364.76 130.76 363.56 122.48L363.56 122.48Q362.84 118.64 362.84 109.40L362.84 109.40Q362.84 99.44 363.68 95.48L363.68 95.48Q364.76 87.44 369.86 82.70Q374.96 77.96 382.76 77.96L382.76 77.96Q391.40 77.96 396.32 83.60L396.32 83.60Q396.56 83.84 396.74 83.72Q396.92 83.60 396.92 83.36L396.92 83.36L396.92 80.12ZM396.68 120.44Q396.92 114.20 396.92 109.28L396.92 109.28Q396.92 102.56 396.56 97.88L396.56 97.88Q396.08 93.56 393.20 90.74Q390.32 87.92 385.88 87.92L385.88 87.92Q381.56 87.92 378.62 90.74Q375.68 93.56 375.08 97.88L375.08 97.88Q374.36 102.56 374.36 109.28L374.36 109.28Q374.36 115.52 374.96 120.32L374.96 120.32Q375.56 124.76 378.56 127.52Q381.56 130.28 386 130.28L386 130.28Q390.44 130.28 393.32 127.52Q396.20 124.76 396.68 120.44L396.68 120.44ZM429.32 69.32Q425.96 69.32 423.80 67.16Q421.64 65 421.64 61.64L421.64 61.64Q421.64 58.16 423.80 56.06Q425.96 53.96 429.32 53.96L429.32 53.96Q432.68 53.96 434.84 56.12Q437 58.28 437 61.64L437 61.64Q437 65 434.78 67.16Q432.56 69.32 429.32 69.32L429.32 69.32ZM424.64 140Q423.44 140 423.44 138.80L423.44 138.80L423.44 80.12Q423.44 78.92 424.64 78.92L424.64 78.92L433.76 78.92Q434.96 78.92 434.96 80.12L434.96 80.12L434.96 138.80Q434.96 140 433.76 140L433.76 140L424.64 140ZM472.76 131Q476.84 131 479.66 129.02Q482.48 127.04 483.92 123.56L483.92 123.56Q484.28 122.48 485.36 122.72L485.36 122.72L493.52 124.52Q494.72 124.88 494.36 125.96L494.36 125.96Q492.08 133.04 486.44 137Q480.80 140.96 472.64 140.96L472.64 140.96Q463.28 140.96 457.52 136.28Q451.76 131.60 450.20 123.44L450.20 123.44Q449.60 120.08 449.42 116.30Q449.24 112.52 449.24 106.28L449.24 106.28Q449.24 100.16 449.84 96.56L449.84 96.56Q450.92 88.16 456.92 83.06Q462.92 77.96 472.04 77.96L472.04 77.96Q482.00 77.96 488.12 83.60Q494.24 89.24 494.96 98.48L494.96 98.48Q495.32 102.56 495.32 113.48L495.32 113.48Q495.32 114.68 494.12 114.68L494.12 114.68L461.24 114.68Q460.76 114.68 460.76 115.16L460.76 115.16Q460.76 118.52 461.12 121.04L461.12 121.04Q461.72 125.48 464.84 128.24Q467.96 131 472.76 131L472.76 131ZM472.16 87.92Q467.60 87.92 464.66 90.68Q461.72 93.44 461.12 97.88L461.12 97.88Q460.76 101.12 460.76 104.96L460.76 104.96Q460.76 105.44 461.24 105.44L461.24 105.44L483.32 105.44Q483.80 105.44 483.80 104.96L483.80 104.96Q483.56 100.16 483.32 98L483.32 98Q482.72 93.56 479.72 90.74Q476.72 87.92 472.16 87.92L472.16 87.92Z"/><path class="wmF" d="M536.88 77.96Q537.48 77.96 537.90 78.38Q538.32 78.80 538.32 79.40L538.32 79.40L538.32 91.52Q538.32 92.12 537.90 92.54Q537.48 92.96 536.88 92.96L536.88 92.96L528.36 92.96Q527.76 92.96 527.76 93.56L527.76 93.56L527.76 138.56Q527.76 139.16 527.34 139.58Q526.92 140 526.32 140L526.32 140L509.28 140Q508.68 140 508.26 139.58Q507.84 139.16 507.84 138.56L507.84 138.56L507.84 93.56Q507.84 92.96 507.24 92.96L507.24 92.96L502.32 92.96Q501.72 92.96 501.30 92.54Q500.88 92.12 500.88 91.52L500.88 91.52L500.88 79.40Q500.88 78.80 501.30 78.38Q501.72 77.96 502.32 77.96L502.32 77.96L507.24 77.96Q507.84 77.96 507.84 77.36L507.84 77.36L507.84 73.88Q507.84 66.68 510.54 62.66Q513.24 58.64 518.70 57.08Q524.16 55.52 533.16 55.88L533.16 55.88L535.56 55.88Q536.16 55.88 536.58 56.30Q537 56.72 537 57.32L537 57.32L537 68.36Q537 68.96 536.58 69.38Q536.16 69.80 535.56 69.80L535.56 69.80L533.28 69.80Q530.40 69.92 529.08 71.36Q527.76 72.80 527.76 75.56L527.76 75.56L527.76 77.36Q527.76 77.96 528.36 77.96L528.36 77.96L536.88 77.96ZM555 72.44Q550.44 72.44 547.50 69.50Q544.56 66.56 544.56 62L544.56 62Q544.56 57.32 547.50 54.44Q550.44 51.56 555 51.56L555 51.56Q559.56 51.56 562.50 54.44Q565.44 57.32 565.44 62L565.44 62Q565.44 66.44 562.50 69.44Q559.56 72.44 555 72.44L555 72.44ZM546.48 140Q545.88 140 545.46 139.58Q545.04 139.16 545.04 138.56L545.04 138.56L545.04 79.40Q545.04 78.80 545.46 78.38Q545.88 77.96 546.48 77.96L546.48 77.96L563.52 77.96Q564.12 77.96 564.54 78.38Q564.96 78.80 564.96 79.40L564.96 79.40L564.96 138.56Q564.96 139.16 564.54 139.58Q564.12 140 563.52 140L563.52 140L546.48 140ZM572.40 140Q571.56 140 571.32 139.52Q571.08 139.04 571.44 138.32L571.44 138.32L587.76 109.28Q588 108.92 587.76 108.56L587.76 108.56L571.44 79.64Q571.20 79.16 571.20 78.92L571.20 78.92Q571.20 77.96 572.40 77.96L572.40 77.96L590.76 77.96Q592.08 77.96 592.56 79.04L592.56 79.04L599.28 91.64Q599.64 92.12 600 91.52L600 91.52L606.60 79.04Q607.20 77.96 608.40 77.96L608.40 77.96L627.48 77.96Q628.32 77.96 628.56 78.44Q628.80 78.92 628.44 79.64L628.44 79.64L612.12 108.56Q612 108.92 612.12 109.28L612.12 109.28L628.44 138.32Q628.68 138.80 628.68 139.04L628.68 139.04Q628.68 140 627.48 140L627.48 140L609 140Q607.92 140 607.32 138.92L607.32 138.92L600.60 126.08Q600.24 125.48 599.88 126.08L599.88 126.08L593.04 138.92Q592.56 140 591.36 140L591.36 140L572.40 140Z"/></svg></h1>
-    <button id="btnSettings" class="gear" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
-  </div>
-  <div class="lizBanner" id="lizBanner"></div>
-  <button class="bigbtn newBtn" id="btnNew">＋ Neuer Rapport</button>
-  <div class="tools2">
-    <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Kunde, Ort, Text oder Nr. suchen" autocomplete="off" /></div>
-    <div class="chips" id="chips"><button data-f="alle" class="on">Alle</button><button data-f="offen">Offen</button><button data-f="versiegelt">Versiegelt</button><button data-f="fotos">Mit Fotos</button></div>
-  </div>
-  <div id="list"></div>
-  <div class="bottom">
-    <div class="credit"><svg class="midaLogo" viewBox="100 110 2030 240" role="img" aria-label="MIDA studios"><defs><linearGradient id="mgl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B1A7FF"/><stop offset="1" stop-color="#6170FF"/></linearGradient><linearGradient id="mgr" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#80EAD6"/><stop offset="1" stop-color="#4FA9F6"/></linearGradient></defs><polygon points="117,122 117,330 240,256" fill="url(#mgl)"/><polygon points="362,122 362,330 240,256" fill="url(#mgr)"/><text class="mt" x="452" y="304" font-family="-apple-system, Helvetica Neue, Arial, sans-serif" font-size="232" font-weight="800" letter-spacing="34">MIDA</text><text x="1215" y="304" font-family="-apple-system, Helvetica Neue, Arial, sans-serif" font-size="232" font-weight="300" letter-spacing="10" fill="#9AA6D6">studios</text></svg><br><span class="ver" id="appVer"></span></div>
-  </div>
-  </div>
-</section>
+  <div class="zaehler"><span>Gespeicherte Berichte</span><b id="zaehlerzahl">0 von 3</b></div>
+  <button class="haupt neu" id="neu" type="button">+ Neuer Regiebericht</button>
+  <div class="limit" id="limitHinweis" hidden>Lite speichert bis zu 5 Berichte. Lösche einen alten Bericht, dann ist wieder Platz. Unbegrenzt gibt es einmalig für 4,99 € mit der App.</div>
+  <div id="liste"></div>
+  <div class="leer" id="leer" hidden>Noch keine Regieberichte. Leg oben den ersten an.</div>
 
-<section id="viewSettings" class="view">
-  <header>
-    <button id="setBack">‹ Zurück</button>
-    <span class="muted">Einstellungen</span>
-  </header>
-  <div class="scroll">
-    <div class="sec">
-      <h2>Darstellung</h2>
-      <div class="seg wide" id="modeSeg"><button data-m="system">System</button><button data-m="hell">Hell</button><button data-m="dunkel">Dunkel</button></div>
+  <div class="hilfe">
+    <button class="hilfeknopf" id="hilfeknopf" type="button" aria-expanded="false">So geht's</button>
+    <div class="hilfebox" id="hilfebox" hidden>
+      <ol>
+        <li>Neuer Regiebericht: Baustelle und Arbeiten eintragen.</li>
+        <li>Arbeitskräfte mit Stunden hinzufügen.</li>
+        <li>Unterschreiben, auch später. Der Bericht bleibt in der Liste.</li>
+        <li>Mit Vorschau ansehen prüfen, dann PDF senden.</li>
+        <li id="hilfehome">Auf den Home-Bildschirm: Teilen-Symbol, dann Zum Home-Bildschirm.</li>
+        <li>Die Berichte liegen nur auf diesem Handy. Löschst du die App, sind sie weg. Wichtige Berichte schickst du dir als PDF oder druckst sie aus.</li>
+      </ol>
     </div>
-    <div class="sec" id="secPruefen">
-      <h2>Rapport prüfen</h2>
-      <p class="setTxt">Siegeldatei (.rapport.json) auswählen. Die App prüft, ob der Rapport unverändert ist, und kann ihn in die Liste übernehmen.</p>
-      <button class="bigbtn" id="btnPruefen">Siegeldatei auswählen</button>
-      <input type="file" id="impFile" accept=".json,application/json" style="display:none" />
-    </div>
-    <div class="sec">
-      <h2>Einrichtung</h2>
-      <div class="setRow"><span>Firma</span><b id="setFirma"></b></div>
-      <div class="setRow"><span>Mitarbeiter</span><b id="setName"></b></div>
-      <div class="setRow"><span>Eingerichtet am</span><b id="setDatum"></b></div>
-      <div class="setRow"><span>Lizenz</span><b id="setLizenz"></b></div>
-      <p class="setTxt" id="setTestHinweis" style="display:none;margin:10px 0 0">Kostenlose Testversion ohne Gewähr: bis zu 3 Rapporte, ohne Fotos und ohne Versiegelung.</p>
-      <button class="sec2btn" id="btnSetupNeu">Mit neuem QR-Code neu einrichten</button>
-    </div>
-    <div class="credit" style="margin-top:8px"><span id="setCredit"></span></div>
   </div>
-</section>
+</main>
 
-<section id="viewEdit" class="view">
-  <header>
-    <button id="btnBack">‹ Sichern</button>
-    <span class="muted" id="eNr"></span>
-  </header>
-  <div class="scroll" id="eScroll">
-    <div id="sealInfo" class="sealInfo"></div>
-
-    <div class="sec quick edit-only" id="quickSec">
-      <h2>Alles auf einmal sagen</h2>
-      <p class="setTxt">Einfach erzählen, was wo gemacht wurde, wer wie lange dran war und was verbraucht wurde. Die App trägt es in die passenden Felder ein.</p>
-      <textarea id="qText" placeholder="z. B. „Bei Müller in Freudenstadt Bad gefliest. Ein Meister 6 Stunden, zwei Gesellen je 8 Stunden, 4 Sack Kleber.“"></textarea>
-      <button id="micQuick" class="bigbtn"></button>
-      <button id="btnVerteilen" class="sec2btn">In die Felder übernehmen</button>
-      <div class="qInfo" id="qInfo"></div>
+<main id="ansichtBericht" hidden>
+  <div class="karte" id="formular">
+    <div>
+      <label for="baustelle">Baustelle</label>
+      <input id="baustelle" type="text" placeholder="Neubau Musterstraße 5" autocomplete="off">
     </div>
-
-    <div class="sec">
-      <div class="eBrand"><div class="plate"><img id="eLogo" alt="" /></div></div>
-      <h2>Baustelle</h2>
-      <input id="eTitel" placeholder="Titel / Baustelle (z. B. Müller, Hauptstraße 12)" />
-      <div class="grid2">
-        <div><label for="eOrt">Ort</label><input id="eOrt" placeholder="Ort" /></div>
-        <div><label for="eDatum">Datum</label><input id="eDatum" type="date" /></div>
+    <div class="zeile">
+      <div>
+        <label for="ort">Ort</label>
+        <input id="ort" type="text" placeholder="Hamburg" autocomplete="off">
+      </div>
+      <div>
+        <label for="datum">Datum</label>
+        <input id="datum" type="text" autocomplete="off">
       </div>
     </div>
-
-    <div class="sec">
-      <h2>Ausgeführte Arbeiten</h2>
-      <textarea id="eText" placeholder="Beschreiben oder sprechen, was gemacht wurde …"></textarea>
-      <button id="micText" class="bigbtn edit-only"></button>
-      <div class="hint edit-only">Gesprochenes landet dort, wo der Cursor steht. Markierter Text wird durch das Gesprochene ersetzt. Tippen geht jederzeit.</div>
+    <div>
+      <label for="arbeiten">Ausgeführte Arbeiten</label>
+      <textarea id="arbeiten" placeholder="Was wurde heute gemacht?"></textarea>
     </div>
 
-    <div class="sec">
-      <h2>Material und Menge</h2>
-      <div id="matList"></div>
-      <button id="addMat" class="addbtn edit-only">+ Material</button>
+    <div>
+      <div class="kraft kraftkopf">
+        <label>Arbeitskraft</label>
+        <label>Stunden</label>
+        <span></span>
+      </div>
+      <div id="kraefte"></div>
+      <datalist id="arten">
+        <option value="Facharbeiter"></option>
+        <option value="Meister"></option>
+        <option value="Azubi"></option>
+      </datalist>
+      <button class="plus" id="plus" type="button">+ Arbeitskraft hinzufügen</button>
+      <div class="hinweis">Antippen und Facharbeiter, Meister oder Azubi wählen. Oder selbst eintippen.</div>
     </div>
 
-    <div class="sec">
-      <h2>Arbeitskräfte und Stunden</h2>
-      <div id="arbList"></div>
-      <button id="addArb" class="addbtn edit-only">+ Arbeitskraft</button>
-      <div class="sum" id="arbSum"></div>
+    <div class="sbox" data-n="Auftraggeber">
+      <div class="skopf">
+        <span class="stitel">Unterschrift Auftraggeber</span>
+        <button class="sknopf" type="button">Unterschreiben</button>
+      </div>
+      <img class="svor" alt="Unterschrift Auftraggeber" hidden>
+    </div>
+    <div class="sbox" data-n="Auftragnehmer">
+      <div class="skopf">
+        <span class="stitel">Unterschrift Auftragnehmer</span>
+        <button class="sknopf" type="button">Unterschreiben</button>
+      </div>
+      <img class="svor" alt="Unterschrift Auftragnehmer" hidden>
     </div>
 
-    <div class="sec">
-      <h2>Fotos</h2>
-      <div class="fotos" id="fotoList"></div>
-      <button id="addFoto" class="addbtn edit-only">+ Foto aufnehmen oder auswählen</button>
-      <input type="file" id="fotoFile" accept="image/*" multiple style="display:none" />
-      <div class="hint" id="fotoHint"></div>
-    </div>
-
-    <div class="sec">
-      <h2>Unterschriften</h2>
-      <div id="signs"></div>
-    </div>
-
-    <div class="actions">
-      <button id="btnSeal" class="bigbtn edit-only">Abschließen und versiegeln</button>
-      <button id="btnPdf" class="bigbtn">Rapport senden (PDF)</button>
-      <button id="btnView" class="sec2">PDF ansehen</button>
-      <button id="btnShare" class="sec2">Siegeldatei sichern</button>
-      <button id="btnDel" style="color:var(--danger)">Löschen</button>
-    </div>
+    <div class="fehler" id="fehler"></div>
+    <button class="vorschau" id="knopfansicht" type="button">Vorschau ansehen</button>
+    <button class="haupt" id="knopf" type="button">PDF senden</button>
   </div>
-</section>
+  <div class="abstand"></div>
+</main>
 
-<section id="signModal">
-  <header>
-    <button id="signCancel">‹ Abbrechen</button>
-    <span class="muted" id="signTitle">Unterschrift</span>
-  </header>
-  <div id="signWrap"><canvas id="pad"></canvas></div>
-  <div class="modalFoot">
-    <button id="signClear">Neu</button>
-    <button class="pill" id="signOk">Übernehmen</button>
-  </div>
-</section>
-
-<div id="fotoView"><button id="fotoClose">Schließen</button><img id="fotoBig" alt="" /><div class="cap" id="fotoCap"></div></div>
-
-<script src="nacl-fast.min.js"></script>
-<script src="jsQR.js"></script>
-<script src="jspdf.umd.min.js"></script>
 <script>
 (function () {
-  "use strict";
-  var APP_VERSION = "1.0.9";
-  var TEST_MAX = 3;
-  var KEY = "rapporte_v1", KEYPROFIL = "profil_v1";
-  var DEFAULT_COLOR = "#185FA5";
-  /* Öffentlicher Schlüssel der Firma/des Admins – nur damit signierte Einrichtungs-Codes gelten */
-  var ADMIN_PUBKEY = "CT/j8PtqQnEdlEXY6TbyfJrEinK82aIOhu01mfHQ3IU=";
-  var MIC_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>';
-  var STOP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
-  var $ = function (id) { return document.getElementById(id); };
+  var LOGO_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAABmJLR0QA/wD/AP+gvaeTAAAIOklEQVR4nO2ce3AV1R3HP+fcV+QNQhLaKEEjT2WmyGuQEaXacaj1gVMsMeUtznQcHId2UKllcKaKLTO0FrUihICEdNBSq7VSZagVhtoADSLDc8JDmpBgCAYSSO7u3dM/IhLg5u7NfZ3N3fv5K8n+9ne+8/tmz5495+wKouXHGz3ZXc1JUnEPSo1SQgwWqF5A16hzpCfnga8U7EXxiZDyrzUl045He7KwC8ibs7GPGTLmo9QTIHLjUeoSLFAfWkr++vS6wn/bBUcwQIn+08vmKaFeAnonUKBbUEJRJjHnV62bcaa9oLAG5M9ck9Vi+VcrQWHy9LmGao/gh1Ulj+0Jd/AaA7LnbsiRhnoPGJN0ae7hnJLi4do1hVuvPnCFAfkz12Q1K/+/yBQ/GbQIIR46VVK4ue0f5eUflbio/KvIFD9ZBCylyvoVvVXQ9o/fGtB/etk8AY+lXpd7ENDL45Gbcn667tuhu4TWoeY3o50Myec2pHz20i8SwAwZ88kMNVOGQDydN33tdwEkd/3T2/qQlSGFdDHwLQYQ2TM33CuV+ki3IhfS6L3gy5bSsu7VrcSldAt1MSdLhBilW4lbsbAeksAtuoW4FYEYKYE+uoW4mBskcJ1uFS6mmySKNYEMSUNI+5gMySRjgGYyBmgmY4BmMgZoJmOAZrwJT+gRdM3yJTqtI2hqNjBDKqE5E2JA724BHv/BYH40+kZuzu2BSNMnC0spKk+d573yE7z58SEamoJx5xS5M0rjsnTsoGxWPTmBvj2y4hbTmTjd0MzcFdvYeeSruPLEdQ8YfkNvNiy4y3XFB8jumUXZgrsZmtcrrjwxGyAELJ87li6BhN9GOg1ds7wsmzU2rhwxGzDmlmxuG5CZSB158/WMKugb8/kxGzBhWE7MjaYbE4bFvmc5ZgNyemZmsS/Rv3fstYjrHtBpsQxUcx2oUELSyTiK4a47qAph7FmGcWQDmBcQWX3xjXgKb8FPtElyjwEqRMv2+YROXt6Bo5rrCJY/D54A3oEPa5HljrkgFaJlx4Irit8Wc/+bKRZ0mfQ3QFkEP3uG0IkP2g2xGr9MoaArSXMDFMHyRZjH3o0YJbsPTJGeMG1raznpKII7F2NWvmMb6Ruub2ts2hpgVPwG80iZbZxvxNN4BtyfAkXhSUsDjD3LMA6sso3z3fokvlt/lgJF7ZN2Bhh7l2Psf8M2zjtkNr4RT6VAkY0O3QJCJz/C2LcCq6ES2S0P75DZeAsejSmXse9VjH2v2cZ5h8zCP/JZ27hUoNWA0Jebadk+H2hdE7LOHSVY/kvU+WP4vvdMh3IZ+1di7P2dbZx3UJFjig+au6DWgl27IGccWI1RsTTqPObBNRh7fmsb5y14FP+oX+Gk3Zj6DFAhrHNH2z0crQnmkVKC/7V/v9B70xT8o1/AScUHnQYID+K6fhFDjAOrIxbXrNxIcOcSwl1FbfEMuB//2BcduRVWqyLv4Bm2MebB4rAmmEc3tU6k2RX/xvsIjF8GwhOrzKSi1QDfsMfx3jTFNu5qE0In/kbwP8+BsiKe58n7PoHxyx1bfNA+DBX4x7YW1jy6KWKkebAYsPD0G03Ljp/bLqZ4+k8gcMfvQWofaUdEvzohO2BCCebBtdh2O7njCdz5R/AEEqUyaTjjrvSNCdF0R3bFl/1uJ3Dn652i+OAUA6CDJoRH9rudrLuLwdslgcKSi3MMgFYTxi2NaY1W9hlOYOIbnar44DQDABD4x7zQIRNk76EEJq1F+HsmUVdycKABAAL/6CVRdUey1xACk9Z1yuKDYw0gqu5I9hhIYFIxIhDfBlmdONcA4PKV8Mg1R2TPAgL3lCKyIk9nOB39zwF2CIl/3EvI3PGEjr+PMhvxZI/DO3Q2wtddtzoAVBxvWMRswNcJeDskegTe/Afw5j+Qwjajp76xJeZzY+6CdlfWxdxouhFPLWI2YOveamrOXoi54XSh6kwTn+w7FfP5MRsQNC2eW787rv6vs6MULFq/G8OMPCsbibhGQR/uPsnzpbsIWe5zIWQpFq3fxT8q/hdXnrhHQau3HGbPsXoWPjKCO4bmxLVXvjNgKcW2/bW8/OfPqTja7kfRoybu11Tb0qd7gEHf6YnfG/nCGpLXiyXTRnY4/+7KOpa9+wWWpisuaFocqmrgbByjnqtJ6HNA/fkWPjt02jauxeh4n/nOjmP8oqSc5mBi3mpxCo5/EDNDipc3fc6KD/brlpIUHG3AmfMtzHt1OzsO1uqWkjQca8AXJ+qZ9co2qs406ZaSVBxpQLr29+FwlAHp3t+HwzEGuKG/D4cjDHBLfx8O7Qa4qb8PhzYD3Njfh0OLAV83tTBl6Za4vzaVDmgx4FBVg45mHYnDF+XTH4ndZssMyURJwH1jP+fQJEGd1K3CxdRLoUSFbhVuRcBhqVB/0S3EtQjKpcxq+jvQqFuLG1EWW2T1yicuCPiTbjEupLrmou9TCWB45GIyo6GUIhCv8fbUkASoK55WrVD2H1rIkCjqmgPeFdDmSdgTaHoR2KtNkotQQi08u3JqA1z14YTcmWX5KGsXcL0WZe7g/Zq1hQ+CUHDVXFBNybTjQogiIHE7jzK0pSJoqqJLxYcwk3GnSgo3KykmA+dSKi39qVBW6L760qIr6hp2NrR2TeFWj2CiQlSlRluao9hkepon1r41/ZptgxF30ubN2djHMI1XBBTaxWYIS50SamFtSVFxewFRFTVn5vpxQolFwGQyawjRUC3g9eaA7w+XRjvt0aH/6v5zSgdYJg8KxUQEI4BsoEc8StOARqBewGEQO5VSH9dc9H3K21Oj2mXwf5AVrMPqNlC3AAAAAElFTkSuQmCC';
+  var SPEICHER = 'rflite-berichte';
+  var APP_VERSION = "1.0.12";
+  var LIMIT = 5;
+  var wurzel = document.documentElement;
 
-  function el(tag, attrs, kids) {
-    var e = document.createElement(tag);
-    if (attrs) for (var k in attrs) {
-      if (k === "text") e.textContent = attrs[k];
-      else if (k === "class") e.className = attrs[k];
-      else if (k === "value") e.value = attrs[k];
-      else if (k.slice(0, 2) === "on") e[k] = attrs[k];
-      else e.setAttribute(k, attrs[k]);
+  function id(n) { return document.getElementById(n); }
+  function speichern(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function laden(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+  /* ---------- Darstellung, Firmenname, Hilfe ---------- */
+  function modus(m) {
+    if (m === 'hell') wurzel.setAttribute('data-theme', 'light');
+    else if (m === 'dunkel') wurzel.setAttribute('data-theme', 'dark');
+    else wurzel.removeAttribute('data-theme');
+    var bs = document.querySelectorAll('#modi button');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].classList.toggle('aktiv', bs[i].getAttribute('data-m') === m);
     }
-    (kids || []).forEach(function (c) { if (c) e.appendChild(c); });
-    return e;
+    speichern('rflite-modus', m);
   }
-  function pad2(n) { return (n < 10 ? "0" : "") + n; }
-  function todayISO() { var d = new Date(); return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
-  function fmtDate(iso) { var p = String(iso || "").split("-"); return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : (iso || ""); }
-  function fmtZeit(iso) {
-    if (!iso) return "";
-    return new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-  }
-  function makeNr() {
-    var d = new Date();
-    var rnd = Math.random().toString(36).slice(2, 6).toUpperCase();
-    return "R-" + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes()) + "-" + rnd;
-  }
-  function num(s) { var v = parseFloat(String(s == null ? "" : s).replace(",", ".")); return isNaN(v) ? 0 : v; }
-  function fmtNum(v) { return (Math.round(v * 100) / 100).toString().replace(".", ","); }
-
-  /* ---------- Bytes, Base64, SHA-256 ---------- */
-  function utf8Bytes(str) {
-    if (window.TextEncoder) return new TextEncoder().encode(str);
-    var s = unescape(encodeURIComponent(str)), a = new Uint8Array(s.length);
-    for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
-    return a;
-  }
-  function utf8Str(bytes) {
-    if (window.TextDecoder) return new TextDecoder().decode(bytes);
-    var s = ""; for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
-    return decodeURIComponent(escape(s));
-  }
-  function b64urlToBytes(s) {
-    s = String(s).replace(/-/g, "+").replace(/_/g, "/");
-    while (s.length % 4) s += "=";
-    var bin = atob(s), a = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-    return a;
-  }
-  function b64ToBytes(s) { return b64urlToBytes(s); }
-
-  var SHA_K = [
-    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+  var firmaFelder = [
+    ['firma', 'rflite-firma'],
+    ['firmastrasse', 'rflite-firma-strasse'],
+    ['firmaort', 'rflite-firma-ort'],
+    ['firmatel', 'rflite-firma-tel']
   ];
-  function sha256js(bytes) {
-    var len = bytes.length, bitLenHi = Math.floor(len / 0x20000000), bitLenLo = (len << 3) >>> 0;
-    var total = ((len + 9 + 63) >> 6) << 6;
-    var buf = new Uint8Array(total);
-    buf.set(bytes);
-    buf[len] = 0x80;
-    var dv = new DataView(buf.buffer);
-    dv.setUint32(total - 8, bitLenHi);
-    dv.setUint32(total - 4, bitLenLo);
-    var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-    var W = new Uint32Array(64);
-    for (var off = 0; off < total; off += 64) {
-      for (var t = 0; t < 16; t++) W[t] = dv.getUint32(off + t * 4);
-      for (t = 16; t < 64; t++) {
-        var x = W[t - 15], y = W[t - 2];
-        var s0 = ((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3);
-        var s1 = ((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10);
-        W[t] = (W[t - 16] + s0 + W[t - 7] + s1) >>> 0;
-      }
-      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], hh = H[7];
-      for (t = 0; t < 64; t++) {
-        var S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
-        var ch = (e & f) ^ (~e & g);
-        var t1 = (hh + S1 + ch + SHA_K[t] + W[t]) >>> 0;
-        var S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
-        var mj = (a & b) ^ (a & c) ^ (b & c);
-        var t2 = (S0 + mj) >>> 0;
-        hh = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
-      }
-      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
-      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + hh) >>> 0;
-    }
-    return H.map(function (v) { return ("00000000" + v.toString(16)).slice(-8); }).join("");
-  }
-  function sha256Bytes(bytes) {
-    if (window.crypto && crypto.subtle && window.isSecureContext) {
-      return crypto.subtle.digest("SHA-256", bytes).then(function (d) {
-        return Array.from(new Uint8Array(d)).map(function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
-      }, function () { return sha256js(bytes); });
-    }
-    return new Promise(function (res) { res(sha256js(bytes)); });
-  }
-  function sha256(str) { return sha256Bytes(utf8Bytes(str)); }
-
-  /* ---------- Speicher ---------- */
-  function norm(r) {
-    r.nr = r.nr || makeNr();
-    r.titel = r.titel || ""; r.ort = r.ort || ""; r.text = r.text || "";
-    r.datum = r.datum || todayISO();
-    if (/^\d{2}\.\d{2}\.\d{4}$/.test(r.datum)) { var p = r.datum.split("."); r.datum = p[2] + "-" + p[1] + "-" + p[0]; }
-    r.material = r.material || []; r.arbeiter = r.arbeiter || []; r.fotos = r.fotos || [];
-    r.von = r.von || ""; r.bis = r.bis || ""; r.pause = r.pause || "";
-    r.auftraggeber = r.auftraggeber || { name: "", ort: "", zeit: "", sig: "" };
-    r.ausfuehrender = r.ausfuehrender || { name: "", ort: "", zeit: "", sig: "" };
-    if (r.unterschrift && !r.ausfuehrender.sig) r.ausfuehrender.sig = r.unterschrift;
-    r.firma = r.firma || null; r.siegel = r.siegel || null;
-    return r;
-  }
-  function load(k) { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) { return []; } }
-  var rapporte = load(KEY).map(norm);
-  var profil = null;
-  try { profil = JSON.parse(localStorage.getItem(KEYPROFIL) || "null"); } catch (e) {}
-  var firma = null;
-  var cur = null;
-
-  function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify(rapporte)); }
-    catch (e) { alert("Speichern fehlgeschlagen (Speicher voll?)."); }
-  }
-  function persistProfil() {
-    try { localStorage.setItem(KEYPROFIL, JSON.stringify(profil)); return true; }
-    catch (e) { alert("Speichern fehlgeschlagen (Speicher voll?)."); return false; }
-  }
-  var VIEWS = ["viewSetup", "viewList", "viewSettings", "viewEdit"];
-  function show(id) { VIEWS.forEach(function (v) { $(v).classList.toggle("active", v === id); }); }
-  function firmaOf(r) { return r.firma || firma; }
-  function locked() { return !!(cur && cur.siegel); }
-
-  /* ---------- Fotos (IndexedDB) ---------- */
-  var DBP = null;
-  function db() {
-    if (DBP) return DBP;
-    DBP = new Promise(function (res, rej) {
-      if (!window.indexedDB) return rej(new Error("Kein Fotospeicher verfügbar"));
-      var r = indexedDB.open("rapport_fotos", 1);
-      r.onupgradeneeded = function () { r.result.createObjectStore("fotos"); };
-      r.onsuccess = function () { res(r.result); };
-      r.onerror = function () { rej(r.error); };
-    });
-    return DBP;
-  }
-  function fotoPut(id, data) {
-    return db().then(function (d) { return new Promise(function (res, rej) {
-      var tx = d.transaction("fotos", "readwrite"); tx.objectStore("fotos").put(data, id);
-      tx.oncomplete = function () { res(); }; tx.onerror = function () { rej(tx.error); };
-    }); });
-  }
-  function fotoGet(id) {
-    return db().then(function (d) { return new Promise(function (res, rej) {
-      var q = d.transaction("fotos", "readonly").objectStore("fotos").get(id);
-      q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { rej(q.error); };
-    }); });
-  }
-  function fotoDel(id) {
-    return db().then(function (d) { return new Promise(function (res) {
-      var tx = d.transaction("fotos", "readwrite"); tx.objectStore("fotos").delete(id);
-      tx.oncomplete = function () { res(); }; tx.onerror = function () { res(); };
-    }); }).catch(function () {});
-  }
-
-  /* ---------- Darstellung ---------- */
-  function lighten(hex, f) {
-    var c = hexRgb(hex);
-    return "#" + c.map(function (v) { return ("0" + Math.round(v + (255 - v) * f).toString(16)).slice(-2); }).join("");
-  }
-  function onColor(hex) {
-    var c = hexRgb(hex);
-    return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) > 165 ? "#111" : "#fff";
-  }
-  function hexRgb(hex) {
-    var c = String(hex || DEFAULT_COLOR).replace("#", "");
-    if (c.length === 3) c = c.split("").map(function (x) { return x + x; }).join("");
-    return [parseInt(c.substr(0, 2), 16), parseInt(c.substr(2, 2), 16), parseInt(c.substr(4, 2), 16)];
-  }
-  function applyTheme(hex) {
-    hex = hex || DEFAULT_COLOR;
-    var s = document.documentElement.style;
-    s.setProperty("--acc", hex);
-    s.setProperty("--accT", onColor(hex));
-    s.setProperty("--accInkL", hex);
-    s.setProperty("--accInkD", lighten(hex, 0.45));
-    $("metaTheme").setAttribute("content", hex);
-  }
-  function setMode(m) {
-    try { localStorage.setItem("darstellung", m); } catch (e) {}
-    var h = document.documentElement;
-    if (m === "hell") h.setAttribute("data-theme", "light");
-    else if (m === "dunkel") h.setAttribute("data-theme", "dark");
-    else h.removeAttribute("data-theme");
-    Array.prototype.forEach.call($("modeSeg").querySelectorAll("button"), function (b) {
-      b.classList.toggle("on", b.getAttribute("data-m") === m);
-    });
-  }
-  Array.prototype.forEach.call($("modeSeg").querySelectorAll("button"), function (b) {
-    b.onclick = function () { setMode(b.getAttribute("data-m")); };
+  firmaFelder.forEach(function (f) {
+    var el = id(f[0]);
+    var gesp = laden(f[1]);
+    if (gesp) el.value = gesp;
+    el.addEventListener('input', function () { speichern(f[1], el.value.trim()); });
   });
 
-  /* ---------- Einrichtung per signiertem QR-Code ---------- */
-  function parseToken(raw) {
-    var s = String(raw || "").trim();
-    var i = s.indexOf("setup=");
-    if (i >= 0) s = s.slice(i + 6);
-    s = s.split(/[\s&]/)[0];
-    var p = s.split(".");
-    if (p[0] === "ZF3") return parseLizenzToken(s, p);
-    if (p.length !== 3 || p[0] !== "RAPP1") throw new Error("Das ist kein Einrichtungs-Code für diese App.");
-    if (!window.nacl) throw new Error("Prüfmodul (nacl-fast.min.js) fehlt auf dem Server.");
-    var msg = b64urlToBytes(p[1]), sig = b64urlToBytes(p[2]);
-    var ok = false;
-    try { ok = nacl.sign.detached.verify(msg, sig, b64ToBytes(ADMIN_PUBKEY)); } catch (e) { ok = false; }
-    if (!ok) throw new Error("Der Code ist ungültig oder wurde verändert.");
-    var data = JSON.parse(utf8Str(msg));
-    if (!data || (data.v !== 1 && data.v !== 2) || !data.f || !data.m) throw new Error("Der Code ist unvollständig.");
-    if (data.v === 2 && (!data.p || !data.ph)) throw new Error("Der Code ist unvollständig.");
-    return { token: s, data: data };
-  }
-  /* Neuer Code: Lizenz (von MIDA studios unterschrieben) + Mitarbeiter (von der Firma unterschrieben) */
-  function parseLizenzToken(s, p) {
-    if (p.length !== 5) throw new Error("Das ist kein Einrichtungs-Code für diese App.");
-    if (!window.nacl) throw new Error("Prüfmodul (nacl-fast.min.js) fehlt auf dem Server.");
-    var lb = b64urlToBytes(p[1]), ls = b64urlToBytes(p[2]), eb = b64urlToBytes(p[3]), es = b64urlToBytes(p[4]);
-    var ok = false;
-    try { ok = nacl.sign.detached.verify(lb, ls, b64ToBytes(ADMIN_PUBKEY)); } catch (e) { ok = false; }
-    if (!ok) throw new Error("Die Lizenz in diesem Code ist ungültig oder wurde verändert.");
-    var L = JSON.parse(utf8Str(lb));
-    if (!L || L.v !== 1 || !L.k || !L.n || !L.p || !L.ph) throw new Error("Die Lizenz ist unvollständig.");
-    ok = false;
-    try { ok = nacl.sign.detached.verify(eb, es, b64ToBytes(L.k)); } catch (e) { ok = false; }
-    if (!ok) throw new Error("Der Code ist ungültig oder wurde verändert.");
-    var E = JSON.parse(utf8Str(eb));
-    if (!E || !E.m) throw new Error("Der Code ist unvollständig.");
-    return { token: s, data: { v: 3, f: { n: L.n, c: L.c }, p: L.p, ph: L.ph, m: E.m, t: E.t || "",
-      liz: { id: L.id || "", bis: L.bis || "", test: !!L.test } } };
-  }
-  function lizenz() {
-    if (!profil || !profil.token) return null;
-    try { return parseToken(profil.token).data.liz || null; } catch (e) { return null; }
-  }
-  /* Späteste je gesehene Uhrzeit merken: Zurückdrehen der Handy-Uhr verlängert die Testzeit nicht */
-  function spaetesteZeit() {
-    var jetzt = Date.now(), max = 0;
-    try { max = parseInt(localStorage.getItem("zf_zeit") || "0", 10) || 0; } catch (e) {}
-    if (jetzt > max) { max = jetzt; try { localStorage.setItem("zf_zeit", String(max)); } catch (e) {} }
-    return max;
-  }
-  function restTage(bis) {
-    var p = String(bis).split("-"), n = new Date(spaetesteZeit());
-    var heute = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
-    return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - heute) / 86400000);
-  }
-  function istTest() { var l = lizenz(); return !!(l && l.test); }
-  function testKey() { var l = lizenz(); return "zf_test_n_" + (l && l.id ? l.id : "x"); }
-  function testGenutzt() {
-    var n = 0;
-    try { n = parseInt(localStorage.getItem(testKey()) || "0", 10) || 0; } catch (e) {}
-    return Math.max(n, rapporte.length);
-  }
-  function testZaehlen() { try { localStorage.setItem(testKey(), String(testGenutzt())); } catch (e) {} }
-  function testZeitAus() { var l = lizenz(); return !!(l && l.test && l.bis && restTage(l.bis) < 0); }
-  function testAbgelaufen() { return istTest() && (testZeitAus() || testGenutzt() >= TEST_MAX); }
-  function zeigeLizenz() {
-    var l = lizenz(), b = $("lizBanner");
-    if (!l || !l.test) { b.className = "lizBanner"; return; }
-    var t = l.bis ? restTage(l.bis) : null, n = Math.min(testGenutzt(), TEST_MAX), aus = testAbgelaufen();
-    b.className = "lizBanner on" + (aus ? " aus" : "");
-    if (aus) b.textContent = (testZeitAus() ? "Testzeitraum abgelaufen." : "Testversion: " + TEST_MAX + " von " + TEST_MAX + " Rapporten genutzt.") +
-      " Deine Rapporte kannst du weiter ansehen und als PDF senden. Mehr gibt's in der Vollversion.";
-    else b.textContent = "Testversion · " + n + " von " + TEST_MAX + " Rapporten genutzt" +
-      (t !== null ? " · " + (t === 0 ? "letzter Tag" : "noch " + t + (t === 1 ? " Tag" : " Tage")) : "");
-    $("btnNew").disabled = aus;
+  var gespeichert = laden('rflite-modus');
+  modus(gespeichert === 'hell' || gespeichert === 'dunkel' ? gespeichert : 'auto');
+  var zahn = id('zahn');
+  var einst = id('einst');
+  zahn.addEventListener('click', function () {
+    var auf = einst.hasAttribute('hidden');
+    if (auf) einst.removeAttribute('hidden');
+    else einst.setAttribute('hidden', '');
+    zahn.setAttribute('aria-expanded', auf ? 'true' : 'false');
+  });
+  var mb = document.querySelectorAll('#modi button');
+  for (var k = 0; k < mb.length; k++) {
+    mb[k].addEventListener('click', function () { modus(this.getAttribute('data-m')); });
   }
 
-  function profilAusToken(t) {
-    var f = t.data.f;
-    return {
-      token: t.token, name: t.data.m, ausgestellt: t.data.t || "",
-      paket: t.data.p || "", paketHash: t.data.ph || "",
-      firma: { name: f.n || "", adresse: f.a || "", farbe: f.c || DEFAULT_COLOR, logoFile: f.l || "", logoHash: f.lh || "", logo: "" }
-    };
+  var hilfeKnopf = id('hilfeknopf');
+  var hilfeBox = id('hilfebox');
+  hilfeKnopf.addEventListener('click', function () {
+    var auf = hilfeBox.hasAttribute('hidden');
+    if (auf) hilfeBox.removeAttribute('hidden');
+    else hilfeBox.setAttribute('hidden', '');
+    hilfeKnopf.setAttribute('aria-expanded', auf ? 'true' : 'false');
+    hilfeKnopf.textContent = auf ? 'Schließen' : "So geht's";
+  });
+  var alsApp = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  if (alsApp) {
+    var homeZeile = id('hilfehome');
+    if (homeZeile) homeZeile.parentNode.removeChild(homeZeile);
   }
 
-  /* Firmenpaket (firma.json) vom Server laden und gegen den Fingerabdruck im Code prüfen */
-  function ladePaket(p) {
-    if (!window.fetch) return Promise.reject(new Error("Dieser Browser kann das Firmenpaket nicht laden."));
-    var url = p.paket;
-    return fetch(url + (url.indexOf("?") < 0 ? "?" : "&") + "t=" + Date.now(), { cache: "no-store" }).then(function (r) {
-      if (!r.ok) throw new Error("Firmenpaket „" + url + "“ nicht gefunden (Fehler " + r.status + "). Es muss im selben Ordner wie die App liegen.");
-      return r.text();
-    }, function () {
-      throw new Error("Firmenpaket „" + url + "“ konnte nicht geladen werden. Besteht eine Verbindung zum Server?");
-    }).then(function (txt) {
-      var obj;
-      try { obj = JSON.parse(txt); } catch (e) { throw new Error("Das Firmenpaket ist beschädigt."); }
-      return sha256(JSON.stringify(obj)).then(function (h) {
-        if (h !== p.paketHash) throw new Error("Das Firmenpaket auf dem Server passt nicht zu diesem Code. Bitte das aktuelle „" + url + "“ hochladen.");
-        if (!obj || obj.v !== 1 || !obj.n) throw new Error("Das Firmenpaket ist unvollständig.");
-        p.firma = { name: obj.n, adresse: obj.a || "", farbe: obj.c || DEFAULT_COLOR, logo: obj.logo || "", logoFile: "", logoHash: "" };
-        return p;
-      });
+  /* ---------- Formular-Bausteine ---------- */
+  var fehlerFeld = id('fehler');
+  var kraefte = id('kraefte');
+  var planen;
+  var muelleimer =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
+
+  function neueZeile(artWert, stdWert) {
+    var z = document.createElement('div');
+    z.className = 'kraft';
+
+    var art = document.createElement('input');
+    art.type = 'text';
+    art.className = 'art';
+    art.setAttribute('list', 'arten');
+    art.placeholder = 'Facharbeiter, Meister, Azubi';
+    art.autocomplete = 'off';
+    art.value = artWert || '';
+
+    var std = document.createElement('input');
+    std.type = 'text';
+    std.className = 'std';
+    std.inputMode = 'decimal';
+    std.placeholder = '8';
+    std.autocomplete = 'off';
+    std.value = stdWert || '';
+
+    var weg = document.createElement('button');
+    weg.type = 'button';
+    weg.className = 'weg';
+    weg.setAttribute('aria-label', 'Arbeitskraft löschen');
+    weg.innerHTML = muelleimer;
+    weg.addEventListener('click', function () {
+      if (kraefte.children.length > 1) {
+        kraefte.removeChild(z);
+      } else {
+        art.value = '';
+        std.value = '';
+      }
+      planen();
     });
+
+    z.appendChild(art);
+    z.appendChild(std);
+    z.appendChild(weg);
+    kraefte.appendChild(z);
+    return art;
   }
-  function profilGueltig(p) {
-    if (!p || !p.token) return false;
-    try { var t = parseToken(p.token); return t.data.m === p.name; } catch (e) { return false; }
-  }
-  function ladeLogo(p) {
-    var f = p.firma;
-    if (f.logo) return Promise.resolve(false);
-    if (!f.logoFile || !window.fetch) return Promise.resolve(false);
-    return fetch(f.logoFile + "?t=" + Date.now(), { cache: "no-store" }).then(function (r) {
-      if (!r.ok) { f.logoFehler = "Logo-Datei „" + f.logoFile + "“ nicht gefunden (Fehler " + r.status + ")."; return null; }
-      return r.arrayBuffer();
-    }).then(function (buf) {
-      if (!buf) return false;
-      var bytes = new Uint8Array(buf);
-      return sha256Bytes(bytes).then(function (h) {
-        f.logoAbweichung = !!(f.logoHash && h !== f.logoHash);
-        return new Promise(function (res) {
-          var fr = new FileReader();
-          fr.onload = function () { f.logo = fr.result; res(true); };
-          fr.onerror = function () { res(false); };
-          fr.readAsDataURL(new Blob([bytes], { type: /\.svg$/i.test(f.logoFile) ? "image/svg+xml" : (/\.jpe?g$/i.test(f.logoFile) ? "image/jpeg" : "image/png") }));
+  id('plus').addEventListener('click', function () {
+    neueZeile().focus();
+  });
+
+  /* ---------- Unterschrift: großes Feld über den ganzen Bildschirm ---------- */
+  var pad = (function () {
+    var ov = id('signier');
+    var c = id('signcanvas');
+    var hinweis = id('signhinweis');
+    var veraendert = false;
+    var urspruenglich = null;
+    var rueck = null;
+    var feld = RF.unterschriftFeld(c, {
+      farbe: '#13202E', breite: 3.5, rand: 8, maxBreite: 900,
+      beiStrich: function () { veraendert = true; hinweis.setAttribute('hidden', ''); }
+    });
+
+    function schliessen() {
+      ov.setAttribute('hidden', '');
+      document.body.style.overflow = '';
+    }
+    id('signweg').addEventListener('click', function () {
+      feld.leeren();
+      veraendert = true;
+      hinweis.removeAttribute('hidden');
+    });
+    id('signfertig').addEventListener('click', function () {
+      var ergebnis = veraendert ? (feld.hatStrich() ? feld.zuschneiden() : null) : urspruenglich;
+      var f = rueck;
+      rueck = null;
+      schliessen();
+      if (f) f(ergebnis);
+    });
+
+    function oeffnen(name, url, fertig) {
+      id('signtitel').textContent = 'Unterschrift ' + name;
+      rueck = fertig;
+      urspruenglich = url || null;
+      veraendert = false;
+      ov.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      feld.einrichten();
+      hinweis.removeAttribute('hidden');
+      if (url) {
+        feld.bildLaden(url, function () {
+          if (veraendert) return false;
+          hinweis.setAttribute('hidden', '');
+          return true;
         });
-      });
-    }).catch(function () { return false; });
-  }
-  function dataUrlBytes(d) {
-    var i = String(d || "").indexOf(",");
-    if (i < 0) return new Uint8Array(0);
-    return b64ToBytes(d.slice(i + 1));
-  }
-  /* Alte Einrichtung (ohne Firmenpaket): firma.json holen und über den Logo-Fingerabdruck aus dem alten Code prüfen */
-  function upgradeAltprofil(p) {
-    if (!p || p.paket || !p.firma.logoHash || !window.fetch) return Promise.resolve(false);
-    return fetch("firma.json?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (obj) {
-      if (!obj || !obj.logo) return false;
-      return sha256Bytes(dataUrlBytes(obj.logo)).then(function (h) {
-        if (h !== p.firma.logoHash) return false;
-        p.firma.logo = obj.logo;
-        if (obj.a) p.firma.adresse = obj.a;
-        p.firma.logoFehler = "";
-        return true;
-      });
-    }).catch(function () { return false; });
-  }
-  function zeigeLogoWarnung() {
-    var w = $("logoWarn");
-    if (profil && !profil.firma.logo && (profil.firma.logoFile || profil.firma.logoHash || profil.firma.logoFehler)) {
-      $("logoWarnTxt").textContent = "Firmenlogo fehlt. " + (profil.firma.logoFehler || "Bitte mit dem aktuellen QR-Code neu einrichten.");
-      w.classList.add("on");
-    } else w.classList.remove("on");
-  }
-  $("btnReSetup").onclick = function () { openSetup(true); };
-  function firmaAusProfil() {
-    firma = profil ? { name: profil.firma.name, adresse: profil.firma.adresse, logo: profil.firma.logo, farbe: profil.firma.farbe } : null;
-  }
-
-  var neuesProfil = null, scanStream = null, scanTimer = null;
-  function setupMsg(t, err) { var m = $("setupMsg"); m.textContent = t || ""; m.className = err ? "err" : ""; }
-  function openSetup(abbrechbar) {
-    stopScan();
-    neuesProfil = null;
-    $("setupStart").style.display = "block";
-    $("setupOk").classList.remove("on");
-    $("pasteBox").classList.remove("on");
-    $("pasteInput").value = "";
-    $("setupCancel").style.visibility = abbrechbar ? "visible" : "hidden";
-    setupMsg("");
-    applyTheme(profil ? profil.firma.farbe : DEFAULT_COLOR);
-    show("viewSetup");
-  }
-  function codeErhalten(raw) {
-    var t;
-    try { t = parseToken(raw); } catch (e) { setupMsg(e.message, true); return; }
-    var lz = t.data.liz;
-    if (lz && lz.bis && restTage(lz.bis) < 0) {
-      setupMsg(lz.test ? "Der Testzeitraum dieser Firma ist abgelaufen." : "Die Lizenz dieser Firma ist abgelaufen. Bitte beim Chef melden.", true);
-      return;
-    }
-    stopScan();
-    var kandidat = profilAusToken(t);
-    if (kandidat.paket) {
-      setupMsg("Firmenpaket wird geladen …");
-      $("btnScan").disabled = true;
-      ladePaket(kandidat).then(function (pr) {
-        $("btnScan").disabled = false;
-        setupMsg("");
-        zeigeSetupOk(pr);
-      }, function (e) {
-        $("btnScan").disabled = false;
-        neuesProfil = null;
-        setupMsg(e.message, true);
-      });
-      return;
-    }
-    zeigeSetupOk(kandidat);
-  }
-  function zeigeSetupOk(pr) {
-    neuesProfil = pr;
-    applyTheme(neuesProfil.firma.farbe);
-    $("setupStart").style.display = "none";
-    $("setupOk").classList.add("on");
-    $("setupWho").textContent = neuesProfil.name;
-    $("setupFirm").textContent = neuesProfil.firma.name + (neuesProfil.firma.adresse ? "\n" + neuesProfil.firma.adresse : "");
-    $("setupLogo").style.display = "none";
-    $("setupLogoPlate").style.display = "none";
-    if (neuesProfil.firma.logo) {
-      $("setupLogo").src = neuesProfil.firma.logo; $("setupLogo").style.display = "block"; $("setupLogoPlate").style.display = "inline-flex";
-      return;
-    }
-    ladeLogo(neuesProfil).then(function (ok) {
-      if (ok) { $("setupLogo").src = neuesProfil.firma.logo; $("setupLogo").style.display = "block"; $("setupLogoPlate").style.display = "inline-flex"; }
-      else if (neuesProfil && neuesProfil.firma.logoFile) {
-        $("setupFirm").textContent += "\n\n⚠ " + (neuesProfil.firma.logoFehler || ("Logo „" + neuesProfil.firma.logoFile + "“ nicht gefunden."));
-      }
-    });
-  }
-  $("btnSetupDone").onclick = function () {
-    if (!neuesProfil) return;
-    profil = neuesProfil; neuesProfil = null;
-    if (!persistProfil()) return;
-    firmaAusProfil();
-    showList();
-  };
-  $("setupCancel").onclick = function () { stopScan(); if (profil) showList(); };
-  $("btnPasteToggle").onclick = function () { $("pasteBox").classList.toggle("on"); if ($("pasteBox").classList.contains("on")) $("pasteInput").focus(); };
-  $("btnPasteGo").onclick = function () { codeErhalten($("pasteInput").value); };
-
-  function stopScan() {
-    clearTimeout(scanTimer); scanTimer = null;
-    if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
-    $("scanWrap").classList.remove("on");
-    $("btnScan").textContent = "QR-Code scannen";
-  }
-  $("btnScan").onclick = function () {
-    if (scanStream) { stopScan(); return; }
-    setupMsg("");
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) {
-      setupMsg("Die Kamera geht in der App erst mit HTTPS. Scanne den QR-Code mit der iPhone-Kamera oder füge den Link unten ein.", true);
-      $("pasteBox").classList.add("on");
-      return;
-    }
-    if (!window.jsQR) { setupMsg("Scanmodul (jsQR.js) fehlt auf dem Server.", true); return; }
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }).then(function (st) {
-      scanStream = st;
-      var v = $("scanVideo");
-      v.srcObject = st; v.setAttribute("playsinline", ""); v.play();
-      $("scanWrap").classList.add("on");
-      $("btnScan").textContent = "Scannen abbrechen";
-      var c = document.createElement("canvas"), cx = c.getContext("2d", { willReadFrequently: true });
-      (function tick() {
-        if (!scanStream) return;
-        if (v.readyState >= 2 && v.videoWidth) {
-          var w = Math.min(720, v.videoWidth), h = Math.round(v.videoHeight * w / v.videoWidth);
-          c.width = w; c.height = h;
-          cx.drawImage(v, 0, 0, w, h);
-          var img = cx.getImageData(0, 0, w, h);
-          var q = jsQR(img.data, w, h, { inversionAttempts: "dontInvert" });
-          if (q && q.data) { codeErhalten(q.data); if (!neuesProfil) { scanTimer = setTimeout(tick, 600); } return; }
-        }
-        scanTimer = setTimeout(tick, 180);
-      })();
-    }).catch(function () {
-      setupMsg("Kein Kamerazugriff. Erlaube die Kamera oder füge den Link unten ein.", true);
-      $("pasteBox").classList.add("on");
-    });
-  };
-
-  /* ---------- Spracheingabe ---------- */
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var dict = null;
-  var ZAHLWORT = { null: 0, ein: 1, eins: 1, eine: 1, einen: 1, zwei: 2, zwo: 2, drei: 3, vier: 4, "fünf": 5, sechs: 6, sieben: 7,
-    acht: 8, neun: 9, zehn: 10, elf: 11, "zwölf": 12, dreizehn: 13, vierzehn: 14, "fünfzehn": 15, sechzehn: 16,
-    siebzehn: 17, achtzehn: 18, neunzehn: 19, zwanzig: 20, dreissig: 30, "dreißig": 30, vierzig: 40, "fünfzig": 50, hundert: 100 };
-  function zahlAusSprache(s) {
-    var t = String(s).toLowerCase().trim();
-    if (!t) return "";
-    if (/^(eine\s+)?halbe?(\s+stunde)?$/.test(t)) return "0,5";
-    var halb = /einhalb|und ein halb|komma fünf|,5\b/.test(t) ? 0.5 : 0;
-    if (/\bdreiviertel\b/.test(t)) halb = 0.75;
-    if (/\bviertel\b/.test(t) && !/dreiviertel/.test(t)) halb = 0.25;
-    var m = t.match(/\d+([.,]\d+)?/);
-    var v = null;
-    if (m) v = num(m[0]);
-    else {
-      var w = t.replace(/einhalb.*$/, "").split(/[\s-]+/);
-      for (var i = 0; i < w.length; i++) if (ZAHLWORT.hasOwnProperty(w[i])) { v = ZAHLWORT[w[i]]; break; }
-      if (v === null && halb) v = 0;
-    }
-    if (v === null) return s;
-    if (m && m[1]) halb = 0;
-    return fmtNum(v + halb);
-  }
-  function einheiten(s) {
-    return String(s)
-      .replace(/\bquadratmeter\b/gi, "m²")
-      .replace(/\bkubikmeter\b/gi, "m³")
-      .replace(/\blaufmeter\b|\blaufende meter\b/gi, "lfm")
-      .replace(/\bstück\b/gi, "Stk.")
-      .replace(/\bkilogramm\b|\bkilo\b/gi, "kg")
-      .replace(/\bliter\b/gi, "l")
-      .replace(/(\d)\s+(m²|m³)/g, "$1 $2");
-  }
-  function joinTxt(a, b) { b = String(b || "").trim(); if (!b) return a; return a ? a + " " + b : b; }
-  /* Bildschirm anlassen, solange die Spracheingabe laeuft */
-  var wl = null;
-  function wachAn() {
-    try {
-      if (navigator.wakeLock && !wl) navigator.wakeLock.request("screen").then(function (l) {
-        wl = l; l.addEventListener("release", function () { if (wl === l) wl = null; });
-      }, function () {});
-    } catch (e) {}
-  }
-  function wachAus() { try { if (wl) { var l = wl; wl = null; l.release(); } } catch (e) {} }
-  document.addEventListener("visibilitychange", function () { if (dict && document.visibilityState === "visible") wachAn(); });
-  function stopRec() { if (dict) { try { dict.rec.stop(); } catch (e) {} } }
-  function setMicState(btn, on, big) {
-    btn.classList.toggle("rec", on);
-    if (big) btn.innerHTML = on ? STOP_SVG + "<span>Stopp</span>" : MIC_SVG + "<span>Sprechen</span>";
-    else btn.innerHTML = on ? STOP_SVG : MIC_SVG;
-  }
-  function renderDict(d, interim, done) {
-    var mid = joinTxt(d.fin, interim);
-    if (mid && d.opts.mode === "zahl") mid = zahlAusSprache(mid);
-    if (mid && d.opts.mode === "menge") mid = einheiten(mid);
-    var pre, post;
-    if (!mid) { pre = d.before; post = d.after; }
-    else if (d.opts.mode === "zahl") { pre = ""; post = ""; }
-    else {
-      pre = d.before; post = d.after;
-      if (pre && !/\s$/.test(pre)) pre += " ";
-      if (post && !/^[\s.,;:!?)]/.test(post)) post = " " + post;
-      if (!pre.trim() || /[.!?]\s*$/.test(pre)) mid = mid.charAt(0).toUpperCase() + mid.slice(1);
-    }
-    d.field.value = pre + mid + post;
-    if (done) {
-      var pos = (pre + mid).length;
-      try { d.field.focus({ preventScroll: true }); d.field.setSelectionRange(pos, pos); } catch (e) {}
-    }
-    d.field.dispatchEvent(new Event("input"));
-  }
-  function toggleDict(field, btn, opts) {
-    if (locked()) return;
-    if (dict && dict.field === field) { stopRec(); return; }
-    if (dict) stopRec();
-    if (!SR) {
-      field.focus();
-      alert("Diese Spracherkennung gibt es hier nicht. Tipp ins Feld und nimm das Mikro auf der iPhone-Tastatur.");
-      return;
-    }
-    var s = field.selectionStart, e = field.selectionEnd;
-    if (s == null || document.activeElement !== field && !(btn._sel)) { s = e = field.value.length; }
-    if (btn._sel && btn._sel.field === field) { s = btn._sel.s; e = btn._sel.e; }
-    btn._sel = null;
-    var d = { field: field, btn: btn, opts: opts, before: field.value.slice(0, s), after: field.value.slice(e), fin: "" };
-    var rec = new SR();
-    d.rec = rec;
-    rec.lang = "de-DE";
-    rec.continuous = opts.mode === "text";
-    rec.interimResults = true;
-    rec.onstart = function () { setMicState(btn, true, opts.big); wachAn(); };
-    rec.onresult = function (ev) {
-      var interim = "";
-      for (var i = ev.resultIndex; i < ev.results.length; i++) {
-        var res = ev.results[i];
-        if (res.isFinal) d.fin = joinTxt(d.fin, res[0].transcript);
-        else interim += res[0].transcript;
-      }
-      renderDict(d, interim, false);
-    };
-    rec.onerror = function (ev) {
-      if (ev.error === "no-speech" || ev.error === "aborted") return;
-      if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
-        alert("Mikrofon/Spracherkennung ist nicht erlaubt. Alternativ: Mikro auf der iPhone-Tastatur nutzen.");
-      }
-    };
-    rec.onend = function () {
-      wachAus();
-      setMicState(btn, false, opts.big);
-      renderDict(d, "", true);
-      if (dict === d) dict = null;
-      if (d.opts.onEnd) d.opts.onEnd();
-    };
-    dict = d;
-    try { rec.start(); } catch (err) { dict = null; setMicState(btn, false, opts.big); }
-  }
-  function bindMic(btn, field, opts) {
-    btn.addEventListener("pointerdown", function (e) {
-      if (document.activeElement === field) btn._sel = { field: field, s: field.selectionStart, e: field.selectionEnd };
-      else btn._sel = null;
-      e.preventDefault();
-    });
-    btn.addEventListener("click", function () { toggleDict(field, btn, opts); });
-    setMicState(btn, false, opts.big);
-  }
-  function micField(input, opts) {
-    var b = el("button", { class: "mic", type: "button", "aria-label": "Sprechen" });
-    bindMic(b, input, opts);
-    return el("div", { class: "fld" }, [input, b]);
-  }
-
-  /* ---------- Schnell erfassen: ein Diktat auf die Felder verteilen (läuft komplett im Handy) ---------- */
-  var ZW = { "null": 0, ein: 1, eins: 1, eine: 1, einen: 1, einem: 1, einer: 1, zwei: 2, zwo: 2, drei: 3, vier: 4, "fünf": 5, sechs: 6,
-    sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, "zwölf": 12, dreizehn: 13, vierzehn: 14, "fünfzehn": 15, sechzehn: 16, siebzehn: 17,
-    achtzehn: 18, neunzehn: 19, zwanzig: 20, "dreißig": 30, dreissig: 30, vierzig: 40, "fünfzig": 50, sechzig: 60, siebzig: 70,
-    achtzig: 80, neunzig: 90, hundert: 100 };
-  function wortZahl(w) {
-    if (ZW.hasOwnProperty(w)) return ZW[w];
-    var m = w.match(/^(ein|zwei|drei|vier|fünf|sechs|sieben|acht|neun)und(zwanzig|dreißig|dreissig|vierzig|fünfzig|sechzig|siebzig|achtzig|neunzig)$/);
-    return m ? ZW[m[1]] + ZW[m[2]] : null;
-  }
-  /* Zahl ab Token i lesen: { v: Wert, n: Anzahl Tokens } oder null */
-  function zahlBei(T, i) {
-    var t = T[i];
-    if (!t || t.p) return null;
-    var w = t.l, v = null, n = 1, nx = T[i + 1];
-    if ((w === "eine" || w === "ein" || w === "einer") && nx && (nx.l === "halbe" || nx.l === "dreiviertel")) return { v: nx.l === "halbe" ? 0.5 : 0.75, n: 2 };
-    if (w === "anderthalb" || w === "eineinhalb") v = 1.5;
-    else if (w === "dreiviertel") v = 0.75;
-    else if (w === "halbe" || w === "halb") v = 0.5;
-    else if (/^\d+([.,]\d+)?$/.test(w)) v = num(w);
-    else {
-      var m = w.match(/^(.+?)einhalb$/);
-      v = m && wortZahl(m[1]) !== null ? wortZahl(m[1]) + 0.5 : wortZahl(w);
-    }
-    if (v === null) return null;
-    if (nx && !nx.p && (nx.l === "einhalb" || nx.l === "halb") && v === Math.floor(v)) { v += 0.5; n = 2; }
-    else if (nx && nx.l === "und" && T[i + 2] && /^(eine?|ein)$/.test(T[i + 2].l) && T[i + 3] && T[i + 3].l === "halbe") { v += 0.5; n = 4; }
-    return { v: v, n: n };
-  }
-  var EINH = [
-    [/^(quadratmeter|qm|m²|m2)$/, "m²", "m²"], [/^(kubikmeter|m³|m3)$/, "m³", "m³"], [/^(laufmeter|lfm)$/, "lfm", "lfm"],
-    [/^(meter|m)$/, "m", "m"], [/^(zentimeter|cm)$/, "cm", "cm"], [/^(millimeter|mm)$/, "mm", "mm"],
-    [/^(sack|säcke|sackerl)$/, "Sack", "Sack"], [/^eimer$/, "Eimer", "Eimer"], [/^(stück|stk|stck)$/, "Stk.", "Stk."],
-    [/^(kilo|kilogramm|kg)$/, "kg", "kg"], [/^(liter|l)$/, "l", "l"], [/^(tonne|tonnen|t)$/, "t", "t"],
-    [/^(rolle|rollen)$/, "Rolle", "Rollen"], [/^(karton|kartons)$/, "Karton", "Kartons"], [/^(palette|paletten)$/, "Palette", "Paletten"],
-    [/^(tube|tuben)$/, "Tube", "Tuben"], [/^(kartusche|kartuschen)$/, "Kartusche", "Kartuschen"], [/^(dose|dosen)$/, "Dose", "Dosen"],
-    [/^(paket|pakete)$/, "Paket", "Pakete"], [/^(packung|packungen|pack|päckchen)$/, "Pack", "Pack"], [/^(platte|platten)$/, "Platte", "Platten"],
-    [/^beutel$/, "Beutel", "Beutel"], [/^kanister$/, "Kanister", "Kanister"], [/^(bund|bündel)$/, "Bund", "Bund"],
-    [/^(flasche|flaschen)$/, "Flasche", "Flaschen"], [/^gebinde$/, "Gebinde", "Gebinde"], [/^(schachtel|schachteln)$/, "Schachtel", "Schachteln"],
-    [/^(stange|stangen)$/, "Stange", "Stangen"], [/^(tafel|tafeln)$/, "Tafel", "Tafeln"], [/^(set|sets)$/, "Set", "Sets"], [/^(stufe|stufen)$/, "Stufe", "Stufen"],
-    [/^(container|mulde|mulden)$/, "Container", "Container"], [/^(fuhre|fuhren)$/, "Fuhre", "Fuhren"], [/^(meter)$/, "m", "m"]
-  ];
-  function einheitBei(T, i) {
-    var t = T[i];
-    if (!t || t.p) return null;
-    if (/^laufende[nr]?$/.test(t.l) && T[i + 1] && T[i + 1].l === "meter") return { e: ["lfm", "lfm"], n: 2 };
-    for (var k = 0; k < EINH.length; k++) if (EINH[k][0].test(t.l)) return { e: [EINH[k][1], EINH[k][2]], n: 1 };
-    return null;
-  }
-  var STUNDE = /^(stunden?|std|h)$/;
-  var ROLLE = /^(?:[a-zäöüß]*(?:meister|meisterin|geselle|gesellen|gesellin|helfer|helferin|helfern|vorarbeiter|polier|monteur|monteure|techniker|fliesenleger|maler|maurer|elektriker|installateur|installateure|schreiner|tischler|zimmerer|dachdecker|estrichleger|bauleiter|arbeiter|praktikant|praktikanten|hilfskraft|hilfskräfte)|azubi|azubis|auszubildende|auszubildender|auszubildenden|lehrling|lehrlinge|lehrbub|zimmermann|kollege|kollegen|kollegin|mann|leute|personen|person|ich)$/;
-  function rollenName(w) {
-    var l = w.toLowerCase();
-    if (l === "ich") return profil && profil.name ? profil.name : "Ich";
-    if (/^(mann|leute|personen|person)$/.test(l)) return "Mitarbeiter";
-    if (/^(auszubildende[rn]?|azubis)$/.test(l)) return "Azubi";
-    l = l.replace(/gesellen$/, "geselle").replace(/lehrlinge$/, "lehrling").replace(/monteure$/, "monteur")
-      .replace(/installateure$/, "installateur").replace(/kollegen$/, "kollege").replace(/praktikanten$/, "praktikant")
-      .replace(/hilfskräfte$/, "hilfskraft").replace(/helfern$/, "helfer");
-    return l.charAt(0).toUpperCase() + l.slice(1);
-  }
-  var NAME_STOP = /^(und|sowie|plus|außerdem|ausserdem|dann|danach|noch|dazu|zusätzlich|verbraucht|verbaut|gebraucht|verarbeitet|verlegt|eingebaut|geliefert|mitgenommen|benötigt|bei|in|im|für|mit|je|jeweils|haben|hat|habe|wurde|wurden|ist|sind|war|waren|insgesamt|gesamt|heute|gestern|vorgestern|material|materialien|von|bis|uhr|der|die|das|den|dem|des|war|da|dort|zeit|ca|circa|etwa|ungefähr)$/;
-  var NAME_SKIP = /^(an|von|vom|der|die|das|des|dem|den)$/;
-  var CONN_START = /^(und|sowie|plus|außerdem|ausserdem|dann|danach|noch|dazu|zusätzlich|je|jeweils|à|a|haben|hat|habe|wir|wurde|wurden|insgesamt|gesamt|heute|also|äh|ähm|ok|okay|gestern|vorgestern|material|materialien|arbeitskräfte|arbeitszeit|zeit|ort|baustelle|da|dort|war|waren|,)$/;
-  var CONN_END = /^(und|sowie|plus|außerdem|ausserdem|dann|danach|noch|dazu|zusätzlich|je|jeweils|à|a|mit|haben|hat|habe|wir|war|waren|wurde|wurden|ist|sind|insgesamt|gesamt|heute|also|äh|ähm|ok|okay|verbraucht|verbaut|gebraucht|gearbeitet|benötigt|material|materialien|arbeitskräfte|von|bei|in|für|der|die|das|den|dem|des|an|am|im|zu|ca|circa|etwa|ungefähr|gestern|vorgestern|ort|baustelle|da|dort|tätig|beschäftigt|zeit|,)$/;
-  var ORT_STOP = /^(bad|badezimmer|küche|keller|flur|diele|wohnzimmer|schlafzimmer|kinderzimmer|wc|gäste-wc|treppenhaus|treppe|garage|dusche|terrasse|balkon|halle|büro|praxis|erdgeschoss|obergeschoss|dachgeschoss|untergeschoss|eg|og|dg|ug|haus|wohnung|zimmer|raum|ordnung|arbeit|summe|ordnung|eingang|eingangsbereich|hof|garten|keller|anbau|neubau|altbau|bestand|absprache|rücksprache|auftrag|zukunft|kürze)$|zimmer$|raum$|geschoss$|bereich$/;
-  var TITEL_STOP = /^(bedarf|regen|nässe|kälte|hitze|gelegenheit|beginn|ende|abschluss|ankunft|abfahrt|bedarf|bad|küche|keller|flur|arbeiten|fertigstellung)$/;
-
-  function diktatZerlegen(src) {
-    var s = String(src || "")
-      .replace(/(\d+)\s*komma\s*(\d+)/gi, "$1,$2")
-      .replace(/(\d+(?:[.,]\d+)?)\s*(?:mal|x|×)\s*(\d+(?:[.,]\d+)?)/gi, "$1×$2")
-      .replace(/\s+/g, " ").trim();
-    var out = { titel: "", ort: "", text: "", material: [], arbeiter: [], tage: 0 };
-    if (!s) return out;
-    /* Geraete (Fraese, Bagger ...) mit Stundenangabe gehoeren ins Materialfeld */
-    var GERAET = /^[a-zäöüß]*(?:fräse|absaugung|bagger|kran|gerüst|hebebühne|bühne|kompressor|rüttler|stampfer|mischer|bohrhammer|lader|maschine|gerät|schleifer|säge|flex|stromerzeuger|aggregat|pumpe|trockner|entfeuchter|leiter)$/;
-    function gross(x) { x = String(x || ""); return x.charAt(0).toUpperCase() + x.slice(1); }
-    /* Abschnitte mit Stichwort: "Ort ...", "Baustelle ...", "Material ..." */
-    function abschnitt(re, grenze) {
-      var mm = re.exec(s);
-      if (!mm) return "";
-      var von = mm.index + mm[1].length, inhalt = s.slice(mm.index + mm[0].length);
-      var ende = inhalt.length;
-      var m2 = /[.!?;]|\s(?:material|materialien|baustelle|ort|arbeitskräfte|arbeitskraft|personal|mitarbeiter|arbeiten|ausgeführte arbeiten)(?=[\s,.:;!?]|$)/i.exec(inhalt);
-      if (m2) ende = m2.index;
-      var ws = inhalt.slice(0, ende).split(" "), cut = ws.length;
-      for (var q = 0; q < ws.length; q++) {
-        if (ROLLE.test(ws[q].toLowerCase().replace(/,/g, ""))) {
-          cut = q;
-          if (q > 0 && /^(?:\d+(?:[.,]\d+)?|eine?n?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn)$/i.test(ws[q - 1])) cut = q - 1;
-          break;
-        }
-      }
-      if (grenze) cut = Math.min(cut, grenze(ws.slice(0, cut)));
-      var segTxt = ws.slice(0, cut).join(" ");
-      s = (s.slice(0, von) + " " + ws.slice(cut).join(" ") + inhalt.slice(ende)).replace(/\s+/g, " ").trim();
-      return segTxt.replace(/^[,:\s]+|[,\s]+$/g, "");
-    }
-    var ortSeg = abschnitt(/(^|[.!?;]\s*|,\s*)ort\b:?\s*/i, function (w) { return Math.min(w.length, 3); });
-    var bauSeg = abschnitt(/(^|[.!?;]\s*|,\s*)baustelle\b:?\s*/i, function (w) {
-      for (var i = 0; i < w.length && i < 8; i++) { if (/\d/.test(w[i]) && !(w[i + 1] && STUNDE.test(w[i + 1].toLowerCase()))) return i + 1; }
-      return Math.min(w.length, 4);
-    });
-    var matSeg = abschnitt(/(^|[\s,.;!?])(?:materialien|material|materialverbrauch)\b:?\s*/i);
-    s = s.replace(/^(?:ausgeführte\s+)?arbeiten\b:?\s*/i, "");
-    if (ortSeg) out.ort = gross(ortSeg);
-    if (bauSeg) out.titel = gross(bauSeg);
-    /* Mehrere Eintraege ohne "und": nach "Menge + Einheit" beginnt ein neuer Eintrag */
-    /* "Fraese plus Absaugung 1 Stunde": Geraet + Geraet mit gemeinsamer Stundenangabe bleiben ein Eintrag */
-    function zusammen(parts) {
-      var out = [parts[0]];
-      for (var i = 1; i < parts.length; i += 2) {
-        var sep = parts[i], nxt = parts[i + 1] || "", last = out[out.length - 1];
-        var gerLast = last.toLowerCase().split(/\s+/).some(function (w) { return GERAET.test(w); });
-        if (/^(?:und|plus|sowie)$/i.test(sep) && gerLast && !/\d/.test(last) && /^\D*\d+(?:[.,]\d+)?\s*(?:stunden|stunde|std)\b/i.test(nxt)) out[out.length - 1] = last + " " + sep.toLowerCase() + " " + nxt;
-        else out.push(nxt);
-      }
-      return out;
-    }
-    function nachMenge(chunks) {
-      var res = [];
-      chunks.forEach(function (c) {
-        var W = c.split(/\s+/).filter(Boolean).map(function (x) { return { w: x, l: x.toLowerCase(), p: false }; });
-        if (!W.length) return;
-        var z0 = zahlBei(W, 0);
-        if (z0) {
-          var st = 0;
-          for (var k = z0.n; k < W.length; k++) {
-            var zk = zahlBei(W, k);
-            if (zk && einheitBei(W, k + zk.n) && k > st) { res.push(W.slice(st, k).map(function (x) { return x.w; }).join(" ")); st = k; k += zk.n; }
-          }
-          res.push(W.slice(st).map(function (x) { return x.w; }).join(" "));
-          return;
-        }
-        var start = 0, i = 1;
-        while (i < W.length) {
-          var z = zahlBei(W, i);
-          if (z) {
-            var eh = einheitBei(W, i + z.n), len = eh ? eh.n : (W[i + z.n] && STUNDE.test(W[i + z.n].l) ? 1 : 0);
-            if (len) {
-              var ende = i + z.n + len;
-              if (ende < W.length) {
-                res.push(W.slice(start, ende).map(function (x) { return x.w; }).join(" "));
-                start = ende; i = ende + 1; continue;
-              }
-            }
-          }
-          i++;
-        }
-        res.push(W.slice(start).map(function (x) { return x.w; }).join(" "));
-      });
-      return res;
-    }
-    if (matSeg) {
-      nachMenge(zusammen(matSeg.replace(/^(?:(?:materialien|material)\b[:,]?\s*)+/i, "").split(/\s*(,(?!\d)|;|\bund\b|\bsowie\b|\bplus\b)\s*/i))).forEach(function (it) {
-        it = it.replace(/^(?:noch|dazu|außerdem|mit|ca\.?|circa|etwa)\s+/i, "").trim();
-        if (!it) return;
-        var sh = /^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:stunden|stunde|std)\.?$/i.exec(it);
-        if (sh && sh[1]) { out.material.push({ n: gross(sh[1]), m: fmtNum(num(sh[2])) + " Std" }); return; }
-        var W = it.split(/\s+/).map(function (x) { return { w: x, l: x.toLowerCase(), p: false }; });
-        var z = zahlBei(W, 0), menge = "", nameW = W;
-        if (!z) {
-          for (var pk = 1; pk < W.length; pk++) {
-            var zh = zahlBei(W, pk);
-            if (zh) { var eh2 = einheitBei(W, pk + zh.n); if (eh2 && pk + zh.n + eh2.n === W.length) { menge = fmtNum(zh.v) + " " + (zh.v === 1 ? eh2.e[0] : eh2.e[1]); nameW = W.slice(0, pk); break; } }
-          }
-        }
-        if (z) {
-          var eh = einheitBei(W, z.n);
-          if (eh) { menge = fmtNum(z.v) + " " + (z.v === 1 ? eh.e[0] : eh.e[1]); nameW = W.slice(z.n + eh.n); }
-          else { menge = fmtNum(z.v) + " Stk."; nameW = W.slice(z.n); }
-        }
-        var nm = nameW.map(function (x) { return x.w; }).join(" ").replace(/^(?:der|die|das|den|dem)\s+/i, "");
-        if (nm) out.material.push({ n: gross(nm), m: menge });
-      });
-    }
-    if (!s) return out;
-    var used = [];
-    function mark(a, b) { used.push([a, b]); }
-    var m, re;
-
-    /* Baustelle / Kunde */
-    re = /\b(?:([Bb]ei|[Bb]austelle|[Kk]unde|[Kk]undin|[Aa]uftraggeber)\s+(?:(?:der|dem)\s+)?)?((?:Familie|Firma|Fam\.|Herrn?|Frau|Dr\.?)\s+)?([A-ZÄÖÜ][\wäöüßÄÖÜ'-]+)/g;
-    while ((m = re.exec(s))) {
-      if (!m[1] && !m[2]) continue;
-      if (TITEL_STOP.test(m[3].toLowerCase()) || ROLLE.test(m[3].toLowerCase())) continue;
-      if (/^(Bei|Baustelle|Kunde|Kundin|Auftraggeber)$/.test(m[3])) continue;
-      out.titel = ((m[2] || "") + m[3]).replace(/^Fam\.\s*/, "Familie ").trim();
-      mark(m.index, m.index + m[0].length);
-      break;
-    }
-    re = /\b([A-ZÄÖÜ][\wäöüß-]*(?:straße|strasse|str\.|weg|gasse|allee|platz|ring|steige|damm|ufer|pfad|hof))\s+(\d+\s?[a-zA-Z]?\b)/;
-    if ((m = re.exec(s))) {
-      var adr = (m[1] + " " + m[2]).trim(); out.titel = out.titel ? out.titel + ", " + adr : adr;
-      mark(m.index, m.index + m[0].length);
-    }
-    /* Ort */
-    re = /\b(?:[Ii]n|[Oo]rt:?)\s+([A-ZÄÖÜ][\wäöüß-]+(?:\s+(?:am|an der|im|ob der)\s+[A-ZÄÖÜ][\wäöüß-]+)?)/g;
-    while ((m = re.exec(s))) {
-      var w0 = m[1].split(/\s+/)[0].toLowerCase();
-      if (ORT_STOP.test(w0) || ROLLE.test(w0) || einheitBei([{ l: w0 }], 0)) continue;
-      var inUsed = used.some(function (u) { return m.index < u[1] && m.index + m[0].length > u[0]; });
-      if (inUsed) continue;
-      out.ort = m[1];
-      mark(m.index, m.index + m[0].length);
-      break;
-    }
-    /* gestern / vorgestern */
-    if ((m = /\b(vorgestern|gestern)\b/i.exec(s))) { out.tage = /^vor/i.test(m[1]) ? -2 : -1; mark(m.index, m.index + m[0].length); }
-
-    /* Tokens */
-    var T = [];
-    re = /\d+(?:[.,]\d+)?(?:×\d+(?:[.,]\d+)?)?(?:[a-zA-Z²³]+)?|[^\s,.;:!?()"„“”]+|[,.;:!?]/g;
-    while ((m = re.exec(s))) {
-      var w = m[0];
-      T.push({ w: w, l: w.toLowerCase(), s: m.index, e: m.index + w.length, p: /^[,.;:!?]$/.test(w) });
-    }
-    T.forEach(function (t) { t.u = used.some(function (u) { return t.s < u[1] && t.e > u[0]; }); });
-    function frei(i) { return T[i] && !T[i].u; }
-    function nimm(a, b) { for (var k = a; k < b; k++) if (T[k]) T[k].u = true; }
-    function satzEnde(t) { return t.p && t.w !== ","; }
-
-    /* Stunden-Ausdrücke */
-    var H = [];
-    for (var i = 0; i < T.length; i++) {
-      if (!frei(i)) continue;
-      var j = i, von = false;
-      if (T[i].l === "von") { von = true; j++; }
-      var z = frei(j) && zahlBei(T, j);
-      if (!z) continue;
-      var k = j + z.n;
-      if (frei(k) && STUNDE.test(T[k].l)) { H.push({ a: i, b: k + 1, v: z.v }); i = k; continue; }
-      var uhr = false;
-      if (T[k] && T[k].l === "uhr") { uhr = true; k++; }
-      if (T[k] && T[k].l === "bis") {
-        var z2 = zahlBei(T, k + 1);
-        if (z2) {
-          var e2 = k + 1 + z2.n;
-          if (T[e2] && T[e2].l === "uhr") { uhr = true; e2++; }
-          if (uhr || von) {
-            var d = z2.v - z.v; if (d <= 0) d += 12;
-            H.push({ a: i, b: e2, v: d }); i = e2 - 1; continue;
-          }
-        }
       }
     }
-    function rolleMitZahl(r) {
-      var a = r, cnt = null;
-      for (var back = 1; back <= 2; back++) {
-        var zz = r - back >= 0 && frei(r - back) && zahlBei(T, r - back);
-        if (zz && r - back + zz.n === r) { a = r - back; cnt = zz.v; break; }
-      }
-      return { a: a, r: r, cnt: cnt };
-    }
-    H.forEach(function (h) {
-      nimm(h.a, h.b);
-      var found = null;
-      for (var q = h.a - 1; q >= 0 && q >= h.a - 6; q--) {
-        if (satzEnde(T[q]) || T[q].u) break;
-        if (ROLLE.test(T[q].l)) { found = q; break; }
-      }
-      var std = fmtNum(h.v);
-      if (found === null) {
-        var gs = h.a - 1, gw = [];
-        while (gs >= 0 && frei(gs) && !T[gs].p && gw.length < 6) { gw.unshift(T[gs].w); gs--; }
-        var gi = -1;
-        for (var gk = 0; gk < gw.length; gk++) { if (GERAET.test(gw[gk].toLowerCase())) { gi = gk; break; } }
-        if (gi >= 0) {
-          nimm(gs + 1 + gi, h.a);
-          out.material.push({ n: gross(gw.slice(gi).join(" ")), m: std + " Std" });
-          return;
-        }
-        out.arbeiter.push({ n: "Arbeitskraft", a: "1", h: std });
-        return;
-      }
-      var rz = rolleMitZahl(found);
-      if (frei(rz.a - 1) && T[rz.a - 1] && T[rz.a - 1].l === "oder" && T[rz.a - 2] && ROLLE.test(T[rz.a - 2].l)) {
-        var rz0 = rolleMitZahl(rz.a - 2);
-        if (rz.cnt === null) rz.cnt = rz0.cnt;
-        nimm(rz0.a, rz.a);
-        rz.a = rz0.a;
-      }
-      var gruppe = [rz];
-      nimm(rz.a, h.a);
-      var k2 = rz.a - 1;
-      while (k2 > 0 && frei(k2) && /^(und|sowie|,|plus)$/.test(T[k2].l) && frei(k2 - 1) && ROLLE.test(T[k2 - 1].l)) {
-        var rz2 = rolleMitZahl(k2 - 1);
-        gruppe.unshift(rz2); nimm(rz2.a, k2 + 1); k2 = rz2.a - 1;
-      }
-      gruppe.forEach(function (g) {
-        var plural = /(en|e|s|leute|personen)$/.test(T[g.r].l) && !/^(ich|meister|helfer|arbeiter|mitarbeiter|vorarbeiter|polier)$/.test(T[g.r].l);
-        out.arbeiter.push({ n: rollenName(T[g.r].w), a: g.cnt !== null ? fmtNum(g.cnt) : (plural ? "" : "1"), h: std });
-      });
-    });
-
-    /* Material: Zahl + Einheit + Bezeichnung (oder Bezeichnung davor) */
-    function nameOk(t) { return t && !t.p && !t.u && !NAME_STOP.test(t.l) && !ROLLE.test(t.l) && !zahlBei(T, T.indexOf(t)) && !einheitBei(T, T.indexOf(t)); }
-    for (var i2 = 0; i2 < T.length; i2++) {
-      if (!frei(i2)) continue;
-      var zm = zahlBei(T, i2);
-      if (!zm) continue;
-      var eh = einheitBei(T, i2 + zm.n);
-      if (!eh || !frei(i2 + zm.n)) continue;
-      var st = i2 + zm.n + eh.n, p = st;
-      while (T[p] && !T[p].p && !T[p].u && NAME_SKIP.test(T[p].l)) p++;
-      var nm = [], ende = p;
-      while (T[ende] && nm.length < 5 && (nameOk(T[ende]) || (/×/.test(T[ende].w) && !T[ende].u))) { nm.push(T[ende].w); ende++; }
-      var von2 = i2, bis2 = ende;
-      if (!nm.length) {
-        bis2 = st;
-        var bk = i2 - 1;
-        while (bk >= 0 && nm.length < 3 && nameOk(T[bk])) { nm.unshift(T[bk].w); bk--; }
-        von2 = bk + 1;
-      }
-      var name = nm.join(" ");
-      name = name.charAt(0).toUpperCase() + name.slice(1);
-      out.material.push({ n: name, m: fmtNum(zm.v) + " " + (zm.v === 1 ? eh.e[0] : eh.e[1]) });
-      nimm(von2, bis2);
-      i2 = bis2 - 1;
-    }
-
-    /* Rest = ausgeführte Arbeiten */
-    var saetze = [], akt = [];
-    function abschluss() {
-      while (akt.length && CONN_START.test(akt[0].l)) akt.shift();
-      while (akt.length && CONN_END.test(akt[akt.length - 1].l)) akt.pop();
-      if (akt.length) {
-        var txt = "";
-        akt.forEach(function (t, n) { txt += (n && !t.p ? " " : "") + t.w; });
-        txt = txt.replace(/\s+,/g, ",").replace(/,(\s*,)+/g, ",");
-        saetze.push(txt.charAt(0).toUpperCase() + txt.slice(1));
-      }
-      akt = [];
-    }
-    T.forEach(function (t) {
-      if (t.u || satzEnde(t)) { if (akt.length) abschluss(); return; }
-      akt.push(t);
-    });
-    abschluss();
-    out.text = saetze.length ? saetze.join(". ") + "." : "";
-    return out;
-  }
-
-
-  /* ---------- Speichern ---------- */
-  function isBlank(r) {
-    return !r.titel && !r.text && !r.ort && !r.material.length && !r.arbeiter.length && !r.fotos.length &&
-      !r.auftraggeber.sig && !r.ausfuehrender.sig;
-  }
-  function idx(id) { return rapporte.findIndex(function (r) { return r.id === id; }); }
-  function saveCur() {
-    if (!cur) return;
-    var i = idx(cur.id);
-    if (i >= 0) rapporte[i] = cur;
-    else if (!isBlank(cur)) { rapporte.unshift(cur); if (istTest()) testZaehlen(); }
-    persist();
-  }
-  var tmr = null;
-  function touch() {
-    if (locked()) return;
-    clearTimeout(tmr);
-    tmr = setTimeout(saveCur, 500);
-  }
-
-  /* ---------- Siegel ---------- */
-  function payload(r) {
-    var f = r.firma;
-    function sg(s) { return { name: s.name, ort: s.ort, zeit: s.zeit, sig: s.sig }; }
-    return {
-      v: 1, nr: r.nr, titel: r.titel, ort: r.ort, datum: r.datum, text: r.text,
-      material: r.material.map(function (m) { return { n: m.n, m: m.m }; }),
-      von: r.von, bis: r.bis, pause: r.pause,
-      arbeiter: r.arbeiter.map(function (a) { return { n: a.n, a: a.a, h: a.h }; }),
-      auftraggeber: sg(r.auftraggeber), ausfuehrender: sg(r.ausfuehrender),
-      firma: f ? { name: f.name, adresse: f.adresse, logo: f.logo, farbe: f.farbe } : null,
-      fotos: r.fotos && r.fotos.length ? r.fotos.map(function (x) { return { h: x.h, t: x.t }; }) : undefined,
-      siegelZeit: r.siegel ? r.siegel.zeit : ""
-    };
-  }
-  function siegelGueltig(r) {
-    if (!r.siegel) return Promise.resolve(null);
-    return sha256(JSON.stringify(payload(r))).then(function (h) { return h === r.siegel.hash; });
-  }
-  function fotosGueltig(r, daten) {
-    var list = r.fotos || [];
-    return Promise.all(list.map(function (f) {
-      var p = daten ? Promise.resolve(daten[f.id] || null) : fotoGet(f.id).catch(function () { return null; });
-      return p.then(function (d) { return d ? sha256(d).then(function (h) { return h === f.h ? "ok" : "falsch"; }) : "fehlt"; });
-    })).then(function (st) {
-      return { falsch: st.filter(function (s) { return s === "falsch"; }).length, fehlt: st.filter(function (s) { return s === "fehlt"; }).length };
-    });
-  }
-  function missing(r) {
-    if (!r.text.trim()) return "Bitte erst beschreiben, was gemacht wurde.";
-    var arr = [["auftraggeber", "Auftraggeber"], ["ausfuehrender", "Ausführender"]];
-    for (var i = 0; i < arr.length; i++) {
-      var s = r[arr[i][0]], n = arr[i][1];
-      if (!s.name.trim()) return "Name fehlt: " + n;
-      if (!s.ort.trim()) return "Ort fehlt: " + n;
-      if (!s.sig) return "Unterschrift fehlt: " + n;
-    }
-    return "";
-  }
-  function renderSealInfo() {
-    var box = $("sealInfo");
-    box.className = "sealInfo";
-    if (!cur.siegel) { box.textContent = ""; return; }
-    box.className = "sealInfo wait";
-    box.textContent = "Siegel wird geprüft …";
-    var id = cur.id;
-    Promise.all([siegelGueltig(cur), fotosGueltig(cur)]).then(function (res) {
-      if (!cur || cur.id !== id) return;
-      var ok = res[0], fs = res[1];
-      if (ok && !fs.falsch && !fs.fehlt) {
-        box.className = "sealInfo ok";
-        box.textContent = "🔒 Versiegelt am " + fmtZeit(cur.siegel.zeit) + " · Siegel gültig ✓";
-      } else if (ok && fs.fehlt && !fs.falsch) {
-        box.className = "sealInfo bad";
-        box.textContent = "Siegel gültig, aber " + fs.fehlt + " Foto(s) fehlen auf diesem Gerät.";
-      } else {
-        box.className = "sealInfo bad";
-        box.textContent = "ACHTUNG: Siegel ungültig. Die Daten wurden verändert.";
-      }
-    });
-  }
-  $("btnSeal").onclick = function () {
-    if (istTest()) return;
-    stopRec(); syncAll();
-    var miss = missing(cur);
-    if (miss) { alert(miss); return; }
-    if (!confirm("Rapport abschließen und versiegeln?\nDanach kann nichts mehr geändert werden.")) return;
-    cur.firma = firma ? { name: firma.name, adresse: firma.adresse, logo: firma.logo, farbe: firma.farbe } : null;
-    cur.siegel = { zeit: new Date().toISOString(), hash: "" };
-    sha256(JSON.stringify(payload(cur))).then(function (h) {
-      cur.siegel.hash = h;
-      saveCur();
-      openEditor(cur);
-      haken("Versiegelt.");
-    });
-  };
-
-  /* ---------- Liste ---------- */
-  /* ---------- Liste: Suche, Filter, Gruppen, Archiv ---------- */
-  var listFilter = "alle", listQuery = "", zeigeArchiv = false, offeneGruppen = {};
-  var ARCHIV_TAGE = 60;
-  var MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-  var WTAGE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-  function isoToDate(iso) { var p = String(iso || "").split("-"); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : new Date(0); }
-  function tagStart(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-  function wochenStart(d) { var t = tagStart(d), wd = (t.getDay() + 6) % 7; t.setDate(t.getDate() - wd); return t; }
-  function datumKurz(d) {
-    var heute = tagStart(new Date()), diff = Math.round((heute - tagStart(d)) / 86400000);
-    if (diff === 0) return "Heute";
-    if (diff === 1) return "Gestern";
-    if (diff > 1 && diff < 7) return WTAGE[d.getDay()] + " " + pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + ".";
-    return pad2(d.getDate()) + "." + pad2(d.getMonth() + 1) + "." + (d.getFullYear() !== heute.getFullYear() ? d.getFullYear() : "");
-  }
-  function offenGrund(r) {
-    if (r.siegel) return "";
-    if (!r.auftraggeber.sig || !r.ausfuehrender.sig) return "Unterschrift fehlt";
-    return "nicht versiegelt";
-  }
-  function passt(r) {
-    if (listFilter === "offen" && r.siegel) return false;
-    if (listFilter === "versiegelt" && !r.siegel) return false;
-    if (listFilter === "fotos" && !(r.fotos && r.fotos.length)) return false;
-    if (listQuery) {
-      var hay = [r.titel, r.ort, r.text, r.nr, r.auftraggeber && r.auftraggeber.name,
-        (r.material || []).map(function (m) { return m.n; }).join(" ")].join(" ").toLowerCase();
-      var words = listQuery.toLowerCase().split(/\s+/).filter(Boolean);
-      for (var i = 0; i < words.length; i++) if (hay.indexOf(words[i]) < 0) return false;
-    }
-    return true;
-  }
-  function stdText(v) { return v ? fmtNum(v) + " Std" : ""; }
-  function zeile(r) {
-    var d = isoToDate(r.datum), grund = offenGrund(r);
-    var small = el("small");
-    small.appendChild(document.createTextNode(datumKurz(d) + (r.ort ? " · " + r.ort : "") + (r.fotos && r.fotos.length ? " · " + r.fotos.length + " Foto" + (r.fotos.length > 1 ? "s" : "") : "")));
-    if (grund) { small.appendChild(document.createTextNode(" · ")); small.appendChild(el("em", { text: grund })); }
-    var row = el("div", { class: "row" }, [
-      el("span", { class: "dot " + (r.siegel ? "zu" : "offen") }),
-      el("div", { class: "rt" }, [el("b", { text: r.titel || "Ohne Titel" }), small]),
-      el("div", { class: "rr", text: stdText(stundenGesamt(r)) })
-    ]);
-    row.onclick = function () { openEditor(r); };
-    return row;
-  }
-  function gruppe(box, key, titel, liste, rechts, limit) {
-    if (!liste.length) return;
-    box.appendChild(el("div", { class: "gl" }, [el("span", { text: titel }), el("span", { text: rechts })]));
-    var g = el("div", { class: "grp" });
-    var zeigAlle = !limit || offeneGruppen[key] || liste.length <= limit + 1;
-    (zeigAlle ? liste : liste.slice(0, limit)).forEach(function (r) { g.appendChild(zeile(r)); });
-    if (!zeigAlle) {
-      var m = el("div", { class: "row more", text: "+ " + (liste.length - limit) + " weitere" });
-      m.onclick = function () { offeneGruppen[key] = true; renderList(); };
-      g.appendChild(m);
-    }
-    box.appendChild(g);
-  }
-  function summe(liste) {
-    var s = liste.reduce(function (a, r) { return a + stundenGesamt(r); }, 0);
-    return liste.length + (liste.length === 1 ? " Rapport" : " Rapporte") + (s ? " · " + fmtNum(s) + " Std" : "");
-  }
-  function renderList() {
-    var box = $("list");
-    box.innerHTML = "";
-    var offenAnz = rapporte.filter(function (r) { return !r.siegel; }).length;
-    Array.prototype.forEach.call($("chips").querySelectorAll("button"), function (b) {
-      var f = b.getAttribute("data-f");
-      b.classList.toggle("on", f === listFilter);
-      if (f === "offen") b.innerHTML = "Offen" + (offenAnz ? '<span class="n">' + offenAnz + "</span>" : "");
-    });
-    if (!rapporte.length) {
-      box.appendChild(el("div", { class: "empty", text: "Noch nichts drin. Endlich mal keine Zettelwirtschaft." }));
-      return;
-    }
-    var alle = rapporte.slice().sort(function (a, b) {
-      return (b.datum || "").localeCompare(a.datum || "") || String(b.id).localeCompare(String(a.id));
-    }).filter(passt);
-    if (!alle.length) {
-      box.appendChild(el("div", { class: "empty", text: listQuery ? "Keine Treffer für „" + listQuery + "“." : "Nichts in diesem Filter." }));
-      return;
-    }
-    var suche = !!listQuery;
-    var heute = tagStart(new Date()), dieseWoche = wochenStart(heute);
-    var letzteWoche = new Date(dieseWoche); letzteWoche.setDate(letzteWoche.getDate() - 7);
-    var archivGrenze = new Date(heute); archivGrenze.setDate(archivGrenze.getDate() - ARCHIV_TAGE);
-
-    var offen = alle.filter(function (r) { return !r.siegel; });
-    var zu = alle.filter(function (r) { return !!r.siegel; });
-    var aktiv = suche ? zu : zu.filter(function (r) { return isoToDate(r.datum) >= archivGrenze; });
-    var archiv = suche ? [] : zu.filter(function (r) { return isoToDate(r.datum) < archivGrenze; });
-
-    gruppe(box, "offen", "Offen", offen, offen.length + (offen.length === 1 ? " Rapport" : " Rapporte"), 0);
-
-    var wo = [], lw = [], monate = {}, reihenfolge = [];
-    function einsortieren(liste, prefix) {
-      liste.forEach(function (r) {
-        var d = isoToDate(r.datum);
-        if (!prefix && d >= dieseWoche) wo.push(r);
-        else if (!prefix && d >= letzteWoche) lw.push(r);
-        else {
-          var k = prefix + d.getFullYear() + "-" + pad2(d.getMonth() + 1);
-          if (!monate[k]) { monate[k] = { titel: MONATE[d.getMonth()] + " " + d.getFullYear(), liste: [] }; reihenfolge.push(k); }
-          monate[k].liste.push(r);
-        }
-      });
-    }
-    einsortieren(aktiv, "");
-    gruppe(box, "wo", "Diese Woche", wo, summe(wo), 0);
-    gruppe(box, "lw", "Letzte Woche", lw, summe(lw), 0);
-    reihenfolge.forEach(function (k) { gruppe(box, k, monate[k].titel, monate[k].liste, summe(monate[k].liste), 5); });
-
-    if (archiv.length) {
-      if (zeigeArchiv) {
-        wo = []; lw = []; monate = {}; reihenfolge = [];
-        einsortieren(archiv, "a");
-        box.appendChild(el("div", { class: "gl", style: "margin-top:26px" }, [el("span", { text: "Archiv" }), el("span", { text: "älter als " + Math.round(ARCHIV_TAGE / 30) + " Monate" })]));
-        reihenfolge.forEach(function (k) { gruppe(box, k, monate[k].titel, monate[k].liste, summe(monate[k].liste), 5); });
-        var zu2 = el("button", { class: "archBtn", text: "Archiv ausblenden" });
-        zu2.onclick = function () { zeigeArchiv = false; renderList(); };
-        box.appendChild(zu2);
-      } else {
-        var ab = el("button", { class: "archBtn", text: "Archiv anzeigen (" + archiv.length + ")" });
-        ab.onclick = function () { zeigeArchiv = true; renderList(); };
-        box.appendChild(ab);
-      }
-    }
-  }
-  $("q").addEventListener("input", function () { listQuery = $("q").value.trim(); renderList(); });
-  Array.prototype.forEach.call($("chips").querySelectorAll("button"), function (b) {
-    b.onclick = function () { listFilter = b.getAttribute("data-f"); renderList(); };
-  });
-  function renderBrand() {
-    var f = firma || {}, img = $("bLogo");
-    if (f.logo) { img.src = f.logo; img.style.display = "block"; $("bName").textContent = ""; }
-    else { img.removeAttribute("src"); img.style.display = "none"; $("bName").textContent = f.name || ""; }
-  }
-  function showList() {
-    applyTheme(firma ? firma.farbe : DEFAULT_COLOR);
-    renderBrand();
-    renderList();
-    zeigeLogoWarnung();
-    zeigeLizenz();
-    show("viewList");
-  }
-
-  /* ---------- Einstellungen ---------- */
-  function openSettings() {
-    $("setFirma").textContent = profil ? profil.firma.name : "–";
-    $("setName").textContent = profil ? profil.name : "–";
-    $("setDatum").textContent = profil && profil.ausgestellt ? fmtZeit(profil.ausgestellt) : "–";
-    $("setCredit").textContent = "Version " + APP_VERSION;
-    var l = lizenz();
-    $("secPruefen").style.display = istTest() ? "none" : "";
-    $("setTestHinweis").style.display = istTest() ? "block" : "none";
-    $("setLizenz").textContent = !l ? "Vollversion" : (l.test ? "Testversion" : "Vollversion") + (l.bis ? " bis " + fmtDate(l.bis) : "") + (l.id ? " · " + l.id : "");
-    show("viewSettings");
-  }
-  $("btnSettings").onclick = openSettings;
-  $("setBack").onclick = function () { showList(); };
-  $("btnSetupNeu").onclick = function () {
-    if (confirm("Mit einem neuen QR-Code der Firma neu einrichten?\nDeine Rapporte bleiben erhalten.")) openSetup(true);
-  };
-
-  /* ---------- Editor ---------- */
-  function themeAndLogo() {
-    var f = firmaOf(cur), img = $("eLogo");
-    applyTheme(f ? f.farbe : DEFAULT_COLOR);
-    if (f && f.logo) { img.src = f.logo; img.parentNode.style.display = "inline-flex"; }
-    else { img.removeAttribute("src"); img.parentNode.style.display = "none"; }
-  }
-  bindMic($("micText"), $("eText"), { mode: "text", big: true });
-
-  function autoGrow(e) { e.style.height = "auto"; e.style.height = (e.scrollHeight + 2) + "px"; }
-  function growAll() { autoGrow($("qText")); autoGrow($("eText")); }
-  ["qText", "eText"].forEach(function (id) { $(id).addEventListener("input", function () { autoGrow($(id)); }); });
-  function openEditor(r) {
-    stopRec();
-    cur = r;
-    if (!cur.siegel && profil) cur.ausfuehrender.name = profil.name;
-    $("viewEdit").classList.toggle("locked", !!cur.siegel);
-    $("eNr").textContent = cur.nr;
-    $("eTitel").value = cur.titel;
-    $("eOrt").value = cur.ort;
-    $("eDatum").value = cur.datum;
-    $("eText").value = cur.text;
-    ["eTitel", "eOrt", "eDatum", "eText"].forEach(function (id) { $(id).disabled = locked(); });
-    themeAndLogo();
-    renderMat(); renderArb(); renderFotos(); renderSigns(); updateSums();
-    $("qText").value = ""; $("qInfo").className = "qInfo"; quickUndo = null;
-    testSperren();
-    $("btnShare").style.display = cur.siegel ? "block" : "none";
-    pendingShare = null;
-    $("btnPdf").textContent = "Rapport senden (PDF)";
-    renderSealInfo();
-    $("eScroll").scrollTop = 0;
-    show("viewEdit");
-    growAll();
-  }
-  function syncAll() {
-    if (locked()) return;
-    cur.titel = $("eTitel").value;
-    cur.ort = $("eOrt").value;
-    cur.datum = $("eDatum").value || cur.datum;
-    cur.text = $("eText").value;
-  }
-  ["eTitel", "eOrt", "eDatum", "eText"].forEach(function (id) {
-    $(id).addEventListener("input", function () { syncAll(); touch(); });
-  });
-
-  /* Material */
-  function renderMat() {
-    var box = $("matList");
-    box.innerHTML = "";
-    cur.material.forEach(function (m, i) {
-      var a = el("input", { placeholder: "Material (z. B. Kalksandstein, Kleber)", value: m.n });
-      var b = el("input", { placeholder: "Menge (z. B. 12 m²)", value: m.m });
-      a.addEventListener("input", function () { m.n = a.value; touch(); });
-      b.addEventListener("input", function () { m.m = b.value; touch(); });
-      a.disabled = b.disabled = locked();
-      var x = el("button", { class: "x edit-only", type: "button", text: "✕", "aria-label": "Zeile entfernen" });
-      x.onclick = function () { stopRec(); cur.material.splice(i, 1); renderMat(); touch(); };
-      box.appendChild(el("div", { class: "item" }, [
-        micField(a, { mode: "text" }),
-        el("div", { class: "l2m" }, [micField(b, { mode: "menge" }), x])
-      ]));
-    });
-  }
-  $("addMat").onclick = function () {
-    stopRec();
-    cur.material.push({ n: "", m: "" }); renderMat(); touch();
-    var ins = $("matList").querySelectorAll("input"); if (ins.length >= 2) ins[ins.length - 2].focus();
-  };
-
-  /* Arbeitskräfte */
-  function renderArb() {
-    var box = $("arbList");
-    box.innerHTML = "";
-    cur.arbeiter.forEach(function (w, i) {
-      var a = el("input", { placeholder: "Arbeitskraft (z. B. Geselle)", value: w.n });
-      var b = el("input", { placeholder: "1", inputmode: "decimal", value: w.a });
-      var h = el("input", { placeholder: "8", inputmode: "decimal", value: w.h || "" });
-      a.addEventListener("input", function () { w.n = a.value; updateSums(); touch(); });
-      b.addEventListener("input", function () { w.a = b.value; updateSums(); touch(); });
-      h.addEventListener("input", function () { w.h = h.value; updateSums(); touch(); });
-      a.disabled = b.disabled = h.disabled = locked();
-      var x = el("button", { class: "x edit-only", type: "button", text: "✕", "aria-label": "Zeile entfernen" });
-      x.onclick = function () { stopRec(); cur.arbeiter.splice(i, 1); renderArb(); updateSums(); touch(); };
-      box.appendChild(el("div", { class: "item" }, [
-        micField(a, { mode: "text" }),
-        el("div", { class: "l2a" }, [
-          el("div", null, [el("span", { class: "mini", text: "Anzahl" }), micField(b, { mode: "zahl" })]),
-          el("div", null, [el("span", { class: "mini", text: "Std je Person" }), micField(h, { mode: "zahl" })]),
-          x
-        ])
-      ]));
-    });
-  }
-  $("addArb").onclick = function () {
-    stopRec();
-    cur.arbeiter.push({ n: "", a: "", h: "" }); renderArb(); updateSums(); touch();
-    var ins = $("arbList").querySelectorAll("input"); if (ins.length >= 3) ins[ins.length - 3].focus();
-  };
-  /* Schnell erfassen: Diktat übernehmen */
-  var quickUndo = null;
-  function datumPlus(iso, tage) {
-    var p = String(iso).split("-"), d = new Date(+p[0], +p[1] - 1, +p[2] + tage);
-    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
-  }
-  var hakenTimer = null;
-  function haken(t) {
-    var b = $("haken"); $("hakenT").textContent = t || "Fertig.";
-    b.classList.remove("on"); void b.offsetWidth; b.classList.add("on");
-    if (navigator.vibrate) try { navigator.vibrate(20); } catch (e) {}
-    clearTimeout(hakenTimer); hakenTimer = setTimeout(function () { b.classList.remove("on"); }, 1500);
-  }
-  function verteilen() {
-    if (locked()) return;
-    var roh = $("qText").value.trim();
-    if (!roh) return;
-    syncAll();
-    var r = diktatZerlegen(roh);
-    quickUndo = JSON.stringify({ titel: cur.titel, ort: cur.ort, datum: cur.datum, text: cur.text, material: cur.material, arbeiter: cur.arbeiter, roh: roh });
-    var teile = [], neu = [];
-    if (r.titel && !cur.titel.trim()) { cur.titel = r.titel; teile.push("Baustelle"); neu.push("eTitel"); }
-    if (r.ort && !cur.ort.trim()) { cur.ort = r.ort; teile.push("Ort"); neu.push("eOrt"); }
-    if (r.tage && cur.datum === todayISO()) { cur.datum = datumPlus(cur.datum, r.tage); teile.push(r.tage === -1 ? "Datum gestern" : "Datum vorgestern"); neu.push("eDatum"); }
-    if (r.text && cur.text.indexOf(r.text) < 0) { cur.text = cur.text.trim() ? cur.text.replace(/\s+$/, "") + "\n" + r.text : r.text; teile.push("Arbeiten"); neu.push("eText"); }
-    cur.material = cur.material.filter(function (m) { return (m.n || "").trim() || (m.m || "").trim(); });
-    cur.arbeiter = cur.arbeiter.filter(function (w) { return (w.n || "").trim() || (w.a || "").trim() || (w.h || "").trim(); });
-    var m0 = cur.material.length, a0 = cur.arbeiter.length;
-    r.material.forEach(function (m) { if (!cur.material.some(function (x) { return x.n === m.n && x.m === m.m; })) cur.material.push(m); });
-    r.arbeiter.forEach(function (w) { if (!cur.arbeiter.some(function (x) { return x.n === w.n && x.a === w.a && x.h === w.h; })) cur.arbeiter.push(w); });
-    if (r.material.length) teile.push(r.material.length + (r.material.length === 1 ? " Material" : " Materialien"));
-    if (r.arbeiter.length) teile.push(r.arbeiter.length + (r.arbeiter.length === 1 ? " Arbeitskraft" : " Arbeitskräfte"));
-    $("eTitel").value = cur.titel; $("eOrt").value = cur.ort; $("eDatum").value = cur.datum; $("eText").value = cur.text;
-    renderMat(); renderArb(); updateSums(); touch();
-    neu.forEach(function (id) { var e = $(id); e.classList.remove("neu"); void e.offsetWidth; e.classList.add("neu"); });
-    [].slice.call($("matList").children, m0).concat([].slice.call($("arbList").children, a0)).forEach(function (e) { e.classList.add("neu"); });
-    $("qText").value = "";
-    growAll();
-    var info = $("qInfo");
-    info.className = "qInfo on" + (teile.length ? "" : " leer");
-    info.textContent = teile.length ? "Eingetragen: " + teile.join(" · ") + ". Bitte kurz drüberschauen." : "Nichts erkannt.";
-    var u = el("button", { type: "button", text: "Rückgängig" });
-    u.onclick = quickRueckgaengig;
-    info.appendChild(u);
-    if (teile.length) haken("Eingetragen.");
-  }
-  function quickRueckgaengig() {
-    if (!quickUndo || locked()) return;
-    var o = JSON.parse(quickUndo);
-    cur.titel = o.titel; cur.ort = o.ort; cur.datum = o.datum; cur.text = o.text; cur.material = o.material; cur.arbeiter = o.arbeiter;
-    $("eTitel").value = cur.titel; $("eOrt").value = cur.ort; $("eDatum").value = cur.datum; $("eText").value = cur.text;
-    renderMat(); renderArb(); updateSums(); touch();
-    $("qText").value = o.roh;
-    growAll();
-    quickUndo = null;
-    $("qInfo").className = "qInfo";
-  }
-  bindMic($("micQuick"), $("qText"), { mode: "text", big: true, onEnd: function () { if ($("qText").value.trim()) verteilen(); } });
-  $("btnVerteilen").onclick = function () { stopRec(); verteilen(); };
-
-  function anzahl(w) {
-    var a = num(w.a);
-    if (a) return a;
-    return (String(w.a || "").trim() === "" && (String(w.n || "").trim() || num(w.h))) ? 1 : 0;
-  }
-  function personen(r) { return r.arbeiter.reduce(function (s, w) { return s + anzahl(w); }, 0); }
-  function stundenGesamt(r) { return r.arbeiter.reduce(function (s, w) { return s + anzahl(w) * num(w.h); }, 0); }
-  function updateSums() {
-    var p = personen(cur), h = stundenGesamt(cur), t = [];
-    if (p) t.push(fmtNum(p) + (p === 1 ? " Person" : " Personen"));
-    if (h) t.push(fmtNum(h) + " Std gesamt");
-    $("arbSum").textContent = t.join(" · ");
-  }
-
-  /* Fotos */
-  function testSperren() {
-    var t = istTest();
-    $("viewEdit").classList.toggle("lite", t);
-    $("btnSeal").disabled = t;
-    $("btnSeal").textContent = t ? "🔒 Versiegeln gibt's in der Vollversion" : "Abschließen und versiegeln";
-  }
-  function renderFotos() {
-    var box = $("fotoList");
-    box.innerHTML = "";
-    var r = cur;
-    r.fotos.forEach(function (f, i) {
-      var img = el("img", { alt: "Foto " + (i + 1) });
-      var tile = el("div", { class: "foto" }, [img]);
-      fotoGet(f.id).then(function (d) { if (d && cur === r) img.src = d; }).catch(function () {});
-      tile.onclick = function () { zeigeFoto(f, i); };
-      var x = el("button", { class: "fx", type: "button", text: "✕", "aria-label": "Foto entfernen" });
-      x.onclick = function (e) {
-        e.stopPropagation();
-        if (locked() || !confirm("Foto entfernen?")) return;
-        cur.fotos.splice(i, 1); fotoDel(f.id); renderFotos(); touch();
-      };
-      tile.appendChild(x);
-      box.appendChild(tile);
-    });
-    box.style.display = r.fotos.length ? "grid" : "none";
-    $("fotoHint").textContent = istTest() ? "🔒 Fotos gibt's in der Vollversion." : (r.fotos.length ? "" : (locked() ? "Keine Fotos." : ""));
-  }
-  function zeigeFoto(f, i) {
-    fotoGet(f.id).then(function (d) {
-      if (!d) { alert("Das Foto ist auf diesem Gerät nicht vorhanden."); return; }
-      $("fotoBig").src = d;
-      $("fotoCap").textContent = "Foto " + (i + 1) + " · " + fmtZeit(f.t);
-      $("fotoView").classList.add("open");
-    });
-  }
-  $("fotoClose").onclick = function () { $("fotoView").classList.remove("open"); $("fotoBig").removeAttribute("src"); };
-  $("addFoto").onclick = function () { if (istTest()) return; stopRec(); $("fotoFile").click(); };
-  function bildVerkleinern(file) {
-    return new Promise(function (res, rej) {
-      var url = URL.createObjectURL(file), img = new Image();
-      img.onload = function () {
-        var max = 1600, s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-        var c = document.createElement("canvas");
-        c.width = Math.max(1, Math.round(img.naturalWidth * s));
-        c.height = Math.max(1, Math.round(img.naturalHeight * s));
-        var cx = c.getContext("2d");
-        cx.fillStyle = "#fff"; cx.fillRect(0, 0, c.width, c.height);
-        cx.drawImage(img, 0, 0, c.width, c.height);
-        URL.revokeObjectURL(url);
-        res(c.toDataURL("image/jpeg", 0.72));
-      };
-      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error("Bild nicht lesbar")); };
-      img.src = url;
-    });
-  }
-  $("fotoFile").onchange = async function () {
-    var files = Array.prototype.slice.call($("fotoFile").files || []);
-    $("fotoFile").value = "";
-    if (!files.length || locked()) return;
-    var r = cur;
-    $("fotoHint").textContent = "Foto wird gespeichert …";
-    for (var i = 0; i < files.length; i++) {
-      try {
-        var data = await bildVerkleinern(files[i]);
-        var h = await sha256(data);
-        var id = r.nr + "-" + Date.now() + "-" + i;
-        await fotoPut(id, data);
-        r.fotos.push({ id: id, h: h, t: new Date().toISOString() });
-      } catch (e) {
-        alert("Ein Foto konnte nicht gespeichert werden.\n" + (e && e.message ? e.message : e));
-      }
-    }
-    if (cur === r) { renderFotos(); }
-    saveCur();
-  };
-
-  /* Unterschriften */
-  var SIG = [["auftraggeber", "Auftraggeber"], ["ausfuehrender", "Ausführender"]];
-  function renderSigns() {
-    var box = $("signs");
-    box.innerHTML = "";
-    SIG.forEach(function (p) {
-      var k = p[0], d = cur[k];
-      var wrap = el("div", { class: "sg" });
-      wrap.appendChild(el("div", { class: "sgT", text: p[1] }));
-      var fest = k === "ausfuehrender" && !!profil;
-      var name = el("input", { placeholder: "Name", value: d.name });
-      var ort = el("input", { placeholder: "Ort", value: d.ort });
-      name.addEventListener("input", function () { d.name = name.value; touch(); });
-      ort.addEventListener("input", function () { d.ort = ort.value; touch(); });
-      name.disabled = locked() || fest;
-      ort.disabled = locked();
-      wrap.appendChild(name); wrap.appendChild(ort);
-      var sb = el("div", { class: "signBox" });
-      if (d.sig) { var im = new Image(); im.src = d.sig; sb.appendChild(im); }
-      else sb.textContent = "Hier unterschreiben";
-      if (!locked()) sb.onclick = function () { openPad(k, p[1]); };
-      wrap.appendChild(sb);
-      wrap.appendChild(el("div", { class: "sgI", text: d.zeit ? "Unterschrieben am " + fmtZeit(d.zeit) : "" }));
-      if (d.sig) {
-        var rm = el("button", { class: "linkRed edit-only", text: "Unterschrift entfernen" });
-        rm.onclick = function () { d.sig = ""; d.zeit = ""; renderSigns(); touch(); };
-        wrap.appendChild(rm);
-      }
-      box.appendChild(wrap);
-    });
-  }
-
-  $("btnNew").onclick = function () {
-    if (testAbgelaufen()) { zeigeLizenz(); return; }
-    openEditor(norm({ id: String(Date.now()) }));
-  };
-  $("btnBack").onclick = function () {
-    stopRec(); syncAll(); saveCur();
-    showList();
-  };
-  $("btnDel").onclick = function () {
-    var msg = cur.siegel ? "Dieser Rapport ist versiegelt. Wirklich löschen?" : "Rapport löschen? Weg ist weg.";
-    if (!confirm(msg)) return;
-    stopRec();
-    (cur.fotos || []).forEach(function (f) { fotoDel(f.id); });
-    rapporte = rapporte.filter(function (r) { return r.id !== cur.id; });
-    persist();
-    showList();
-  };
-
-  /* ---------- Unterschrift-Fenster ---------- */
-  var pad = $("pad"), ctx = pad.getContext("2d"), drawing = false, hasInk = false, padKey = "";
-  function sizePad() {
-    var r = pad.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-    pad.width = Math.round(r.width * dpr);
-    pad.height = Math.round(r.height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000";
-    hasInk = false;
-  }
-  /* Fingerposition immer auf die Feldgroesse umrechnen (auch nach Drehen des Handys) */
-  function pos(e) {
-    var r = pad.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-    return { x: (e.clientX - r.left) * (pad.width / dpr) / r.width, y: (e.clientY - r.top) * (pad.height / dpr) / r.height };
-  }
-  if (window.ResizeObserver) new ResizeObserver(function () { if (!hasInk && $("signModal").classList.contains("open")) sizePad(); }).observe(pad);
-  pad.addEventListener("pointerdown", function (e) {
-    drawing = true; hasInk = true;
-    try { pad.setPointerCapture(e.pointerId); } catch (x) {}
-    var p = pos(e);
-    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 0.1, p.y + 0.1); ctx.stroke();
-    e.preventDefault();
-  });
-  pad.addEventListener("pointermove", function (e) {
-    if (!drawing) return;
-    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault();
-  });
-  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) {
-    pad.addEventListener(ev, function () { drawing = false; });
-  });
-  function cropSig() {
-    var w = pad.width, h = pad.height, data = ctx.getImageData(0, 0, w, h).data;
-    var x0 = w, y0 = h, x1 = -1, y1 = -1;
-    for (var y = 0; y < h; y += 2) {
-      for (var x = 0; x < w; x += 2) {
-        if (data[(y * w + x) * 4 + 3] > 0) {
-          if (x < x0) x0 = x; if (x > x1) x1 = x;
-          if (y < y0) y0 = y; if (y > y1) y1 = y;
-        }
-      }
-    }
-    if (x1 < 0) return pad.toDataURL("image/png");
-    var m = 16 * (window.devicePixelRatio || 1);
-    x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m);
-    x1 = Math.min(w, x1 + m); y1 = Math.min(h, y1 + m);
-    var cw = x1 - x0, ch = y1 - y0, s = Math.min(1, 600 / cw);
-    var c = document.createElement("canvas");
-    c.width = Math.round(cw * s); c.height = Math.round(ch * s);
-    c.getContext("2d").drawImage(pad, x0, y0, cw, ch, 0, 0, c.width, c.height);
-    return c.toDataURL("image/png");
-  }
-  function openPad(key, label) {
-    stopRec(); syncAll();
-    padKey = key;
-    $("signTitle").textContent = "Unterschrift " + label;
-    $("signModal").classList.add("open");
-    setTimeout(sizePad, 50);
-  }
-  $("signCancel").onclick = function () { $("signModal").classList.remove("open"); };
-  $("signClear").onclick = sizePad;
-  $("signOk").onclick = function () {
-    if (!hasInk) { alert("Ohne Strich keine Unterschrift."); return; }
-    var d = cur[padKey];
-    d.sig = cropSig();
-    d.zeit = new Date().toISOString();
-    if (!d.ort) d.ort = cur.ort;
-    renderSigns(); touch();
-    $("signModal").classList.remove("open");
-  };
-
-  /* ---------- PDF ---------- */
-  function pdfSafe(s) {
-    return String(s == null ? "" : s)
-      .replace(/[–—−]/g, "-").replace(/[‘’‚]/g, "'")
-      .replace(/[“”„]/g, '"').replace(/…/g, "...").replace(/ /g, " ")
-      .replace(/[^\x00-\xFF\n]/g, "");
-  }
-  function imgSize(src) {
-    return new Promise(function (res) {
-      var i = new Image();
-      i.onload = function () { res({ w: i.naturalWidth, h: i.naturalHeight }); };
-      i.onerror = function () { res(null); };
-      i.src = src;
-    });
-  }
-  function imgFmt(src) { return /^data:image\/jpe?g/i.test(src) ? "JPEG" : "PNG"; }
-
-  async function makePdf() {
-    syncAll();
-    var J = window.jspdf && window.jspdf.jsPDF;
-    if (!J) throw new Error("Das PDF-Modul (jspdf.umd.min.js) fehlt auf dem Server.");
-    var doc = new J({ unit: "mm", format: "a4", compress: true });
-    var W = 210, H = 297, M = 16, CW = W - 2 * M, y = M;
-    var f = firmaOf(cur) || {}, col = hexRgb(f.farbe);
-    var BOTTOM = H - M - 10;
-
-    function wm() {
-      if (cur.siegel) return;
-      var t = pdfSafe(istTest() ? "TESTVERSION" : "ENTWURF - nicht versiegelt");
-      doc.setFont("helvetica", "bold"); doc.setFontSize(38); doc.setTextColor(236, 236, 236);
-      var w = doc.getTextWidth(t), a = 28 * Math.PI / 180;
-      doc.text(t, W / 2 - Math.cos(a) * w / 2, H / 2 + Math.sin(a) * w / 2, { angle: 28 });
-    }
-    function newPage() { doc.addPage(); y = M; wm(); }
-    function need(h) { if (y + h > BOTTOM) newPage(); }
-    function txt(s, x, yy, size, style, rgb, opt) {
-      doc.setFont("helvetica", style || "normal"); doc.setFontSize(size);
-      var c = rgb || [17, 17, 17]; doc.setTextColor(c[0], c[1], c[2]);
-      doc.text(pdfSafe(s), x, yy, opt || {});
-    }
-    function section(t) { need(14); y += 4; txt(String(t).toUpperCase(), M, y, 8.5, "bold", col); y += 4.5; }
-    function para(s, size) {
-      size = size || 10;
-      doc.setFont("helvetica", "normal"); doc.setFontSize(size);
-      var lines = doc.splitTextToSize(pdfSafe(s), CW), lh = size * 0.45;
-      lines.forEach(function (l) { need(lh + 1); txt(l, M, y + lh * 0.75, size); y += lh; });
-      y += 1;
-    }
-    function table(cols, rows, total) {
-      var rowH = 6.4;
-      need(rowH * 2);
-      var x = M;
-      cols.forEach(function (c) {
-        txt(c.t, c.r ? x + c.w - 1 : x + 1, y + 4, 7.5, "normal", [110, 110, 110], c.r ? { align: "right" } : {});
-        x += c.w;
-      });
-      y += rowH; doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.2); doc.line(M, y, M + CW, y);
-      rows.concat(total ? [total] : []).forEach(function (r, ri) {
-        var isTot = total && ri === rows.length;
-        doc.setFont("helvetica", isTot ? "bold" : "normal"); doc.setFontSize(9.5);
-        var cellLines = r.map(function (v, i) { return doc.splitTextToSize(pdfSafe(v), cols[i].w - 2); });
-        var nl = Math.max.apply(null, cellLines.map(function (l) { return l.length; }));
-        var hh = Math.max(rowH, nl * 4.3 + 2.2);
-        need(hh);
-        if (isTot) { doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.5); doc.line(M, y, M + CW, y); }
-        var xx = M;
-        cellLines.forEach(function (lines, i) {
-          lines.forEach(function (l, li) {
-            txt(l, cols[i].r ? xx + cols[i].w - 1 : xx + 1, y + 4.3 + li * 4.3, 9.5, isTot ? "bold" : "normal", null, cols[i].r ? { align: "right" } : {});
-          });
-          xx += cols[i].w;
-        });
-        y += hh;
-        if (!isTot) { doc.setDrawColor(225, 225, 225); doc.setLineWidth(0.2); doc.line(M, y, M + CW, y); }
-      });
-      y += 2;
-    }
-
-    wm();
-    var logoH = 0;
-    if (f.logo) {
-      var s = await imgSize(f.logo);
-      if (s && s.w && s.h) {
-        var lh = 18, lw = s.w / s.h * lh;
-        if (lw > 85) { lw = 85; lh = lw * s.h / s.w; }
-        try { doc.addImage(f.logo, imgFmt(f.logo), M, y, lw, lh); logoH = lh; } catch (e) {}
-      }
-    }
-    var adr = String(f.adresse || "").split("\n").filter(function (l) { return l.trim(); });
-    if (f.name) txt(f.name, W - M, y + 4, 10.5, "bold", null, { align: "right" });
-    adr.forEach(function (l, i) { txt(l, W - M, y + 8.6 + i * 4, 8.5, "normal", [85, 85, 85], { align: "right" }); });
-    y += Math.max(logoH, 6 + adr.length * 4) + 3;
-    doc.setDrawColor(col[0], col[1], col[2]); doc.setLineWidth(1); doc.line(M, y, W - M, y);
-    y += 8;
-
-    doc.setFont("helvetica", "bold"); doc.setFontSize(16);
-    doc.splitTextToSize(pdfSafe("Rapport" + (cur.titel ? ": " + cur.titel : "")), CW).forEach(function (l) {
-      txt(l, M, y, 16, "bold", col); y += 6.8;
-    });
-    txt("Nr. " + cur.nr + "  ·  " + fmtDate(cur.datum) + (cur.ort ? "  ·  " + cur.ort : ""), M, y, 9, "normal", [100, 100, 100]);
-    y += 3;
-
-    section("Ausgeführte Arbeiten");
-    para(cur.text || "-");
-
-    var mats = cur.material.filter(function (m) { return m.n || m.m; });
-    if (mats.length) {
-      section("Material und Menge");
-      table([{ t: "Material", w: CW - 45 }, { t: "Menge", w: 45, r: true }], mats.map(function (m) { return [m.n, m.m]; }));
-    }
-    var arb = cur.arbeiter.filter(function (w) { return w.n || w.a || w.h; });
-    if (arb.length) {
-      section("Arbeitskräfte und Stunden");
-      table([{ t: "Arbeitskraft", w: CW - 90 }, { t: "Anzahl", w: 25, r: true }, { t: "Std je Person", w: 32, r: true }, { t: "Std gesamt", w: 33, r: true }],
-        arb.map(function (w) { var n = anzahl(w), g = n * num(w.h); return [w.n, w.a || (n ? fmtNum(n) : ""), w.h || "", g ? fmtNum(g) : ""]; }),
-        ["Summe", fmtNum(personen(cur)), "", fmtNum(stundenGesamt(cur))]);
-    }
-    if (cur.von || cur.bis) {
-      para("Zeit: " + [cur.von && "Beginn " + cur.von, cur.bis && "Ende " + cur.bis, cur.pause && "Pause " + cur.pause + " Min"].filter(Boolean).join(" · "), 9);
-    }
-    if (cur.fotos.length) para("Fotos: " + cur.fotos.length + " (siehe Anlage)", 9);
-
-    section("Unterschriften");
-    need(38);
-    var colW = (CW - 12) / 2;
-    for (var i = 0; i < SIG.length; i++) {
-      var d = cur[SIG[i][0]], x0 = M + i * (colW + 12), boxH = 22;
-      if (d.sig) {
-        var ss = await imgSize(d.sig);
-        if (ss && ss.w && ss.h) {
-          var sh = boxH, sw = ss.w / ss.h * sh;
-          if (sw > colW) { sw = colW; sh = sw * ss.h / ss.w; }
-          try { doc.addImage(d.sig, "PNG", x0, y + boxH - sh, sw, sh); } catch (e) {}
-        }
-      }
-      doc.setDrawColor(60, 60, 60); doc.setLineWidth(0.3); doc.line(x0, y + boxH + 1, x0 + colW, y + boxH + 1);
-      txt(SIG[i][1] + ": " + (d.name || ""), x0, y + boxH + 5, 8.5, "bold", [50, 50, 50]);
-      txt((d.ort || "") + (d.zeit ? ", " + fmtZeit(d.zeit) : ""), x0, y + boxH + 9, 8.5, "normal", [80, 80, 80]);
-    }
-    y += 22 + 13;
-
-    need(14);
-    doc.setDrawColor(160, 160, 160); doc.setLineWidth(0.2); doc.line(M, y, W - M, y);
-    if (cur.siegel) {
-      txt("Rapport-Nr. " + cur.nr + "  ·  versiegelt am " + fmtZeit(cur.siegel.zeit), M, y + 4, 7.5, "normal", [80, 80, 80]);
-      txt("Prüfsumme (SHA-256): " + cur.siegel.hash, M, y + 8, 7.5, "normal", [80, 80, 80]);
-    } else {
-      txt("Rapport-Nr. " + cur.nr + "  ·  " + (istTest() ? "TESTVERSION, nicht versiegelt" : "ENTWURF, nicht versiegelt und nicht rechtsgültig"), M, y + 4, 7.5, "bold", [160, 40, 40]);
-    }
-
-    /* Anlage Fotos: 2 Spalten, 3 Reihen pro Seite */
-    if (cur.fotos.length) {
-      newPage();
-      txt("Anlage: Fotos", M, y + 2, 13, "bold", col);
-      txt("Rapport-Nr. " + cur.nr + (cur.titel ? "  ·  " + cur.titel : ""), M, y + 8, 9, "normal", [100, 100, 100]);
-      y += 14;
-      var gap = 6, bw = (CW - gap) / 2, bh = 72;
-      for (var k = 0; k < cur.fotos.length; k++) {
-        var fo = cur.fotos[k], col2 = k % 2;
-        if (col2 === 0) need(bh + 8);
-        var data = await fotoGet(fo.id).catch(function () { return null; });
-        var bx = M + col2 * (bw + gap);
-        doc.setFillColor(245, 245, 245); doc.rect(bx, y, bw, bh, "F");
-        if (data) {
-          var is = await imgSize(data);
-          if (is && is.w && is.h) {
-            var sc = Math.min(bw / is.w, bh / is.h), iw = is.w * sc, ih = is.h * sc;
-            try { doc.addImage(data, "JPEG", bx + (bw - iw) / 2, y + (bh - ih) / 2, iw, ih); } catch (e) {}
-          }
-        } else {
-          txt("Foto nicht verfügbar", bx + bw / 2, y + bh / 2, 9, "normal", [150, 150, 150], { align: "center" });
-        }
-        txt("Foto " + (k + 1) + "  ·  " + fmtZeit(fo.t), bx, y + bh + 4, 8, "normal", [90, 90, 90]);
-        if (col2 === 1 || k === cur.fotos.length - 1) y += bh + 8;
-      }
-    }
-
-    var n = doc.getNumberOfPages();
-    for (var pg = 1; pg <= n; pg++) {
-      doc.setPage(pg);
-      txt("Seite " + pg + " von " + n, W - M, H - 8, 7.5, "normal", [150, 150, 150], { align: "right" });
-      txt(cur.nr + "  ·  erstellt mit Regiefix" + (lizenz() && lizenz().test ? " (Testversion)" : ""), M, H - 8, 7.5, "normal", [150, 150, 150]);
-    }
-    return doc.output("blob");
-  }
-  function pdfName() {
-    var t = (cur.titel || "Rapport").replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 40);
-    return cur.nr + " " + t + ".pdf";
-  }
-  function openBlob(blob, name) {
-    var url = URL.createObjectURL(blob);
-    var w = window.open(url, "_blank");
-    if (!w) {
-      var a = document.createElement("a");
-      a.href = url; a.download = name; a.target = "_blank"; a.rel = "noopener";
-      document.body.appendChild(a); a.click(); a.remove();
-    }
-    setTimeout(function () { URL.revokeObjectURL(url); }, 120000);
-  }
-  var pendingShare = null;
-  function shareFile(file) { return navigator.share({ files: [file], title: file.name }); }
-  $("btnPdf").onclick = async function () {
-    stopRec();
-    var btn = $("btnPdf");
-    if (pendingShare) {
-      var pf = pendingShare; pendingShare = null; btn.textContent = "Rapport senden (PDF)";
-      try { await shareFile(pf); } catch (e) { if (e && e.name !== "AbortError") openBlob(pf, pf.name); }
-      return;
-    }
-    btn.disabled = true; btn.textContent = "PDF wird erstellt …";
-    try {
-      var blob = await makePdf();
-      var name = pdfName();
-      var file = new File([blob], name, { type: "application/pdf" });
-      if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-        try { await shareFile(file); btn.textContent = "Rapport senden (PDF)"; }
-        catch (e) {
-          if (e && e.name === "NotAllowedError") { pendingShare = file; btn.textContent = "Jetzt senden"; }
-          else btn.textContent = "Rapport senden (PDF)";
-        }
-      } else {
-        openBlob(blob, name);
-        btn.textContent = "Rapport senden (PDF)";
-      }
-    } catch (e) {
-      alert("PDF konnte nicht erstellt werden.\n" + (e && e.message ? e.message : e));
-      btn.textContent = "Rapport senden (PDF)";
-    } finally { btn.disabled = false; }
-  };
-  $("btnView").onclick = async function () {
-    stopRec();
-    try { var blob = await makePdf(); openBlob(blob, pdfName()); }
-    catch (e) { alert("PDF konnte nicht erstellt werden.\n" + (e && e.message ? e.message : e)); }
-  };
-
-  /* ---------- Siegeldatei (mit Fotos) ---------- */
-  async function siegelFile(r) {
-    var fotos = {};
-    for (var i = 0; i < r.fotos.length; i++) {
-      var d = await fotoGet(r.fotos[i].id).catch(function () { return null; });
-      if (d) fotos[r.fotos[i].id] = d;
-    }
-    var blob = new Blob([JSON.stringify({ format: "rapport-siegel-2", rapport: r, fotos: fotos })], { type: "application/json" });
-    return new File([blob], r.nr + ".rapport.json", { type: "application/json" });
-  }
-  $("btnShare").onclick = async function () {
-    if (!cur.siegel) return;
-    var file = await siegelFile(cur);
-    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: file.name }).catch(function () {});
-    } else {
-      var url = URL.createObjectURL(file);
-      var a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-    }
-  };
-
-  /* ---------- Rapport prüfen ---------- */
-  $("btnPruefen").onclick = function () { $("impFile").click(); };
-  $("impFile").onchange = function () {
-    var file = $("impFile").files[0];
-    $("impFile").value = "";
-    if (!file) return;
-    var fr = new FileReader();
-    fr.onload = async function () {
-      var obj, r;
-      try { obj = JSON.parse(fr.result); r = norm(obj.rapport); } catch (e) { alert("Das ist keine gültige Siegeldatei."); return; }
-      if (!r || !r.siegel || !r.siegel.hash) { alert("Diese Datei enthält keinen versiegelten Rapport."); return; }
-      var ok = await siegelGueltig(r);
-      var fs = await fotosGueltig(r, obj.fotos || {});
-      var info = "Nr. " + r.nr + "\n" + (r.titel || "Ohne Titel") + "\n" + fmtDate(r.datum);
-      if (!ok || fs.falsch) { alert("UNGÜLTIG: Die Daten wurden verändert.\n\n" + info); return; }
-      var fotoHinweis = fs.fehlt ? "\n\nHinweis: " + fs.fehlt + " Foto(s) sind nicht in der Datei." : "";
-      if (idx(r.id) >= 0) { alert("Unverändert ✓ (Siegel gültig)\n\n" + info + fotoHinweis + "\n\nDieser Rapport ist schon in deiner Liste."); return; }
-      if (confirm("Unverändert ✓ (Siegel gültig)\n\n" + info + fotoHinweis + "\n\nIn meine Liste übernehmen?")) {
-        var fd = obj.fotos || {};
-        for (var i = 0; i < r.fotos.length; i++) { if (fd[r.fotos[i].id]) await fotoPut(r.fotos[i].id, fd[r.fotos[i].id]).catch(function () {}); }
-        rapporte.unshift(r); persist(); showList();
-      }
-    };
-    fr.readAsText(file);
-  };
-
-  window.__rapportTest = { diktatZerlegen: diktatZerlegen, zahlAusSprache: zahlAusSprache, einheiten: einheiten, sha256js: function (s) { return sha256js(utf8Bytes(s)); } };
-
-  /* ---------- Start ---------- */
-  $("appVer").textContent = "Version " + APP_VERSION;
-  var m0 = "system"; try { m0 = localStorage.getItem("darstellung") || "system"; } catch (e) {}
-  setMode(m0);
-
-  var hashToken = "";
-  if (/^#setup=/.test(location.hash)) {
-    hashToken = location.hash.slice(7);
-    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
-  }
-  if (profil && !profilGueltig(profil)) profil = null;
-  firmaAusProfil();
-  if (hashToken) {
-    openSetup(!!profil);
-    codeErhalten(hashToken);
-  } else if (profil) {
-    showList();
-    if (!profil.firma.logo) {
-      var pr0 = profil;
-      upgradeAltprofil(pr0).then(function (ok) {
-        if (ok) return true;
-        return pr0.firma.logoFile ? ladeLogo(pr0) : false;
-      }).then(function (ok) {
-        if (ok) { persistProfil(); firmaAusProfil(); applyTheme(firma.farbe); renderBrand(); }
-        else { persistProfil(); }
-        zeigeLogoWarnung();
-      });
-    }
-  } else {
-    openSetup(false);
-  }
-
-  /* Einrichtungs-Link geöffnet, während die App schon offen ist */
-  window.addEventListener("hashchange", function () {
-    if (!/^#setup=/.test(location.hash)) return;
-    var t = location.hash.slice(7);
-    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
-    stopRec();
-    openSetup(!!profil);
-    codeErhalten(t);
-  });
-
-  (function updateCheck() {
-    if (!window.fetch) return;
-    fetch("index.html?check=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
-      var m = t.match(/APP_VERSION = "([^"]+)"/);
-      if (!m || m[1] === APP_VERSION) { try { sessionStorage.removeItem("updTry"); } catch (e) {} return; }
-      var tried = "";
-      try { tried = sessionStorage.getItem("updTry") || ""; } catch (e) {}
-      if (tried === m[1]) return;
-      try { sessionStorage.setItem("updTry", m[1]); } catch (e) {}
-      var go = function () { location.replace(location.pathname + "?v=" + encodeURIComponent(m[1])); };
-      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-        navigator.serviceWorker.getRegistrations().then(function (rs) {
-          return Promise.all(rs.map(function (r) { return r.update().catch(function () {}); }));
-        }).then(function () {
-          return window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }) : null;
-        }).then(go, go);
-      } else go();
-    }).catch(function () {});
+    return { oeffnen: oeffnen };
   })();
 
-  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
-    navigator.serviceWorker.register("sw.js").catch(function () {});
+  function unterschrift(box, bei) {
+    var name = box.getAttribute('data-n');
+    var titel = box.querySelector('.stitel');
+    var knopf = box.querySelector('.sknopf');
+    var vor = box.querySelector('.svor');
+    var basis = null;
+
+    function zeigeZu(url) {
+      if (url) {
+        vor.src = url;
+        vor.removeAttribute('hidden');
+        knopf.textContent = 'Ändern';
+        titel.textContent = '✓ Unterschrift ' + name;
+      } else {
+        vor.removeAttribute('src');
+        vor.setAttribute('hidden', '');
+        knopf.textContent = 'Unterschreiben';
+        titel.textContent = 'Unterschrift ' + name;
+      }
+    }
+    function setzen(url) {
+      basis = url || null;
+      zeigeZu(basis);
+    }
+    function wert() { return basis; }
+
+    knopf.addEventListener('click', function () {
+      pad.oeffnen(name, basis, function (neu) {
+        basis = neu;
+        zeigeZu(neu);
+        bei();
+        sofort();
+      });
+    });
+    return { wert: wert, setzen: setzen };
   }
+
+  var boxen = document.querySelectorAll('.sbox');
+  var sigGeber = unterschrift(boxen[0], function () { planen(); });
+  var sigNehmer = unterschrift(boxen[1], function () { planen(); });
+
+  /* ---------- Berichte speichern ---------- */
+  var aktuell = null;
+  var timer = null;
+
+  function alleLaden() {
+    try {
+      var r = JSON.parse(laden(SPEICHER) || '[]');
+      return Array.isArray(r) ? r : [];
+    } catch (e) { return []; }
+  }
+  function alleSchreiben(arr) {
+    try { localStorage.setItem(SPEICHER, JSON.stringify(arr)); return true; }
+    catch (e) { return false; }
+  }
+  function heute() {
+    var h = new Date();
+    return ('0' + h.getDate()).slice(-2) + '.' + ('0' + (h.getMonth() + 1)).slice(-2) + '.' + h.getFullYear();
+  }
+  function neueId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function wert(i) { return id(i).value.trim(); }
+
+  function sammeln() {
+    var b = {
+      id: aktuell.id,
+      geaendert: Date.now(),
+      baustelle: wert('baustelle'),
+      ort: wert('ort'),
+      datum: wert('datum'),
+      arbeiten: wert('arbeiten'),
+      kraefte: [],
+      sig1: sigGeber.wert(),
+      sig2: sigNehmer.wert()
+    };
+    var zeilen = kraefte.querySelectorAll('.kraft');
+    for (var i = 0; i < zeilen.length; i++) {
+      var a = zeilen[i].querySelector('.art').value.trim();
+      var s = zeilen[i].querySelector('.std').value.trim();
+      if (a || s) b.kraefte.push({ art: a, std: s });
+    }
+    return b;
+  }
+  function istLeer(b) {
+    return !b.baustelle && !b.ort && !b.arbeiten && b.kraefte.length === 0 && !b.sig1 && !b.sig2;
+  }
+  function findIndex(arr, bid) {
+    for (var i = 0; i < arr.length; i++) if (arr[i].id === bid) return i;
+    return -1;
+  }
+  function sichern() {
+    if (!aktuell) return true;
+    var b = sammeln();
+    aktuell = b;
+    var arr = alleLaden();
+    var i = findIndex(arr, b.id);
+    if (istLeer(b) && i < 0) return true;
+    if (i >= 0) {
+      arr[i] = b;
+    } else {
+      if (arr.length >= LIMIT) {
+        fehlerFeld.textContent = 'Lite speichert bis zu ' + LIMIT + ' Berichte. Lösche einen alten Bericht.';
+        return false;
+      }
+      arr.push(b);
+    }
+    var ok = alleSchreiben(arr);
+    if (!ok) fehlerFeld.textContent = 'Speichern nicht möglich. Der Speicher ist voll oder gesperrt.';
+    return ok;
+  }
+  planen = function () {
+    clearTimeout(timer);
+    timer = setTimeout(sichern, 500);
+  };
+  function sofort() {
+    clearTimeout(timer);
+    return sichern();
+  }
+
+  id('formular').addEventListener('input', function () {
+    fehlerFeld.textContent = '';
+    id('berichtTitel').textContent = wert('baustelle') || 'Neuer Regiebericht';
+    planen();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') sofort();
+  });
+  window.addEventListener('pagehide', function () { sofort(); });
+
+  /* ---------- Ansichten ---------- */
+  function fuellen(b) {
+    id('baustelle').value = b.baustelle || '';
+    id('ort').value = b.ort || '';
+    id('datum').value = b.datum || heute();
+    id('arbeiten').value = b.arbeiten || '';
+    kraefte.innerHTML = '';
+    var liste = b.kraefte && b.kraefte.length ? b.kraefte : [{ art: '', std: '' }];
+    for (var i = 0; i < liste.length; i++) neueZeile(liste[i].art, liste[i].std);
+    sigGeber.setzen(b.sig1);
+    sigNehmer.setzen(b.sig2);
+    fehlerFeld.textContent = '';
+    id('berichtTitel').textContent = b.baustelle || 'Neuer Regiebericht';
+  }
+  function zeigeBericht(b) {
+    aktuell = b;
+    fuellen(b);
+    id('kopfListe').setAttribute('hidden', '');
+    id('ansichtListe').setAttribute('hidden', '');
+    id('kopfBericht').removeAttribute('hidden');
+    id('ansichtBericht').removeAttribute('hidden');
+    window.scrollTo(0, 0);
+  }
+  function statusText(b) { return b.sig1 && b.sig2 ? 'Unterschrieben' : 'Offen'; }
+
+  function listeZeichnen() {
+    var arr = alleLaden();
+    arr.sort(function (a, b) { return (b.geaendert || 0) - (a.geaendert || 0); });
+    var box = id('liste');
+    box.innerHTML = '';
+    id('leer').toggleAttribute('hidden', arr.length > 0);
+    var voll = arr.length >= LIMIT;
+    id('zaehlerzahl').textContent = arr.length + ' von ' + LIMIT;
+    id('neu').classList.toggle('voll', voll);
+    id('limitHinweis').toggleAttribute('hidden', !voll);
+    arr.forEach(function (b) {
+      var e = document.createElement('button');
+      e.type = 'button';
+      e.className = 'eintrag';
+
+      var t = document.createElement('span');
+      t.className = 'etext';
+      var t1 = document.createElement('span');
+      t1.className = 'etitel';
+      t1.textContent = b.baustelle || 'Ohne Namen';
+      var t2 = document.createElement('span');
+      t2.className = 'esub';
+      t2.textContent = [b.datum, b.ort].filter(function (v) { return v; }).join(' · ');
+      t.appendChild(t1);
+      t.appendChild(t2);
+
+      var st = document.createElement('span');
+      var fertig = !!(b.sig1 && b.sig2);
+      st.className = 'status ' + (fertig ? 'fertig' : 'offen');
+      st.textContent = statusText(b);
+
+      var pf = document.createElement('span');
+      pf.className = 'pfeil';
+      pf.setAttribute('aria-hidden', 'true');
+      pf.textContent = '›';
+
+      e.appendChild(t);
+      e.appendChild(st);
+      e.appendChild(pf);
+      e.addEventListener('click', function () { zeigeBericht(b); });
+      box.appendChild(e);
+    });
+  }
+  function zeigeListe() {
+    sofort();
+    aktuell = null;
+    id('kopfBericht').setAttribute('hidden', '');
+    id('ansichtBericht').setAttribute('hidden', '');
+    id('kopfListe').removeAttribute('hidden');
+    id('ansichtListe').removeAttribute('hidden');
+    listeZeichnen();
+    window.scrollTo(0, 0);
+  }
+
+  id('neu').addEventListener('click', function () {
+    if (alleLaden().length >= LIMIT) {
+      id('limitHinweis').removeAttribute('hidden');
+      id('limitHinweis').scrollIntoView({ block: 'nearest' });
+      return;
+    }
+    zeigeBericht({
+      id: neueId(), geaendert: Date.now(), baustelle: '', ort: '', datum: heute(),
+      arbeiten: '', kraefte: [], sig1: null, sig2: null
+    });
+  });
+  id('zurueck').addEventListener('click', zeigeListe);
+  id('loeschen').addEventListener('click', function () {
+    if (!window.confirm('Diesen Regiebericht löschen?')) return;
+    clearTimeout(timer);
+    var bid = aktuell ? aktuell.id : null;
+    aktuell = null;
+    if (bid) {
+      var arr = alleLaden();
+      var i = findIndex(arr, bid);
+      if (i >= 0) { arr.splice(i, 1); alleSchreiben(arr); }
+    }
+    zeigeListe();
+  });
+
+  /* ---------- PDF ---------- */
+  var zahl = RF.zahl, zahlText = RF.zahlText;
+  function dateiname(baustelle, datum) {
+    var rein = (baustelle + '-' + datum)
+      .replace(/[^a-zA-Z0-9äöüÄÖÜß.\-]+/g, '-')
+      .replace(/-+/g, '-');
+    return 'Regiebericht-' + rein + '.pdf';
+  }
+  function pdfLaden(fertig) {
+    if (window.jspdf) { fertig(true); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = function () { fertig(!!window.jspdf); };
+    s.onerror = function () { fertig(false); };
+    document.head.appendChild(s);
+  }
+
+  function pdfBauen(modus, b) {
+    var leute = [];
+    var summe = 0;
+    for (var i = 0; i < b.kraefte.length; i++) {
+      leute.push({ art: b.kraefte[i].art || '–', std: b.kraefte[i].std });
+      summe += zahl(b.kraefte[i].std);
+    }
+
+    var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+    var breite = 210;
+    var rand = 18;
+    var unten = 275;
+    var y;
+
+    function kopfZeichnen() {
+      doc.setFillColor(24, 95, 165);
+      doc.rect(0, 0, breite, 28, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('Regiebericht', rand, 18);
+      var zeilen = [];
+      var fName = wert('firma');
+      var fAdr = [wert('firmastrasse'), wert('firmaort')].filter(function (v) { return v; }).join(' \u00b7 ');
+      var fTel = wert('firmatel');
+      if (fName) zeilen.push({ t: fName, gross: true });
+      if (fAdr) zeilen.push({ t: fAdr, gross: false });
+      if (fTel) zeilen.push({ t: 'Tel. ' + fTel, gross: false });
+      var abstand = 5;
+      var yy = 14 + 3.5 - (zeilen.length - 1) * abstand / 2;
+      for (var zi = 0; zi < zeilen.length; zi++) {
+        if (zeilen[zi].gross) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(12);
+          doc.setTextColor(255, 255, 255);
+        } else {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(207, 226, 246);
+        }
+        doc.text(doc.splitTextToSize(zeilen[zi].t, 95)[0], breite - rand, yy + zi * abstand, { align: 'right' });
+      }
+    }
+    function fussZeichnen() {
+      try { doc.addImage(LOGO_PNG, 'PNG', rand, 284.3, 3.6, 3.6); } catch (e) {}
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(176, 186, 198);
+      doc.text('Regiefix', rand + 5, 287.1);
+    }
+    function platz(mm) {
+      if (y + mm > unten) {
+        fussZeichnen();
+        doc.addPage();
+        kopfZeichnen();
+        y = 42;
+      }
+    }
+
+    kopfZeichnen();
+    y = 42;
+
+    function feld(titel, text) {
+      var zl = doc.splitTextToSize(text || '–', breite - 2 * rand);
+      platz(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(90, 107, 125);
+      doc.text(titel, rand, y);
+      y += 5.5;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(19, 32, 46);
+      for (var j = 0; j < zl.length; j++) {
+        platz(6);
+        doc.text(zl[j], rand, y);
+        y += 5.8;
+      }
+      y += 6;
+    }
+
+    feld('BAUSTELLE', b.baustelle);
+    feld('ORT', b.ort);
+    feld('DATUM', b.datum);
+    feld('AUSGEFÜHRTE ARBEITEN', b.arbeiten);
+
+    platz(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(90, 107, 125);
+    doc.text('ARBEITSKRAFT', rand, y);
+    doc.text('STUNDEN', breite - rand, y, { align: 'right' });
+    y += 3;
+    doc.setDrawColor(213, 222, 232);
+    doc.line(rand, y, breite - rand, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor(19, 32, 46);
+    if (leute.length === 0) {
+      doc.text('–', rand, y);
+      y += 7;
+    }
+    for (var n = 0; n < leute.length; n++) {
+      platz(8);
+      doc.text(leute[n].art, rand, y);
+      doc.text(leute[n].std || '–', breite - rand, y, { align: 'right' });
+      y += 7;
+    }
+    if (leute.length > 0) {
+      platz(10);
+      doc.line(rand, y - 3, breite - rand, y - 3);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Summe', rand, y + 2);
+      doc.text(zahlText(summe), breite - rand, y + 2, { align: 'right' });
+      y += 12;
+    }
+
+    function pngMasse(u) {
+      try {
+        var bin = atob(u.split(',')[1].slice(0, 40));
+        var r = function (o) {
+          return (bin.charCodeAt(o) * 16777216) + (bin.charCodeAt(o + 1) << 16) + (bin.charCodeAt(o + 2) << 8) + bin.charCodeAt(o + 3);
+        };
+        return [r(16), r(20)];
+      } catch (e) { return [640, 220]; }
+    }
+    function sigZeichnen(url, x0, top) {
+      if (!url) return;
+      var m = pngMasse(url);
+      var k = Math.min(78 / m[0], 27 / m[1]);
+      var dw = m[0] * k, dh = m[1] * k;
+      doc.addImage(url, 'PNG', x0 + (78 - dw) / 2, top + 27.5 - dh, dw, dh);
+    }
+
+    platz(48);
+    var sigBreite = 78;
+    var rechts = breite - rand - sigBreite;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(90, 107, 125);
+    doc.text('AUFTRAGGEBER', rand, y);
+    doc.text('AUFTRAGNEHMER', rechts, y);
+    y += 3;
+    sigZeichnen(b.sig1, rand, y);
+    sigZeichnen(b.sig2, rechts, y);
+    y += 28;
+    doc.setDrawColor(150, 160, 172);
+    doc.line(rand, y, rand + sigBreite, y);
+    doc.line(rechts, y, rechts + sigBreite, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 134, 150);
+    doc.text('Unterschrift', rand, y + 4.5);
+    doc.text('Unterschrift', rechts, y + 4.5);
+
+    fussZeichnen();
+
+    var name = dateiname(b.baustelle, b.datum);
+    var blob = doc.output('blob');
+
+    if (modus === 'ansehen') {
+      RF.openBlob(blob, name);
+      return;
+    }
+
+    var datei = new File([blob], name, { type: 'application/pdf' });
+    if (RF.kannTeilen(datei)) {
+      RF.teilen(datei).catch(function () {});
+    } else {
+      doc.save(name);
+    }
+  }
+
+  function pdfStarten(modus) {
+    if (!aktuell) return;
+    var b = sammeln();
+    if (!b.baustelle) {
+      fehlerFeld.textContent = 'Trag eine Baustelle ein.';
+      id('baustelle').focus();
+      return;
+    }
+    sofort();
+    pdfLaden(function (ok) {
+      if (!ok) {
+        fehlerFeld.textContent = 'Die PDF-Funktion ist nicht geladen. Prüf deine Verbindung und lad die Seite neu.';
+        return;
+      }
+      pdfBauen(modus, b);
+    });
+  }
+  id('knopf').addEventListener('click', function () { pdfStarten('senden'); });
+  id('knopfansicht').addEventListener('click', function () { pdfStarten('ansehen'); });
+
+  var intro = id('intro');
+  var introHaken = id('introhaken');
+  if (laden('rflite-intro') !== '1') intro.removeAttribute('hidden');
+  introHaken.addEventListener('change', function () {
+    id('introinfo').textContent = introHaken.checked
+      ? 'Diese Seite kommt nicht wieder.'
+      : 'Ohne Häkchen kommt diese Seite beim nächsten Öffnen wieder.';
+  });
+  id('introok').addEventListener('click', function () {
+    if (introHaken.checked) speichern('rflite-intro', '1');
+    intro.setAttribute('hidden', '');
+    window.scrollTo(0, 0);
+  });
+
+  listeZeichnen();
+  RF.updateCheck(APP_VERSION);
 })();
 </script>
-<div id="haken" aria-live="polite"><div class="hk"><svg viewBox="62 66 78 59"><path pathLength="1" d="M72 95 L92 115 L130 76"/></svg><div class="hkT" id="hakenT"></div></div></div>
 </body>
 </html>

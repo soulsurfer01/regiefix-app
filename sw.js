@@ -1,5 +1,5 @@
-const CACHE = "regiefix-1.0.9";
-const FILES = ["./", "./index.html", "./manifest.json", "./regiefix-180.png", "./regiefix-167.png", "./regiefix-152.png", "./regiefix-120.png", "./regiefix-192.png", "./regiefix-512.png", "./regiefix-1024.png", "./jspdf.umd.min.js", "./nacl-fast.min.js", "./jsQR.js"];
+const CACHE = "regiefix-1.0.12";
+const FILES = ["./", "./index.html", "./manifest.json", "./regiefix-180.png", "./regiefix-167.png", "./regiefix-152.png", "./regiefix-120.png", "./regiefix-192.png", "./regiefix-512.png", "./regiefix-1024.png", "./kern.js", "./jspdf.umd.min.js", "./nacl-fast.min.js", "./jsQR.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));
